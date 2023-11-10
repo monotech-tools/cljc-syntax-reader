@@ -1,6 +1,7 @@
 
 (ns syntax-reader.check
-    (:require [string.api :as string]))
+    (:require [string.api          :as string]
+              [syntax-reader.utils :as utils]))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
@@ -48,7 +49,7 @@
   ;  :quote-open-tag (string)(opt)
   ;   Default: "\""}
   ; @param (map)(opt) options
-  ; {:ignore-quotes? (boolean)(opt)
+  ; {:ignore-quoted? (boolean)(opt)
   ;   Default: true
   ;  :ignore-escaped? (boolean)(opt)
   ;   Default: true}
@@ -73,7 +74,8 @@
   ([n cursor tags]
    (position-commented? n cursor tags {}))
 
-  ([n cursor tags options]))
+  ([n cursor tags options]
+   (let [tags (-> tags utils/default-comment-tags utils/default-quote-tags)])))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
@@ -93,7 +95,7 @@
   ;  :quote-open-tag (string)(opt)
   ;   Default: "\""}
   ; @param (map)(opt) options
-  ; {:ignore-comments? (boolean)(opt)
+  ; {:ignore-commented? (boolean)(opt)
   ;   Default: true
   ;  :ignore-escaped? (boolean)(opt)
   ;   Default: true}
@@ -118,4 +120,5 @@
   ([n cursor tags]
    (position-quoted? n cursor tags {}))
 
-  ([n cursor tags options]))
+  ([n cursor tags options]
+   (let [tags (-> tags utils/default-comment-tags utils/default-quote-tags)])))

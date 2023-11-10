@@ -2,8 +2,9 @@
 (ns syntax-reader.api
     (:require [syntax-reader.check       :as check]
               [syntax-reader.comment     :as comment]
-              [syntax.interpreter :as interpreter]
-              [syntax.tags        :as tags]))
+              [syntax-reader.interpreter :as interpreter]
+              [syntax-reader.tags        :as tags]
+              [syntax-reader.utils       :as utils]))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
@@ -21,14 +22,18 @@
 (def grey-zones    interpreter/grey-zones)
 
 ; syntax-reader.tags
-(def tag-position           tags/tag-position)
-(def tag-count              tags/tag-count)
-(def tags-balanced?         tags/tags-balanced?)
-(def open-tag-position      tags/open-tag-position)
-(def close-tag-position     tags/close-tag-position)
-(def open-brace-position    tags/open-brace-position)
-(def close-brace-position   tags/close-brace-position)
-(def open-bracket-position  tags/open-bracket-position)
-(def close-bracket-position tags/close-bracket-position)
-(def open-paren-position    tags/open-paren-position)
-(def close-paren-position   tags/close-paren-position)
+(def tag-first-position       tags/tag-first-position)
+(def tag-count                tags/tag-count)
+(def tags-balanced?           tags/tags-balanced?)
+(def tag-opening-position     tags/tag-opening-position)
+(def tag-closing-position     tags/tag-closing-position)
+(def brace-opening-position   tags/brace-opening-position)
+(def brace-closing-position   tags/brace-closing-position)
+(def bracket-opening-position tags/bracket-opening-position)
+(def bracket-closing-position tags/bracket-closing-position)
+(def paren-opening-position   tags/paren-opening-position)
+(def paren-closing-position   tags/paren-closing-position)
+
+; syntax-reader.utils
+(def default-comment-tags utils/default-comment-tags)
+(def default-quote-tags   utils/default-quote-tags)
