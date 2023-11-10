@@ -1,5 +1,5 @@
 
-(ns syntax.tags
+(ns syntax-reader.tags
     (:require [string.api   :as string]
               [syntax.check :as check]))
 

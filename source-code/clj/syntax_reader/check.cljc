@@ -1,11 +1,31 @@
 
-(ns syntax.check
+(ns syntax-reader.check
     (:require [string.api :as string]))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
 
 (defn position-escaped?
+  ; @description
+  ; Returns whether a specific cursor position in the given 'n' string is preceeded by an escape character.
+  ;
+  ; @param (string) n
+  ; @param (integer) cursor
+  ;
+  ; @usage
+  ; (position-escaped "My string\n" 10)
+  ;
+  ; @example
+  ; (position-escaped "My string\n" 10)
+  ; =>
+  ; true
+  ;
+  ; @example
+  ; (position-escaped "My string\n" 9)
+  ; =>
+  ; false
+  ;
+  ; @return (boolean)
   [n cursor]
   (and (-> cursor zero? not)
        (= "\\" (subs n (dec cursor) cursor))))
@@ -15,15 +35,23 @@
 
 (defn position-commented?
   ; @description
-  ; - Returns TRUE if the given cursor in the 'n' string is in a commented section.
-  ; - Quoted comment tags might cause false output.
+  ; Returns whether the given cursor position in the 'n' string falls within a commented zone.
   ;
   ; @param (string) n
   ; @param (dex) cursor
-  ; @param (string) comment-open-tag
-  ; Default: ";"
-  ; @param (string)(opt) comment-close-tag
-  ; Default: "\n"
+  ; @param (map)(opt) tags
+  ; {:comment-close-tag (string)(opt)
+  ;   Default: "\n"
+  ;  :comment-open-tag (string)(opt)
+  ;   Default: ";"
+  ;  :quote-close-tag (string)(opt)
+  ;  :quote-open-tag (string)(opt)
+  ;   Default: "\""}
+  ; @param (map)(opt) options
+  ; {:ignore-quotes? (boolean)(opt)
+  ;   Default: true
+  ;  :ignore-escaped? (boolean)(opt)
+  ;   Default: true}
   ;
   ; @usage
   ; (position-commented? "(defn my-function [])\n ; My comment\n" 5)
@@ -40,47 +68,54 @@
   ;
   ; @return (boolean)
   ([n cursor]
-   (position-commented? n cursor ";" "\n"))
+   (position-commented? n cursor {} {}))
 
-  ([n cursor comment-open-tag]
-   (position-commented? n cursor comment-open-tag "\n"))
+  ([n cursor tags]
+   (position-commented? n cursor tags {}))
 
-  ([n cursor comment-open-tag comment-close-tag]
-   (boolean (let [observed-part (string/part n 0 cursor)]
-                 (if-let [last-open-pos (string/last-dex-of observed-part comment-open-tag)]
-                         (-> n (string/part last-open-pos cursor)
-                               (string/contains-part? comment-close-tag)
-                               (not)))))))
+  ([n cursor tags options]))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
 
 (defn position-quoted?
   ; @description
-  ; Returns TRUE if the given cursor in the 'n' string is in a quoted section.
+  ; Returns whether the given cursor position in the 'n' string falls within a quoted zone.
   ;
   ; @param (string) n
   ; @param (dex) cursor
-  ; @param (map)(opt) options
+  ; @param (map)(opt) tags
   ; {:comment-close-tag (string)(opt)
   ;   Default: "\n"
   ;  :comment-open-tag (string)(opt)
-  ;   Default ";"
-  ;  :ignore-comments? (boolean)(opt)
-  ;   Default: false}
+  ;   Default: ";"
+  ;  :quote-close-tag (string)(opt)
+  ;  :quote-open-tag (string)(opt)
+  ;   Default: "\""}
+  ; @param (map)(opt) options
+  ; {:ignore-comments? (boolean)(opt)
+  ;   Default: true
+  ;  :ignore-escaped? (boolean)(opt)
+  ;   Default: true}
   ;
   ; @usage
-  ; (position-quoted? "\"My quote\" My string" 3)
+  ; (position-quoted? "(defn my-function [] \"My quote\")" 5)
   ;
   ; @example
-  ; (position-quoted? "\"My quote\" My string" 3)
-  ; =>
-  ; true
-  ;
-  ; @example
-  ; (position-quoted? "\"My quote\" My string" 13)
+  ; (position-quoted? "(defn my-function [] \"My quote\")" 5)
   ; =>
   ; false
   ;
+  ; @example
+  ; (position-quoted? "(defn my-function [] \"My quote\")" 25)
+  ; =>
+  ; true
+  ;
   ; @return (boolean)
-  [n cursor])
+  ([n cursor]
+   (position-quoted? n cursor {} {}))
+
+  ([n cursor tags]
+   (position-quoted? n cursor tags {}))
+
+  ([n cursor tags options]))

@@ -1,5 +1,5 @@
 
-(ns syntax.interpreter
+(ns syntax-reader.interpreter
     (:require [string.api   :as string]
               [syntax.check :as check]
               [vector.api   :as vector]))
@@ -93,14 +93,21 @@
   ; {:commented (integer pairs in vectors in vector)
   ;  :quoted (integer pairs in vectors in vector)}
   [n {:keys [comment-close-tag quote-close-tag] :as tags} options]
-  (letfn [; - Returns a vector with the updated 'grey-zones' map and 'tag-positions' map.
+  (letfn [; - The 'tag-positions' function couldn't handle duplicated tags with the same value, therefore
+          ;   it is not allowed to the comment and quote closing tags to be the same as their opening pairs.
+          ; - If the comment / quote closing tag is provided as the same as their opening pair this function removes
+          ;   the comment / quote closing tag (the other subfunctions will handle the single tags).
+          (f0 [tags] (as-> tags % (if (= (:comment-close-tag %) (:comment-open-tag %)) (dissoc :comment-close-tag %) %)
+                                  (if (= (:quote-close-tag   %) (:quote-open-tag   %)) (dissoc :quote-close-tag   %) %)))
+
+          ; - Returns a vector with the updated 'grey-zones' map and 'tag-positions' map.
           ; - Adds the first commented / quoted zone's boundaries (as an integer pair in a vector) as a new zone to the ':commented' / ':quoted' vector
           ;   in the 'grey-zones' map and updates the 'tag-positions' map by removing that boundaries from it.
           ; - It calculates the zone's end boundary by adding the closing tag's length to the closing tag's position.
           ; - If there is no ':comment-close-tag' / ':quote-close-tag' passed to the main function it uses the ':comment-open-tag' / ':quote-open-tag'
           ;   as a closing tag and it works like that is every second item in the ':comment-open-tag' / ':quote-open-tag' positions vector is a closing position.
           ; - The passed 'keys' vector determines whether this function works on a commented zone or a quoted zone.
-          ; - The 'f1' function only applies this ('f0') function if there is at least one item in the ':comment-open-tag' / ':quote-open-tag' vector
+          ; - The 'f2' function only applies this ('f1') function if there is at least one item in the ':comment-open-tag' / ':quote-open-tag' vector
           ;   therefore in this function there is no need to check whether the first item is presented in that vectors.
           ;
           ; @param (integer pairs in vectors in vector) grey-zones
@@ -108,15 +115,15 @@
           ; @param (keywords in vector) keys
           ;
           ; @example
-          ; (f0 {:commented []} {:comment-open-tag [12 16 42 46 56 64]} [:comment-open-tag :comment-close-tag :comments])
+          ; (f1 {:commented []} {:comment-open-tag [12 16 42 46 56 64]} [:comment-open-tag :comment-close-tag :comments])
           ; =>
           ; [{:commented [12 17]} {:comment-open-tag [42 46 56 64]}]
           ;
           ; @example
-          ; (f0 {:commented []} {:comment-open-tag [12 42 56] :comment-close-tag [16 46 64]} [:comment-open-tag :comment-close-tag :comments])
+          ; (f1 {:commented []} {:comment-open-tag [12 42 56] :comment-close-tag [16 46 64]} [:comment-open-tag :comment-close-tag :comments])
           ; =>
           ; [{:commented [12 17]} {:comment-open-tag [42 56] :comment-close-tag [46 64]}]
-          (f0 [grey-zones tag-positions [open-tag-key close-tag-key zone-name-key]]
+          (f1 [grey-zones tag-positions [open-tag-key close-tag-key zone-name-key]]
               (cond ; If the ':comment-close-tag' / ':quote-close-tag' is passed ...
                     (some? comment-close-tag)
                     (let [zone-open  (-> tag-positions open-tag-key  first)
@@ -137,8 +144,8 @@
                                          (-> tag-positions (assoc open-tag-key []))]))))
 
           ; - ...
-          ; - It only applies the 'f0' function if there is at least one item in the ':comment-open-tag' / ':quote-open-tag' vector.
-          (f1 [grey-zones tag-positions]
+          ; - It only applies the 'f1' function if there is at least one item in the ':comment-open-tag' / ':quote-open-tag' vector.
+          (f2 [grey-zones tag-positions]
               (let [first-comment-open (-> tag-positions :comment-open-tag first)
                     first-quote-open   (-> tag-positions :quote-open-tag   first)]
                    (cond ; If there is no more comment / quote opening position in the 'tag-positions' map.
@@ -147,58 +154,23 @@
                          (-> grey-zones)
                          ; If there is only a comment opening position in the 'tag-positions' map.
                          (nil? first-quote-open)
-                         (let [[grey-zones tag-positions] (f0 grey-zones tag-positions [:comment-open-tag :comment-close-tag :comments])]
-                              (f1 grey-zones tag-positions))
+                         (let [[grey-zones tag-positions] (f1 grey-zones tag-positions [:comment-open-tag :comment-close-tag :comments])]
+                              (f2 grey-zones tag-positions))
                          ; If there is only a quote opening position in the 'tag-positions' map.
                          (nil? first-comment-open)
-                         (let [[grey-zones tag-positions] (f0 grey-zones tag-positions [:quote-open-tag :quote-close-tag :quotes])]
-                              (f1 grey-zones tag-positions))
+                         (let [[grey-zones tag-positions] (f1 grey-zones tag-positions [:quote-open-tag :quote-close-tag :quotes])]
+                              (f2 grey-zones tag-positions))
                          ; If the first commented zone starts earlier than the first quoted zone in the 'tag-positions' map.
                          (< first-comment-open first-quote-open)
-                         (let [[grey-zones tag-positions] (f0 grey-zones tag-positions [:comment-open-tag :comment-close-tag :comments])]
-                              (f1 grey-zones tag-positions))
+                         (let [[grey-zones tag-positions] (f1 grey-zones tag-positions [:comment-open-tag :comment-close-tag :comments])]
+                              (f2 grey-zones tag-positions))
                          ; If the first quoted zone starts earlier than the first commented zone in the 'tag-positions' map.
                          (> first-comment-open first-quote-open)
-                         (let [[grey-zones tag-positions] (f0 grey-zones tag-positions [:quote-open-tag :quote-close-tag :quotes])]
-                              (f1 grey-zones tag-positions))
+                         (let [[grey-zones tag-positions] (f1 grey-zones tag-positions [:quote-open-tag :quote-close-tag :quotes])]
+                              (f2 grey-zones tag-positions))
                          ; There is no possible outcome where two positions could be the same!
                          (= first-comment-open first-quote-open)
                          :the-tag-positions-function-returns-a-positions-map-with-no-duplicated-positions)))]
 
          ; ...
-         (f1 [] (tag-positions n tags options))))
-
-;; ----------------------------------------------------------------------------
-;; ----------------------------------------------------------------------------
-
-(defn interpreter
-  ; @param (string) n
-  ; @param (map) options
-  ; {:ignore-comments? (boolean)(opt)
-  ;   To use this option, provide the ':comment' value in the ':tags' property!
-  ;   Default: false
-  ;  :ignore-quotes? (boolean)(opt)
-  ;   To use this option, provide the ':quote' value in the ':tags' property!
-  ;   Default: false
-  ;  :ignore-escaped? (boolean)(opt)
-  ;   Default: true
-  ;  :tags (map)
-  ;   {:my-tag-name (strings in vector)
-  ;     [(string) open-tag
-  ;      (string) close-tag]}}
-  ;   Default: {:open-bracket  "["
-  ;             :close-bracket "]"
-  ;             :open-paren    "("
-  ;             :close-paren   ")"
-  ;             :comment       ";"
-  ;             :newline       "\n"
-  ;             :quote         "\""}}
-  ;
-  ; @usage
-  ; "abc"
-  [n {:keys [tags] :or {tags {:open-bracket "[" :close-bracket "]"
-                              :open-paren   "(" :close-paren   ")"
-                              :comment ";"
-                              :newline "\n"
-                              :quote   "\""}}}]
-  (tag-positions n tags {}))
+         (f2 [] (tag-positions n (f0 tags) options))))

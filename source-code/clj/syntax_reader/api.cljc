@@ -1,9 +1,7 @@
 
-(ns syntax.api
-    (:require [syntax.check       :as check]
-              [syntax.comment     :as comment]
-              [syntax.convert     :as convert]
-              [syntax.core        :as core]
+(ns syntax-reader.api
+    (:require [syntax-reader.check       :as check]
+              [syntax-reader.comment     :as comment]
               [syntax.interpreter :as interpreter]
               [syntax.tags        :as tags]))
 
@@ -15,25 +13,14 @@
 (def position-commented? check/position-commented?)
 (def position-quoted?    check/position-quoted?)
 
-; syntax.comment
-(def remove-comments comment/remove-comments)
+; syntax-reader.comment
+(def remove-commented-zones comment/remove-commented-zones)
 
-; syntax.convert
-(def to-snake-case convert/to-snake-case)
-(def ToCamelCase   convert/ToCamelCase)
-
-; syntax.core
-(def paren   core/paren)
-(def brace   core/brace)
-(def bracket core/bracket)
-(def percent core/percent)
-(def quotes  core/quotes)
-
-; syntax.interpreter
+; syntax-reader.interpreter
 (def tag-positions interpreter/tag-positions)
 (def grey-zones    interpreter/grey-zones)
 
-; syntax.tags
+; syntax-reader.tags
 (def tag-position           tags/tag-position)
 (def tag-count              tags/tag-count)
 (def tags-balanced?         tags/tags-balanced?)
