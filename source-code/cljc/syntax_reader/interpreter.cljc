@@ -1,8 +1,8 @@
 
 (ns syntax-reader.interpreter
-    (:require [string.api   :as string]
-              [syntax.check :as check]
-              [vector.api   :as vector]))
+    (:require [string.api          :as string]
+              [syntax-reader.check :as check]
+              [vector.api          :as vector]))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
@@ -128,7 +128,7 @@
                     (some? comment-close-tag)
                     (let [zone-open  (-> tag-positions open-tag-key  first)
                           zone-close (-> tag-positions close-tag-key first)]
-                         (if zone-close [(-> grey-zones    (update zone-name-key vector/conj-item [zone-open (+ zone-close (count comment-close-tag))]))
+                         (if zone-close [(-> grey-zones    (update zone-name-key vector/conj-item [zone-open (+ zone-close (-> tags close-tag-key count))]))
                                          (-> tag-positions (update open-tag-key  subvec 1)
                                                            (update close-tag-key subvec 1))]
                                         [(-> grey-zones)
@@ -138,7 +138,8 @@
                     :using-the-opening-tag-as-a-closing-tag
                     (let [zone-open  (-> tag-positions open-tag-key first)
                           zone-close (-> tag-positions open-tag-key second)]
-                         (if zone-close [(-> grey-zones    (update zone-name-key vector/conj-item [zone-open (+ zone-close (count comment-open-tag))]))
+
+                         (if zone-close [(-> grey-zones    (update zone-name-key vector/conj-item [zone-open (+ zone-close (-> tags open-tag-key count))]))
                                          (-> tag-positions (update open-tag-key subvec 2))]
                                         [(-> grey-zones)
                                          (-> tag-positions (assoc open-tag-key []))]))))

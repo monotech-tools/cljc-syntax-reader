@@ -13,15 +13,15 @@
   ; @param (integer) cursor
   ;
   ; @usage
-  ; (position-escaped "My string\n" 10)
+  ; (position-escaped? "My string\n" 10)
   ;
   ; @example
-  ; (position-escaped "My string\n" 10)
+  ; (position-escaped? "My string\n" 10)
   ; =>
   ; true
   ;
   ; @example
-  ; (position-escaped "My string\n" 9)
+  ; (position-escaped? "My string\n" 9)
   ; =>
   ; false
   ;
