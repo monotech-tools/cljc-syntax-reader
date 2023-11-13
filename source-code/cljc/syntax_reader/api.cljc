@@ -15,7 +15,7 @@
 (def position-quoted?    check/position-quoted?)
 
 ; syntax-reader.comment
-(def remove-commented-zones comment/remove-commented-zones)
+(def remove-commented-parts comment/remove-commented-parts)
 
 ; syntax-reader.interpreter
 (def tag-positions interpreter/tag-positions)

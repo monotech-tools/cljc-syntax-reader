@@ -7,9 +7,9 @@
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
 
-(defn remove-commented-zones
+(defn remove-commented-parts
   ; @description
-  ; Removes the commented zones from the given 'n' string.
+  ; Removes the commented parts from the given 'n' string.
   ;
   ; @param (string) n
   ; @param (map)(opt) tags
@@ -28,15 +28,15 @@
   ;   Default: true}
   ;
   ; @usage
-  ; (remove-commented-zones "(defn my-function [])\n ; My comment\n")
+  ; (remove-commented-parts "(defn my-function [])\n ; My comment\n")
   ;
   ; @example
-  ; (remove-commented-zones "(defn my-function [])\n ; My comment\n")
+  ; (remove-commented-parts "(defn my-function [])\n ; My comment\n")
   ; =>
   ; "(defn my-function [])\n "
   ;
   ; @example
-  ; (remove-commented-zones "body { /* My comment */ color: blue; }"
+  ; (remove-commented-parts "body { /* My comment */ color: blue; }"
   ;                         {:comment-open-tag "/*"
   ;                          :comment-close-tag "*/"})
   ; =>
@@ -44,10 +44,10 @@
   ;
   ; @return (string)
   ([n]
-   (remove-commented-zones n {} {}))
+   (remove-commented-parts n {} {}))
 
   ([n tags]
-   (remove-commented-zones n tags {}))
+   (remove-commented-parts n tags {}))
 
   ([n tags options]
    (let [grey-zones (interpreter/grey-zones n tags options)]
@@ -57,10 +57,10 @@
                 ; - If there is no more commented zone left in the 'commented-zones' vector it returns the result.
                 ; - It uses the offset to determine how many characters are already cut out from the result to
                 ;   adjust to cutting boundaries in every iteration.
-                (f [result offset [[zone-start zone-end :as first-zone] _ :as commented-zones]]
-                   (if first-zone (f (string/cut-part result (- zone-start offset) (- zone-end offset))
-                                     (+ offset (- zone-end zone-start))
-                                     (vector/remove-first-item commented-zones))
-                                  (-> result)))]
+                (f [result offset [[zone-start zone-end :as commented-zone] _ :as commented-zones]]
+                   (if commented-zone (f (string/cut-range result (- zone-start offset) (- zone-end offset))
+                                         (+ offset (- zone-end zone-start))
+                                         (vector/remove-first-item commented-zones))
+                                      (-> result)))]
                ; ...
                (f n 0 (:commented grey-zones))))))

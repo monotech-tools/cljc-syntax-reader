@@ -1,16 +1,16 @@
 
 (ns syntax-reader.tags
-    (:require [string.api          :as string]
-              [syntax-reader.check :as check]))
+    (:require [seqable.api               :as seqable]
+              [string.api                :as string]
+              [syntax-reader.check       :as check]
+              [syntax-reader.interpreter :as interpreter]))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
 
 (defn tag-first-position
   ; @description
-  ; - Returns the position of the first occurence of the 'tag' string in the 'n' string.
-  ; - If the 'offset' parameter is passed, the search starts from the offset position.
-  ; - The returned position is an absolute value and it is independent from the offset.
+  ; Returns the position of the first occurence of the 'tag' string in the 'n' string.
   ;
   ; @param (string) n
   ; @param (string) tag
@@ -23,14 +23,17 @@
   ;  :quote-open-tag (string)(opt)
   ;   Default: "\""}
   ; @param (map)(opt) options
-  ; {:ignore-commented? (boolean)(opt)
+  ; {:endpoint (integer)(opt)
+  ;   Stops the searching at the endpoint position in the given 'n' string.
+  ;  :ignore-commented? (boolean)(opt)
   ;   Default: true
   ;  :ignore-escaped? (boolean)(opt)
   ;   Default: true
   ;  :ignore-quoted? (boolean)(opt)
   ;   Default: true
-  ;  :offset (integer)(opt)
-  ;   Default: 0}
+  ;  :offset (integer)(not available)
+  ;   It would be great to use an offset value where the search could start in the given 'n' string,
+  ;   but in order to make accurate grey-zone map (commented / quoted parts) the search must start at the beginning of the string.}
   ;
   ; @example
   ; (tag-first-position "<div>My content</div>" "<div>")
@@ -52,8 +55,11 @@
    (tag-first-position n tag {} {}))
 
   ([n tag tags options]))
-   ;(if (string/cursor-in-bounds? n offset)
-    ;   (let [observed-part (string/part n offset)]
+
+   ;(let [offset        (seqable/normalize-cursor n offset)
+    ;     observed-part (string/keep-range              n offset)]))
+        ;(if (or ignore-commented? ignore-quoted?)))))
+            ;(let [grey-zones (interpreter/grey-zones n)])))))
     ;        (if-let [observed-tag-pos (string/first-dex-of observed-part tag)]
     ;                (let [observed-tag-pos (+ offset observed-tag-pos)]
     ;                     (if ignore-commented? (if (check/position-commented? n observed-tag-pos comment-open-tag comment-close-tag)
@@ -82,7 +88,6 @@
   ;
   ; @example
   ; (tag-count "<div><div></div></div>" "<div>")
-  ; "** ***"
   ; =>
   ; 2
   ;
@@ -92,7 +97,7 @@
 
   ([n tag {:keys [offset] :or {offset 0} :as options}]
    (letfn [(f [cursor found-tag-count]
-              (if (string/cursor-in-bounds? n cursor)
+              (if (seqable/cursor-in-bounds? n cursor)
                   (if-let [first-tag-pos (tag-first-position n tag (assoc options :offset cursor))]
                           (f (+ first-tag-pos (count tag)) (inc found-tag-count))
                           (-> found-tag-count))
@@ -226,9 +231,9 @@
 
   ([n open-tag close-tag {:keys [offset] :or {offset 0} :as options}]
    (letfn [(f [cursor]
-              (if (string/cursor-in-bounds? n cursor)
+              (if (seqable/cursor-in-bounds? n cursor)
                   (if-let [observed-close-pos (tag-first-position n close-tag (assoc options :offset cursor))]
-                          (let [observed-part (string/part n 0 (+ observed-close-pos (count close-tag)))]
+                          (let [observed-part (string/keep-range n 0 (+ observed-close-pos (count close-tag)))]
                                (if (tags-balanced? observed-part open-tag close-tag options)
                                    (-> observed-close-pos)
                                    (f (+ observed-close-pos (count close-tag))))))))]

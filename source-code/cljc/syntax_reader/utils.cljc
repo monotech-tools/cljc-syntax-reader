@@ -4,6 +4,11 @@
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
 
+(defn default-tags
+  [])
+  
+
+
 (defn default-comment-tags
   ; @description
   ; - Sets the default comment opening and closing tag values in the given 'tags' map.
@@ -30,7 +35,11 @@
                (and (-> tags :comment-open-tag some?)
                     (= (:comment-close-tag tags)
                        (:comment-open-tag  tags)))
-               (dissoc :comment-close-tag)))
+               (dissoc :comment-close-tag))
+
+  (merge {:comment-open-tag ";"
+          :comment-close-tag "\n"}
+         (-> tags)))
 
 (defn default-quote-tags
   ; @description
@@ -56,4 +65,8 @@
                (and (-> tags :quote-open-tag some?)
                     (= (:quote-close-tag tags)
                        (:quote-open-tag  tags)))
-               (dissoc :quote-close-tag)))
+               (dissoc :quote-close-tag))
+
+  (merge {:quote-open-tag "\""
+          :quote-close-tag "\""}
+         (-> tags)))
