@@ -4,9 +4,9 @@
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
 
-; @constant (string pairs in vectors in map)
+; @constant (vectors in map)
 (def DEFAULT-TAGS {:brace   ["{" "}"]
                    :bracket ["[" "]"]
-                   :comment [";" "\n"]
+                   :comment [";" "\n" {:disable-interpreter? true}]
                    :paren   ["(" ")"]
-                   :quote   ["\"" "\""]})
+                   :quote   ["\"" "\"" {:disable-interpreter? true}]})

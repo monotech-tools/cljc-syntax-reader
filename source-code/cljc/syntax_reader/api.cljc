@@ -1,7 +1,7 @@
 
 (ns syntax-reader.api
     (:require [syntax-reader.check       :as check]
-              [syntax-reader.comment     :as comment]
+              [syntax-reader.grey-zones  :as grey-zones]
               [syntax-reader.interpreter :as interpreter]
               [syntax-reader.tags        :as tags]
               [syntax-reader.utils       :as utils]))
@@ -10,16 +10,14 @@
 ;; ----------------------------------------------------------------------------
 
 ; syntax.check
-(def position-escaped?   check/position-escaped?)
-(def position-commented? check/position-commented?)
-(def position-quoted?    check/position-quoted?)
+(def position-escaped? check/position-escaped?)
 
-; syntax-reader.comment
-(def remove-commented-parts comment/remove-commented-parts)
+; syntax-reader.grey-zones
+(def grey-zones             grey-zones/grey-zones)
+(def remove-commented-parts grey-zones/remove-commented-parts)
 
 ; syntax-reader.interpreter
 (def tag-positions interpreter/tag-positions)
-(def grey-zones    interpreter/grey-zones)
 
 ; syntax-reader.tags
 (def tag-first-position       tags/tag-first-position)

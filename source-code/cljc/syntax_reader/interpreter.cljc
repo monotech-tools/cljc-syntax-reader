@@ -5,7 +5,6 @@
               [syntax-reader.config :as config]
               [syntax-reader.utils  :as utils]
               [vector.api           :as vector]
-
               [seqable.api :as seqable]))
 
 ;; ----------------------------------------------------------------------------
@@ -13,21 +12,28 @@
 
 (defn interpreter
   ; @description
-  ; ...
+  ; Applies the given 'f' function at each cursor position of the given 'n' string
+  ; providing it a tag map that describes the actual opened tags and their depths at the cursor position.
   ;
   ; @param (string) n
   ; @param (function) f
   ; Applied at each cursor position.
   ; Takes the output of the previous iteration (or the given 'initial' value) as first parameter.
   ; Takes the actual 'cursor' value as second parameter.
-  ; Takes the zone map of the actual cursor position as third parameter.
+  ; Takes the tag map for the actual cursor position as third parameter.
   ; @param (*) initial
-  ; @param (string pairs in vectors in map)(opt) tags
+  ; @param (vectors in map)(opt) tags
+  ; {:my-tag (vector)
+  ;   [(string) opening-tag
+  ;    (string) closing-tag
+  ;    (map)(opt) tag-options
+  ;     {:disable-interpreter? (boolean)(opt)}
+  ;       Default: false}]}
   ; Default: {:brace   ["{" "}"]
   ;           :bracket ["[" "]"]
-  ;           :comment [";" "\n"]
+  ;           :comment [";" "\n" {:disable-interpreter? true}]
   ;           :paren   ["(" ")"]
-  ;           :quote   ["\"" "\""]}
+  ;           :quote   ["\"" "\"" {:disable-interpreter? true}]}
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Stops the iteration at the endpoint position in the given 'n' string.
@@ -38,8 +44,15 @@
   ;   Using an 'offset' value might cause inaccurate position map!}
   ;
   ; @usage
-  ; (defn my-function [result cursor zone-map] ...)
+  ; (defn my-function [result cursor tag-map] ...)
   ; (interpreter "My string" my-function {})
+  ;
+  ; @example
+  ; (defn my-function [result cursor tag-map] (if (= cursor 16) tag-map result))
+  ; (interpreter "(-> my-value (= 420))" my-function nil)
+  ; =>
+  ; [[:paren 1  1]
+  ;  [:paren 2 14]]
   ;
   ; @return (*)
   ([n f initial]
@@ -49,161 +62,170 @@
    (interpreter n f initial tags {}))
 
   ([n f initial tags {:keys [endpoint ignore-escaped? offset] :or {endpoint (count n) offset 0}}]
-   (letfn [; Returns the actual depth of the given 'tag-name'.
-           (f0 [{:keys [zone-map]} tag-name]
-               (inc (vector/match-count zone-map #(-> % first (= tag-name)))))
+   (letfn [; @description
+           ; If the interpreter is disabled by an opened tag, it returns the disabling 'tag-name'.
+           ;
+           ; @param (map) state
+           ; {:tag-map (vectors in vector)}
+           ;
+           ; @example
+           ; (let [n "(abc(def ;ghi\n))"
+           ;       f (fn [_ _ _])]
+           ;      (interpreter n f nil))
+           ;
+           ; (f0 {:tag-map [[:paren   1  1]
+           ;                [:paren   2  5]
+           ;                [:comment 1 10]]}) ; <- A ':comment' tag opened at the 10th cursor position and it is currently disabling the interpreter.
+           ; =>
+           ; :comment
+           ;
+           ; @return (keyword)
+           (f0 [{:keys [tag-map]}]
+               (if-let [tag-name (-> tag-map last first)]
+                       (if (get-in tags [tag-name 2 :disable-interpreter?])
+                           (-> tag-name))))
 
+           ; @description
+           ; Returns the actual depth of the given 'tag-name'.
+           ;
+           ; @param (map) state
+           ; {:tag-map (vectors in vector)}
+           ; @param (keyword) tag-name
+           ;
+           ; @example
+           ; (let [n "(abc(def ;ghi\n))"
+           ;       f (fn [_ _ _])]
+           ;      (interpreter n f nil))
+           ;
+           ; (f1 {:tag-map [[:paren   1  1]
+           ;                [:paren   2  5]
+           ;                [:comment 1 10]]}
+           ;     :paren)
+           ; =>
+           ; 2
+           ;
+           ; @return (integer)
+           (f1 [{:keys [tag-map]} tag-name]
+               (vector/match-count tag-map #(-> % first (= tag-name))))
+
+           ; @description
            ; Returns the 'tag-name' if any opening tag ends at the actual cursor position.
-           (f1 [_ cursor]
+           ;
+           ; @param (map) state
+           ; {:tag-map (vectors in vector)}
+           ; @param (integer) cursor
+           ;
+           ; @example
+           ; (let [n "(abc(def ;ghi\n))"
+           ;       f (fn [_ _ _])]
+           ;      (interpreter n f nil))
+           ;
+           ; (f2 {...} 1) ; <- Applying the 'f2' function at the 1st cursor position of the given "(abc(def ;ghi\n))" string...
+           ; =>
+           ; :paren       ; <- 1st cursor position: a ':paren' opening tag ends.
+           ;
+           ; @return (keyword)
+           (f2 [_ cursor]
                (some (fn [[tag-name [opening-tag _]]] (if (string/ends-at? n opening-tag cursor) tag-name))
                      (-> tags)))
 
-           ; Returns the 'tag-name' if any closing tag starts at the actual cursor position.
-           (f2 [_ cursor]
-               (some (fn [[tag-name [_ closing-tag]]] (if (string/starts-at? n closing-tag cursor) tag-name))
-                     (-> tags)))
+           ; @description
+           ; Returns the 'tag-name' if any closing tag starts at the previous cursor position.
+           ;
+           ; @param (map) state
+           ; {:tag-map (vectors in vector)}
+           ; @param (integer) cursor
+           ;
+           ; @example
+           ; (let [n "(abc(def ;ghi\n))"
+           ;       f (fn [_ _ _])]
+           ;      (interpreter n f nil))
+           ;
+           ; (f3 {...} 16) ; <- Applying the 'f3' function at the 16th cursor position of the given "(abc(def ;ghi\n))" string ...
+           ; =>
+           ; :paren        ; <- 16th cursor position: a ':paren' closing tag started at the previous (4th) cursor position.
+           ;
+           ; @return (keyword)
+           (f3 [_ cursor]
+               ; The cursor position must be a positive integer after decreasing it by one, otherwise the 'string/starts-at?'
+               ; function would search at the other end of the provided string (because of the negative cursor position).
+               (if (< 0 cursor)
+                   (some (fn [[tag-name [_ closing-tag]]] (if (string/starts-at? n closing-tag (dec cursor)) tag-name))
+                         (-> tags))))
 
-           ; Updates the given 'state' if any opening / closing tag starts / ends at the actual cursor position.
-           (f3 [{:keys [zone-map] :as state} cursor]
-               (if-let [found-opening-tag (f1 state cursor)]
-                       (let [depth (f0 state found-opening-tag)]
-                            (update state :zone-map vector/conj-item [found-opening-tag depth cursor]))
-                       (if-let [found-closing-tag (f2 state cursor)]
-                               (update state :zone-map vector/before-last-match #(-> % first (= found-closing-tag)) {:return? true})
-                               (-> state))))
+           ; @description
+           ; Updates the given 'state' if any ...
+           ; ... opening tag ends at the actual cursor position.
+           ; ... closing tag starts at the previous cursor position.
+           ;
+           ; @param (map) state
+           ; {:tag-map (vectors in vector)}
+           ; @param (integer) cursor
+           ;
+           ; @usage
+           ; (let [n "(abc(def ;ghi\n))"
+           ;       f (fn [_ _ _])]
+           ;      (interpreter n f nil))
+           ;
+           ; (f4 {:tag-map [[:paren   1  1]
+           ;                [:paren   2  5]
+           ;                [:comment 1 10]]}
+           ;     12) ; <- 12th cursor position: the interpreter is disabled since the 10th cursor position by the ':comment' tag.
+           ;
+           ; @return (map)
+           (f4 [{:keys [tag-map] :as state} cursor]
+               (or ; The very first condition must be whether the interpreter is currently disabled by any opened tag.
+                   (if-let [disabling-tag-name (f0 state)]
+                           ; If the interpreter is disabled by the last processed (not the last found) tag ...
+                           (if-let [found-closing-tag (f3 state cursor)]
+                                   ; If a closing tag starts at the previous cursor position ...
+                                   (if (= disabling-tag-name found-closing-tag)
+                                       ; If the found closing tag corresponds to the opening tag that disabled the interpreter before ...
+                                       ; ... it removes the last opened tag (the one that disabled the interpreter) from the tag map.
+                                       (update state :tag-map vector/before-last-match #(-> % first (= found-closing-tag)) {:return? true})))
+                           ; If the interpreter is not disabled ...
+                           (if-let [found-opening-tag (f2 state cursor)]
+                                   ; If an opening tag ends at the actual cursor position ...
+                                   ; ... it adds the new tag to the tag map.
+                                   (let [depth (f1 state found-opening-tag)]
+                                        (update state :tag-map vector/conj-item [found-opening-tag (inc depth) cursor]))
+                                   ; If NO opening tag ends at the actual cursor position ...
+                                   ; ... it searches for closing tags.
+                                   (if-let [found-closing-tag (f3 state cursor)]
+                                           ; - If a closing tag starts at the previous cursor position ...
+                                           ;   ... it removes the just closed tag from the tag map.
+                                           ; - Removes the following (the rest) tags also (in case of somehow they aren't closed yet).
+                                           ; - Uses the '{:return? true}' setting for the 'vector/before-last-match' function to make sure
+                                           ;   it doesn't empty the whole tag map if it doesn't contain any opened tag with the given tag name.
+                                           ;   E.g., In Clojure comments end with a newline character but not every newline character means that
+                                           ;         there is any opened comment tag to close.
+                                           (update state :tag-map vector/before-last-match #(-> % first (= found-closing-tag)) {:return? true}))))
+                   ; If nothing happened at the actual cursor position, it returns the unchanged state ...
+                   (-> state)))
 
            ; ...
-           (f4 [{:keys [result zone-map] :as state} cursor]
-               (cond ; ...
+           (f5 [{:keys [result tag-map] :as state} cursor]
+               (cond ; Nomen est omen. If no more cursor position to examine in the given 'n' string, it returns the last output of the applied given 'f' function ...
                      (seqable/cursor-out-of-bounds? n cursor)
                      (-> result)
                      ; If the 'stop' function stopped the iteration by wrapping the 'result' value in a vector,
                      ; and putting the '::$stop' marker into it as its first item ...
                      (-> result vector? (and (-> result first (= ::$stop))))
                      (-> result second)
-                     ; ...
+                     ; If the cursor reached the given 'endpoint' in the given 'n' string ...
                      (= cursor endpoint)
-                     (let [state  (f3 state cursor)
-                           result (f result cursor (:zone-map state))]
+                     (let [state  (f4 state cursor)
+                           result (f result cursor (:tag-map state))]
                           (-> result))
-                     ; ...
+                     ; If everything is normal, it updates the state, then applies the given 'f' function and calls itself recursivelly ...
                      :else
-                     (let [state  (f3 state cursor)
-                           result (f result cursor (:zone-map state))]
-                          (f4 (assoc state :result result)
+                     (let [state  (f4 state cursor)
+                           result (f result cursor (:tag-map state))]
+                          (f5 (assoc state :result result)
                               (inc cursor)))))]
 
           ; ...
-          (f4 {:result nil :zone-map nil} offset))))
-
-(defn interpreter_
-  ; @description
-  ; ...
-  ;
-  ; @param (string) n
-  ; @param (function) f
-  ; Evaluated at each cursor position.
-  ; Takes the output of the previous iteration (or the given 'initial' value) as first parameter.
-  ; Takes the actual 'cursor' value as second parameter.
-  ; Takes the state of the actual cursor position as third parameter.
-  ; @param (*) initial
-  ; @param (map)(opt) tags
-  ; {:comment-closing-tag (string)(opt)
-  ;   Default: "\n"
-  ;  :comment-opening-tag (string)(opt)
-  ;   Default: ";"
-  ;  :quote-closing-tag (string)(opt)
-  ;   Default: "\""
-  ;  :quote-opening-tag (string)(opt)
-  ;   Default: "\""}
-  ; @param (map)(opt) options
-  ; {:endpoint (integer)(opt)
-  ;   Stops the iteration at the endpoint position in the given 'n' string.
-  ;  :ignore-commented? (boolean)(opt)
-  ;   Default: false
-  ;  :ignore-quoted? (boolean)(opt)
-  ;   Default: false
-  ;  :offset (integer)(opt)
-  ;   Using an 'offset' value might cause inaccurate grey-zone map (commented / quoted parts)!}
-  ;
-  ; @usage
-  ; (defn my-function [result cursor {:keys [commented? quoted? escaped?] :as state}] ...)
-  ; (interpreter "My string" my-function {})
-  ;
-  ; @return (*)
-  ([n f initial]
-   (interpreter n f initial {} {}))
-
-  ([n f initial tags]
-   (interpreter n f initial tags {}))
-
-  ([n f initial tags {:keys [endpoint ignore-commented? ignore-escaped? ignore-quoted? offset] :or {endpoint (count n) offset 0}}]
-   (let [tags (-> tags utils/default-comment-tags utils/default-quote-tags)]
-        (letfn [; ...
-                (f0 [{:keys [commented? quoted? escaped? result] :as state} cursor]
-                    (cond ; If an escape character is placed at the previous cursor position ...
-                          (and (not ignore-escaped?)
-                               (check/position-escaped? n cursor))
-                          (assoc state :escaped? true)
-                          ; If an escaping backslash placed at the previous cursor position ...
-                          (and escaped? (not (check/position-escaped? n cursor)))
-                          (assoc state :escaped? false)
-
-                          ; If a comment closing tag starts at the actual cursor position ...
-                          (and commented? (string/starts-at? n (:comment-closing-tag tags) cursor))
-                          (assoc state :commented? :comment-closes)
-                          ; If a quote closing tag starts at the actual cursor position ...
-                          (and quoted? (string/starts-at? n (:quote-closing-tag tags) cursor))
-                          (assoc state :quoted? :quote-closes)
-
-                          ; If a comment opening tag ends at the actual cursor position ...
-                          (and (not ignore-commented?)
-                               (string/ends-at? n (:comment-opening-tag tags) cursor))
-                          (assoc state :commented? :comment-starts)
-                          ; If a quote opening tag ends at the actual cursor position ...
-                          (and (not ignore-quoted?)
-                               (string/ends-at? n (:quote-opening-tag tags) cursor))
-                          (assoc state :quoted? :quote-starts)
-
-                          ; If a comment closing tag started at the previous cursor position ...
-                          (= commented? :comment-closes)
-                          (assoc state :commented? false)
-                          ; If a quote closing tag started at the previous cursor position ...
-                          (= quoted? :quote-closes)
-                          (assoc state :quoted? false)
-
-                          ; If a comment opening tag started at the previous cursor position ...
-                          (= commented? :comment-starts)
-                          (assoc state :commented? :in-comment)
-                          ; If a quote opening tag started at the previous cursor position ...
-                          (= quoted? :quote-starts)
-                          (assoc state :quoted? :in-quote)
-
-                          ; If there is no change in the state ...
-                          :return state))
-                ; ...
-                (f1 [{:keys [commented? quoted? escaped? result] :as state} cursor]
-                    (let [result (if (seqable/cursor-first? n cursor) initial result)]
-                         (cond ; ...
-                               (seqable/cursor-out-of-bounds? n cursor)
-                               (-> result)
-                               ; If the 'stop' function stopped the iteration by wrapping the 'result' value in a vector,
-                               ; and putting the '::$stop' marker into it as its first item ...
-                               (-> result vector? (and (-> result first (= ::$stop))))
-                               (-> result second)
-                               ; ...
-                               (= cursor endpoint)
-                               (let [state  (f0 state cursor)
-                                     result (f result cursor (dissoc state :result))]
-                                    (-> result))
-                               ; ...
-                               :else
-                               (let [state  (f0 state cursor)
-                                     result (f result cursor (dissoc state :result))]
-                                    (f1 (assoc state :result result)
-                                        (inc cursor))))))]
-               ; ...
-               (f1 {:commented? false :quoted? false :escaped? false} offset)))))
+          (f5 {:result nil :tag-map nil} offset))))
 
 (defn stop
   ; @description
@@ -214,11 +236,11 @@
   ;
   ; @usage
   ; (defn my-function
-  ;   [result cursor zone-map]
+  ;   [result cursor tag-map]
   ;   (let [result (assoc result :my-value "My value")]
-  ;        (if (= cursor 4)
-  ;            (stop result) ; <- Stops the interpreter at the actual cursor position and returns the result.
-  ;            (->   result))))
+  ;        (if (not= cursor 4)
+  ;            result           ; <- Lets the interpreter run the next iteration and returns the result.
+  ;            (stop result)))) ; <- Stops the interpreter at the actual cursor position and returns the result.
   ; (interpreter "My string" my-function nil)
   ;
   ; @return (vector)
@@ -228,70 +250,16 @@
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
 
-(defn grey-zones
-  ; @description
-  ; Returns the ranges (zone boundaries) in the given 'n' string that are commented / quoted
-  ; and the cursor positions that are escaped.
-  ;
-  ; @param (string) n
-  ; @param (map)(opt) tags
-  ; {:comment-closing-tag (string)(opt)
-  ;   Default: "\n"
-  ;  :comment-opening-tag (string)(opt)
-  ;   Default: ";"
-  ;  :quote-closing-tag (string)(opt)
-  ;   Default: "\""
-  ;  :quote-opening-tag (string)(opt)
-  ;   Default: "\""}
-  ; @param (map)(opt) options
-  ; {:endpoint (integer)(opt)
-  ;   Stops the searching at the endpoint position in the given 'n' string.
-  ;  :offset (integer)(not available)
-  ;   It would be great to use an offset value where the search could start in the given 'n' string,
-  ;   but in order to make accurate grey-zone map (commented / quoted parts) the search must start at the beginning of the string.}
-  ;
-  ; @usage
-  ; (grey-zones "My string" {...})
-  ;
-  ; @usage
-  ; (grey-zones "My string ; My comment\n \"My quote\"")
-  ;
-  ; @example
-  ; (grey-zones "My string ; My comment\n \"My quote\"")
-  ; =>
-  ; {:commented [[11 22]] :quoted [[27 35]]}
-  ;
-  ; @example
-  ; (grey-zones "My string ; My comment 1\n ; My comment 2\n")
-  ; =>
-  ; {:commented [[11 24] [28 41]]
-  ;
-  ; @return (map)
-  ; {:commented (integer pairs in vectors in vector)
-  ;   [[(integer) zone-start
-  ;     (integer) zone-end]]
-  ;  :escaped (integers in vector)
-  ;   [(integer) escaped-position]
-  ;  :quoted (integer pairs in vectors in vector)
-  ;   [[(integer) zone-start
-  ;     (integer) zone-end]]}
-  ([n]
-   (grey-zones n {} {}))
-
-  ([n tags]
-   (grey-zones n tags {}))
-
-  ([n tags options]
-   (letfn [(f [{:keys [commented escaped quoted] :as result} cursor {:keys [commented? escaped? quoted?]}]
-              (cond (->  escaped?)                 (update-in result [:escaped]   vector/conj-item cursor)
-                    (= commented? :comment-starts) (update-in result [:commented] vector/conj-item [cursor])
-                    (=    quoted?   :quote-starts) (update-in result [:quoted]    vector/conj-item [cursor])
-                    (= commented? :comment-closes) (update-in result [:commented (seqable/last-dex commented)] vector/conj-item cursor)
-                    (=   quoted?    :quote-closes) (update-in result [:quoted    (seqable/last-dex quoted)]    vector/conj-item cursor)
-                    :return result))]
-          ; ...
-          (let [initial {:commented [] :escaped? [] :quoted []}]
-               (interpreter n f initial tags options)))))
+(defn test
+  []
+  ;(println "r:" (tag-first-position "abc()")))
+  ;(println "r:" (grey-zones)))
+  (println
+   (grey-zones
+   ;(string/keep-range)
+    (io.api/read-file "dependencies/ajax-api/source-code/cljs/ajax/api.cljs"))))
+     ;0 150)
+   ;println nil))
 
 (defn tag-first-position
   ; @description
@@ -415,17 +383,6 @@
           ; ...
           (let [initial {:depth 0}]
                (interpreter n f initial tags options)))))
-
-(defn test
-  []
-  ;(println "r:" (tag-first-position "abc()")))
-  ;(println "r:" (grey-zones)))
-  ;(interpreter "(defn my-function [my-param\n; Comment\n])" println nil))
-  (interpreter
-   (string/keep-range
-     (io.api/read-file "dependencies/ajax-api/source-code/cljs/ajax/api.cljs")
-     0 150)
-   println nil))
 
 
 (defn tag-positions
