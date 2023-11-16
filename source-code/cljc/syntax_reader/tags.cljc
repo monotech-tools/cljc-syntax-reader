@@ -14,18 +14,19 @@
   ; @param (string) n
   ; @param (map)(opt) tags
   ; {:comment (vector)(opt)
-  ;   [(string) opening-tag
-  ;    (string) closing-tag
+  ;   [(regex pattern) opening-tag
+  ;    (regex pattern) closing-tag
   ;    (map)(opt) tag-options
   ;     {:disable-interpreter? (boolean)(opt)}
   ;       Default: false}]
-  ;  Default: [";" "\n" {:disable-interpreter? true}]
+  ;  Default: [#";" #"\n" {:disable-interpreter? true}]
   ;  :quote (vector)(opt)
-  ;   [(string) opening-tag
-  ;    (string) closing-tag
+  ;   [(regex pattern) opening-tag
+  ;    (regex pattern) closing-tag
   ;    (map)(opt) tag-options
   ;     {:disable-interpreter? (boolean)(opt)}
   ;       Default: false}]}
+  ;  Default: [#"\"" #"\"" {:disable-interpreter? true}]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the endpoint position in the given 'n' string.
@@ -57,7 +58,7 @@
    (opening-brace-position n tags {}))
 
   ([n tags options]
-   (search/opening-tag-position n "{" tags options)))
+   (search/opening-tag-position n #"\{" tags options)))
 
 (defn closing-brace-position
   ; @description
@@ -68,18 +69,19 @@
   ; @param (string) n
   ; @param (map)(opt) tags
   ; {:comment (vector)(opt)
-  ;   [(string) opening-tag
-  ;    (string) closing-tag
+  ;   [(regex pattern) opening-tag
+  ;    (regex pattern) closing-tag
   ;    (map)(opt) tag-options
   ;     {:disable-interpreter? (boolean)(opt)}
   ;       Default: false}]
-  ;  Default: [";" "\n" {:disable-interpreter? true}]
+  ;  Default: [#";" #"\n" {:disable-interpreter? true}]
   ;  :quote (vector)(opt)
-  ;   [(string) opening-tag
-  ;    (string) closing-tag
+  ;   [(regex pattern) opening-tag
+  ;    (regex pattern) closing-tag
   ;    (map)(opt) tag-options
   ;     {:disable-interpreter? (boolean)(opt)}
   ;       Default: false}]}
+  ;  Default: [#"\"" #"\"" {:disable-interpreter? true}]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the endpoint position in the given 'n' string.
@@ -111,7 +113,7 @@
    (closing-brace-position n tags {}))
 
   ([n tags options]
-   (search/closing-tag-position n "{" "}" tags options)))
+   (search/closing-tag-position n #"\{" #"\}" tags options)))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
@@ -125,18 +127,19 @@
   ; @param (string) n
   ; @param (map)(opt) tags
   ; {:comment (vector)(opt)
-  ;   [(string) opening-tag
-  ;    (string) closing-tag
+  ;   [(regex pattern) opening-tag
+  ;    (regex pattern) closing-tag
   ;    (map)(opt) tag-options
   ;     {:disable-interpreter? (boolean)(opt)}
   ;       Default: false}]
-  ;  Default: [";" "\n" {:disable-interpreter? true}]
+  ;  Default: [#";" #"\n" {:disable-interpreter? true}]
   ;  :quote (vector)(opt)
-  ;   [(string) opening-tag
-  ;    (string) closing-tag
+  ;   [(regex pattern) opening-tag
+  ;    (regex pattern) closing-tag
   ;    (map)(opt) tag-options
   ;     {:disable-interpreter? (boolean)(opt)}
   ;       Default: false}]}
+  ;  Default: [#"\"" #"\"" {:disable-interpreter? true}]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the endpoint position in the given 'n' string.
@@ -168,7 +171,7 @@
    (opening-bracket-position n tags {}))
 
   ([n tags options]
-   (search/opening-tag-position n "[" tags options)))
+   (search/opening-tag-position n #"\[" tags options)))
 
 (defn closing-bracket-position
   ; @description
@@ -179,18 +182,19 @@
   ; @param (string) n
   ; @param (map)(opt) tags
   ; {:comment (vector)(opt)
-  ;   [(string) opening-tag
-  ;    (string) closing-tag
+  ;   [(regex pattern) opening-tag
+  ;    (regex pattern) closing-tag
   ;    (map)(opt) tag-options
   ;     {:disable-interpreter? (boolean)(opt)}
   ;       Default: false}]
-  ;  Default: [";" "\n" {:disable-interpreter? true}]
+  ;  Default: [#";" #"\n" {:disable-interpreter? true}]
   ;  :quote (vector)(opt)
-  ;   [(string) opening-tag
-  ;    (string) closing-tag
+  ;   [(regex pattern) opening-tag
+  ;    (regex pattern) closing-tag
   ;    (map)(opt) tag-options
   ;     {:disable-interpreter? (boolean)(opt)}
   ;       Default: false}]}
+  ;  Default: [#"\"" #"\"" {:disable-interpreter? true}]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the endpoint position in the given 'n' string.
@@ -222,7 +226,7 @@
    (closing-bracket-position n tags {}))
 
   ([n tags options]
-   (search/closing-tag-position n "[" "]" tags options)))
+   (search/closing-tag-position n #"\[" #"\]" tags options)))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
@@ -236,18 +240,19 @@
   ; @param (string) n
   ; @param (map)(opt) tags
   ; {:comment (vector)(opt)
-  ;   [(string) opening-tag
-  ;    (string) closing-tag
+  ;   [(regex pattern) opening-tag
+  ;    (regex pattern) closing-tag
   ;    (map)(opt) tag-options
   ;     {:disable-interpreter? (boolean)(opt)}
   ;       Default: false}]
-  ;  Default: [";" "\n" {:disable-interpreter? true}]
+  ;  Default: [#";" #"\n" {:disable-interpreter? true}]
   ;  :quote (vector)(opt)
-  ;   [(string) opening-tag
-  ;    (string) closing-tag
+  ;   [(regex pattern) opening-tag
+  ;    (regex pattern) closing-tag
   ;    (map)(opt) tag-options
   ;     {:disable-interpreter? (boolean)(opt)}
   ;       Default: false}]}
+  ;  Default: [#"\"" #"\"" {:disable-interpreter? true}]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the endpoint position in the given 'n' string.
@@ -279,7 +284,7 @@
    (opening-paren-position n tags {}))
 
   ([n tags options]
-   (search/opening-tag-position n "(" tags options)))
+   (search/opening-tag-position n #"\(" tags options)))
 
 (defn closing-paren-position
   ; @description
@@ -290,18 +295,19 @@
   ; @param (string) n
   ; @param (map)(opt) tags
   ; {:comment (vector)(opt)
-  ;   [(string) opening-tag
-  ;    (string) closing-tag
+  ;   [(regex pattern) opening-tag
+  ;    (regex pattern) closing-tag
   ;    (map)(opt) tag-options
   ;     {:disable-interpreter? (boolean)(opt)}
   ;       Default: false}]
-  ;  Default: [";" "\n" {:disable-interpreter? true}]
+  ;  Default: [#";" #"\n" {:disable-interpreter? true}]
   ;  :quote (vector)(opt)
-  ;   [(string) opening-tag
-  ;    (string) closing-tag
+  ;   [(regex pattern) opening-tag
+  ;    (regex pattern) closing-tag
   ;    (map)(opt) tag-options
   ;     {:disable-interpreter? (boolean)(opt)}
   ;       Default: false}]}
+  ;  Default: [#"\"" #"\"" {:disable-interpreter? true}]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the endpoint position in the given 'n' string.
@@ -333,4 +339,4 @@
    (closing-paren-position n tags {}))
 
   ([n tags options]
-   (search/closing-tag-position n "(" ")" tags options)))
+   (search/closing-tag-position n #"\(" #"\)" tags options)))

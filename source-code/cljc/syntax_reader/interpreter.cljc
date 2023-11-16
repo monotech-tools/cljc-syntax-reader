@@ -1,6 +1,7 @@
 
 (ns syntax-reader.interpreter
-    (:require [seqable.api         :as seqable]
+    (:require [regex.api           :as regex]
+              [seqable.api         :as seqable]
               [string.api          :as string]
               [syntax-reader.check :as check]
               [vector.api          :as vector]))
@@ -17,6 +18,7 @@
   ; - List of metafunctions that are available within the interpreter:
   ;   - 'closing-tag-starts?'
   ;   - 'closing-tag-ends?'
+  ;   - 'interpreter-disabled?'
   ;   - 'opening-tag-starts?'
   ;   - 'opening-tag-ends?'
   ;   - 'stop'
@@ -32,8 +34,8 @@
   ; @param (*) initial
   ; @param (vectors in map)(opt) tags
   ; {:my-tag (vector)
-  ;   [(string) opening-tag
-  ;    (string) closing-tag
+  ;   [(regex pattern) opening-tag
+  ;    (regex pattern) closing-tag
   ;    (map)(opt) tag-options
   ;     {:disable-interpreter? (boolean)(opt)
   ;       Default: false}]}
@@ -71,7 +73,7 @@
   ;   (if (= 1 (tag-actual-depth :my-tag))
   ;       (stop result)))
   ;
-  ; (interpreter "<div>Hello World!</div>" my-function nil {:my-tag ["<div>" "</div>"]})
+  ; (interpreter "<div>Hello World!</div>" my-function nil {:my-tag [#"<div>" #"</div>"]})
   ;
   ; @return (*)
   ([n f initial]
@@ -87,6 +89,33 @@
            ;; ----------------------------------------------------------------------------
 
            ; @description
+           ; Returns the 'interpreter-disabled?' metafunction.
+           ;
+           ; @param (map) state
+           ;
+           ; @return (function)
+           (f87 [state]
+                ; @description
+                ; Returns whether the interpreter is disabled by any opened tag.
+                ;
+                ; @example
+                ; (defn my-function
+                ;   [result state {:keys [interpreter-disabled? stop] :as functions}]
+                ;   (if (interpreter-disabled?)
+                ;       (stop (:cursor state))))
+                ;
+                ; (let [n       "(abc(;def\n))"
+                ;       f       my-function
+                ;       initial nil
+                ;       tags    {:comment [#";" #"\n" {:disable-interpreter? true}] :paren [#"\(" #"\)"]}]
+                ;      (interpreter n f initial tags))
+                ; =>
+                ; 6 ; <- The 6th cursor position is the first position where the interpreter is disabled by the ':comment' tag.
+                ;
+                ; @return (integer)
+                (fn [] (-> state f1 some?)))
+
+           ; @description
            ; Returns the 'stop' metafunction.
            ;
            ; @param (map) state
@@ -98,14 +127,20 @@
                 ;
                 ; @param (*) result
                 ;
-                ; @usage
+                ; @example
                 ; (defn my-function
                 ;   [result state {:keys [stop] :as functions}]
                 ;   (let [result (assoc result :my-value "My value")]
                 ;        (if (not= 4 (:cursor state))
-                ;            result           ; <- Lets the interpreter run to the next iteration and returns the result.
-                ;            (stop result)))) ; <- Stops the interpreter at the actual cursor position and returns the result.
-                ; (interpreter "My string" my-function nil)
+                ;            result                          ; <- Lets the interpreter run to the next iteration and returns the result.
+                ;            (stop "4th cursor position")))) ; <- Stops the interpreter at the actual cursor position and returns the result.
+                ;
+                ; (let [n       "My string"
+                ;       f       my-function
+                ;       initial nil]
+                ;      (interpreter n f initial))
+                ; =>
+                ; "4th cursor position"
                 ;
                 ; @return (vector)
                 ; [(namespaced keyword) stop-marker
@@ -130,7 +165,11 @@
                 ;   (if (= 6 (:cursor state))
                 ;       (stop (tag-actual-depth :paren))))
                 ;
-                ; (interpreter "(abc(def))" my-function nil)
+                ; (let [n       "(abc(def))"
+                ;       f       my-function
+                ;       initial nil
+                ;       tags    {:paren [#"\(" #"\)"]}]
+                ;      (interpreter n f initial tags))
                 ; =>
                 ; 2
                 ;
@@ -155,7 +194,11 @@
                 ;   (if (= 6 (:cursor state))
                 ;       (stop (tag-opened? :paren))))
                 ;
-                ; (interpreter "(abc(def))" my-function nil)
+                ; (let [n       "(abc(def))"
+                ;       f       my-function
+                ;       initial nil
+                ;       tags    {:paren [#"\(" #"\)"]}]
+                ;      (interpreter n f initial tags))
                 ; =>
                 ; true
                 ;
@@ -180,7 +223,11 @@
                 ;   (if (opening-tag-starts? :paren)
                 ;       (stop (str "An opening ':paren' tag starts at cursor position: " (:cursor state) "."))))
                 ;
-                ; (interpreter "(abc(def))" my-function nil)
+                ; (let [n       "(abc(def))"
+                ;       f       my-function
+                ;       initial nil
+                ;       tags    {:paren [#"\(" #"\)"]}]
+                ;      (interpreter n f initial tags))
                 ; =>
                 ; "An opening ':paren' tag starts at cursor position: 0."
                 ;
@@ -205,7 +252,11 @@
                 ;   (if (opening-tag-ends? :paren)
                 ;       (stop (str "An opening ':paren' tag ends at cursor position: " (:cursor state) "."))))
                 ;
-                ; (interpreter "(abc(def))" my-function nil)
+                ; (let [n       "(abc(def))"
+                ;       f       my-function
+                ;       initial nil
+                ;       tags    {:paren [#"\(" #"\)"]}]
+                ;      (interpreter n f initial tags))
                 ; =>
                 ; "An opening ':paren' tag ends at cursor position: 1."
                 ;
@@ -230,7 +281,11 @@
                 ;   (if (closing-tag-starts? :paren)
                 ;       (stop (str "A closing ':paren' tag starts at cursor position: " (:cursor state) "."))))
                 ;
-                ; (interpreter "(abc(def))" my-function nil)
+                ; (let [n       "(abc(def))"
+                ;       f       my-function
+                ;       initial nil
+                ;       tags    {:paren [#"\(" #"\)"]}]
+                ;      (interpreter n f initial tags))
                 ; =>
                 ; "A closing ':paren' tag starts at cursor position: 8."
                 ;
@@ -255,7 +310,11 @@
                 ;   (if (closing-tag-ends? :paren)
                 ;       (stop (str "A closing ':paren' tag ends at cursor position: " (:cursor state) "."))))
                 ;
-                ; (interpreter "(abc(def))" my-function nil)
+                ; (let [n       "(abc(def))"
+                ;       f       my-function
+                ;       initial nil
+                ;       tags    {:paren [#"\(" #"\)"]}]
+                ;      (interpreter n f initial tags))
                 ; =>
                 ; "A closing ':paren' tag ends at cursor position: 9."
                 ;
@@ -279,10 +338,10 @@
            ;  :tag-actual-depth (function)
            ;  :tag-opened? (function)}
            (f0 [state]
-               {:opening-tag-starts? (f91 state) :opening-tag-ends? (f92 state)
-                :closing-tag-starts? (f93 state) :closing-tag-ends? (f94 state)
-                :tag-actual-depth    (f89 state) :tag-opened?       (f90 state)
-                :stop                (f88 state)})
+               {:opening-tag-starts?   (f91 state) :opening-tag-ends? (f92 state)
+                :closing-tag-starts?   (f93 state) :closing-tag-ends? (f94 state)
+                :tag-actual-depth      (f89 state) :tag-opened?       (f90 state)
+                :interpreter-disabled? (f87 state) :stop              (f88 state)})
 
            ; @description
            ; If the interpreter is disabled by an opened tag, it returns the disabling tag's name.
@@ -291,9 +350,11 @@
            ; {:tag-map (vectors in vector)}
            ;
            ; @example
-           ; (let [n "(abc(def ;ghi\n))"
-           ;       f (fn [_ _ _])]
-           ;      (interpreter n f nil))
+           ; (let [n       "(abc(def ;ghi\n))"
+           ;       f       (fn [_ _ _])
+           ;       initial nil
+           ;       tags    {:comment [#";" #"\n"] :paren [#"\(" #"\)"]}]
+           ;      (interpreter n f initial tags))
            ;
            ; (f1 {:tag-map [[:paren   1  1]
            ;                [:paren   2  5]
@@ -317,7 +378,7 @@
            ; @example
            ; (let [n "(abc(def ;ghi\n))"
            ;       f (fn [_ _ _])]
-           ;      (interpreter n f nil))
+           ;      (interpreter n f nil {:comment [#";" #"\n"] :paren [#"\(" #"\)"]}))
            ;
            ; (f2 {:tag-map [[:paren   1  1]
            ;                [:paren   2  5]
@@ -347,7 +408,7 @@
            ;
            ; @return (keyword)
            (f3 [{:keys [cursor]}]
-               (some (fn [[tag-name [opening-tag _]]] (if (string/starts-at? n opening-tag cursor) tag-name))
+               (some (fn [[tag-name [opening-tag _]]] (if (regex/starts-at? n opening-tag cursor) tag-name))
                      (-> tags)))
 
            ; @description
@@ -367,7 +428,7 @@
            ;
            ; @return (keyword)
            (f4 [{:keys [cursor]}]
-               (some (fn [[tag-name [opening-tag _]]] (if (string/ends-at? n opening-tag cursor) tag-name))
+               (some (fn [[tag-name [opening-tag _]]] (if (regex/ends-at? n opening-tag cursor) tag-name))
                      (-> tags)))
 
            ; @description
@@ -387,7 +448,7 @@
            ;
            ; @return (keyword)
            (f5 [{:keys [cursor]}]
-               (some (fn [[tag-name [_ closing-tag]]] (if (string/starts-at? n closing-tag cursor) tag-name))
+               (some (fn [[tag-name [_ closing-tag]]] (if (regex/starts-at? n closing-tag cursor) tag-name))
                      (-> tags)))
 
            ; @description
@@ -407,7 +468,7 @@
            ;
            ; @return (keyword)
            (f6 [{:keys [cursor]}]
-               (some (fn [[tag-name [_ closing-tag]]] (if (string/ends-at? n closing-tag cursor) tag-name))
+               (some (fn [[tag-name [_ closing-tag]]] (if (regex/ends-at? n closing-tag cursor) tag-name))
                      (-> tags)))
 
            ; @description
@@ -471,8 +532,8 @@
                            ; ... whether a closing tag started at the PREVIOUS cursor position.
                            ; ... whether the interpreter is disabled by an OPENED tag.
                            ; + to check whether a closing tag started at the previous cursor position, the cursor value must be a positive
-                           ;   integer (after decreasing it by one), otherwise the 'string/starts-at?' function would search at the other end
-                           ;   of the provided string (because of the negative cursor position).
+                           ;   integer (after decreasing it by one), otherwise the 'regex/starts-at?' / 'regex/ends-at?' function would search
+                           ;   at the other end of the provided string (because of the negative cursor position).
                            (= cursor 0)
                            (recur (update state :cursor inc))
                            ; If the 'stop' metafunction stopped the iteration by wrapping the 'result' value in a vector,
@@ -480,13 +541,13 @@
                            (-> result vector? (and (-> result first (= ::$stop))))
                            (-> result second)
                            :else
-                           (let [udpated-state      (f7 state)
-                                 provided-state     (select-keys udpated-state [:cursor :interpreter-disabled? :tag-map])
-                                 provided-functions (f0 udpated-state)
-                                 updated-result     (f result provided-state provided-functions)]
+                           (let [updated-state      (-> state         (f7))
+                                 provided-state     (-> updated-state (select-keys [:cursor :interpreter-disabled? :tag-map]))
+                                 provided-functions (-> updated-state (f0))
+                                 updated-result     (-> result        (f provided-state provided-functions))]
                                 (cond ; If the cursor reached the given 'endpoint' position in the given 'n' string ...
                                       (= cursor endpoint)
                                       (-> result)
                                       ; Calls itself recursivelly ...
-                                      :next-iteration (recur (-> udpated-state (assoc  :result updated-result)
+                                      :next-iteration (recur (-> updated-state (assoc  :result updated-result)
                                                                                (update :cursor inc)))))))))))

@@ -24,6 +24,7 @@
 (def interpreter interpreter/interpreter)
 
 ; syntax-reader.search
+(def first-position       search/first-position)
 (def opening-tag-position search/opening-tag-position)
 (def closing-tag-position search/closing-tag-position)
 

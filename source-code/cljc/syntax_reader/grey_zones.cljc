@@ -19,19 +19,19 @@
   ; @param (string) n
   ; @param (vectors in map)(opt) tags
   ; {:comment (vector)(opt)
-  ;   [(string) opening-tag
-  ;    (string) closing-tag
+  ;   [(regex pattern) opening-tag
+  ;    (regex pattern) closing-tag
   ;    (map)(opt) tag-options
   ;     {:disable-interpreter? (boolean)(opt)}
   ;       Default: false}]
-  ;  Default: [";" "\n" {:disable-interpreter? true}]
+  ;  Default: [#";" #"\n" {:disable-interpreter? true}]
   ;  :quote (vector)(opt)
-  ;   [(string) opening-tag
-  ;    (string) closing-tag
+  ;   [(regex pattern) opening-tag
+  ;    (regex pattern) closing-tag
   ;    (map)(opt) tag-options
   ;     {:disable-interpreter? (boolean)(opt)}
   ;       Default: false}]}
-  ;  Default: ["\"" "\"" {:disable-interpreter? true}]
+  ;  Default: [#"\"" #"\"" {:disable-interpreter? true}]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the endpoint position in the given 'n' string.
@@ -147,19 +147,19 @@
   ; @param (string) n
   ; @param (vectors in map)(opt) tags
   ; {:comment (vector)(opt)
-  ;   [(string) opening-tag
-  ;    (string) closing-tag
+  ;   [(regex pattern) opening-tag
+  ;    (regex pattern) closing-tag
   ;    (map)(opt) tag-options
   ;     {:disable-interpreter? (boolean)(opt)}
   ;       Default: false}]
-  ;  Default: [";" "\n" {:disable-interpreter? true}]
+  ;  Default: [#";" #"\n" {:disable-interpreter? true}]
   ;  :quote (vector)(opt)
-  ;   [(string) opening-tag
-  ;    (string) closing-tag
+  ;   [(regex pattern) opening-tag
+  ;    (regex pattern) closing-tag
   ;    (map)(opt) tag-options
   ;     {:disable-interpreter? (boolean)(opt)}
   ;       Default: false}]}
-  ;  Default: ["\"" "\"" {:disable-interpreter? true}]
+  ;  Default: [#"\"" #"\"" {:disable-interpreter? true}]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the endpoint position in the given 'n' string.
@@ -183,7 +183,7 @@
   ;
   ; @example
   ; (remove-commented-parts "body { /* My comment */ color: blue; }"
-  ;                         {:comment ["/*" "*/" {:disable-interpreter? true}]})
+  ;                         {:comment [#"/\*" #"\*/" {:disable-interpreter? true}]})
   ; =>
   ; "body {  color: blue; }"
   ;
