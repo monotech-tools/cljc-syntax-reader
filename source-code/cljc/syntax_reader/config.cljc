@@ -5,8 +5,8 @@
 ;; ----------------------------------------------------------------------------
 
 ; @constant (vectors in map)
-(def DEFAULT-TAGS {:brace   [#"\{"  #"\}"]
-                   :bracket [#"\["  #"\]"]
-                   :comment [#";"   #"\n"]
-                   :paren   [#"\("  #"\)"]
-                   :quote   [#"\""  #"\""]})
+(def DEFAULT-TAGS {:brace   [#"\{" #"\}"]
+                   :bracket [#"\[" #"\]"]
+                   :comment [#";"  #"\n"]
+                   :paren   [#"\(" #"\)"]
+                   :quote   [#"\"" #"\""]})

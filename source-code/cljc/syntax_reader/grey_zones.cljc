@@ -73,69 +73,116 @@
    (grey-zones n tags {}))
 
   ([n tags {:keys [offset] :as options :or {offset 0}}]
-   (let [; - It uses the default value of the ':comment' / ':quote' tag, if it is not provided in the given 'tags' map.
-         ; - It makes sure that the ':disable-interpreter?' option is TRUE for the ':comment' / ':quote' tag, (even if it is provided in the given 'tags' map).
-         tags (cond-> tags :comment (map/reversed-merge {:comment (-> config/DEFAULT-TAGS :comment)})
-                           :comment (assoc-in           [:comment 2 :disable-interpreter?] true)
-                           :quote   (map/reversed-merge {:quote   (-> config/DEFAULT-TAGS :quote)})
-                           :quote   (assoc-in           [:quote   2 :disable-interpreter?] true))]
-        (letfn [; @description
-                ; Returns whether the actual cursor position is commented / quoted.
-                ;
-                ; @example
-                ; (grey-zones "My string ; My comment\n \"My quote\"")
-                ;
-                ; (f0 {:cursor 13 :tag-map [[:comment 1 11]]}) ; <- A ':comment' tag opened at the 11th cursor position.
-                ; =>
-                ; :commented
-                (f0 [{:keys [tag-map]}]
-                    (some (fn [[tag-name _ _]] (case tag-name :comment :commented :quote :quoted nil))
-                          (-> tag-map)))
+   (letfn [; @description
+           ; - Uses the default value of the ':comment' / ':quote' tag, if the tag is not provided in the given 'tags' map.
+           ; - Makes sure that the ':disable-interpreter?' option is TRUE for the ':comment' / ':quote' tag, (even if the tag is provided in the given 'tags' map).
+           ;
+           ; @return (map)
+           (f0 []
+               (-> tags (-> (map/reversed-merge {:comment (-> config/DEFAULT-TAGS :comment)})
+                            (assoc-in           [:comment 2 :disable-interpreter?] true))
+                        (-> (map/reversed-merge {:quote   (-> config/DEFAULT-TAGS :quote)})
+                            (assoc-in           [:quote   2 :disable-interpreter?] true))))
 
-                ;...
-                (f1 [{:keys [commented quoted] :as result} {:keys [cursor tag-map] :as state} _]
-                    (let [zone-name (f0 state)]
-                         (cond ; The interpreter starts the process at the 0th cursor position in order to make accurate tag map,
-                               ; and this ('grey-zones') function starts collecting grey zones from the given 'offset' position.
-                               (-> offset (> cursor))
-                               (-> result)
-                               ; If there is at least one vector in the ':commented' vector in the output map,
-                               ; and it doesn't contain a second value (missing end boundary = still opened comment) ...
-                               (and (-> result :commented last vector?)
-                                    (-> result :commented last second nil?))
-                               (if (not= :commented zone-name)
-                                   ; ... and if the actual cursor position is not commented, that means the commented zone
-                                   ; ended at the previous cursor position, so its time to store the end boundary.
-                                   (update-in result [:commented (seqable/last-dex commented)] vector/conj-item (dec cursor))
-                                   ; ... and if the actual cursor position is still commented, it returns the unchanged output map.
-                                   (-> result))
+           ; @description
+           ; Returns TRUE if ...
+           ; ... there is at least one item already added to the ':commented' vector in the 'result' map,
+           ; ... and the last item in the ':commented' vector only contains a start boundary (missing end boundary = still opened comment).
+           ;
+           ; @param (map) result
+           ;
+           ; @return (boolean)
+           (f2 [result]
+               (and (-> result :commented last vector?)
+                    (-> result :commented last second nil?)))
 
-                               ; If there is at least one vector in the ':quoted' vector in the output map,
-                               ; and it doesn't contain a second value (missing end boundary = still opened quote) ...
-                               (and (-> result :quoted last vector?)
-                                    (-> result :quoted last second nil?))
-                               (if (not= :quoted zone-name)
-                                   ; ... and if the actual cursor position is not quoted, that means the quoted zone
-                                   ;     ended at the previous cursor position, so its time to store the end boundary.
-                                   (update-in result [:quoted (seqable/last-dex quoted)] vector/conj-item (dec cursor))
-                                   ; ... and if the actual cursor position is still commented, it returns the unchanged output map.
-                                   (-> result))
+           ; @description
+           ; Returns TRUE if ...
+           ; ... there is at least one item already added to the ':quoted' vector in the 'result' map,
+           ; ... and the last item in the ':quoted' vector only contains a start boundary (missing end boundary = still opened quote).
+           ;
+           ; @param (map) result
+           ;
+           ; @return (boolean)
+           (f3 [result]
+               (and (-> result :quoted last vector?)
+                    (-> result :quoted last second nil?)))
 
-                               ; If none of the previous conditions are match, that means no commented / quoted zone is opened
-                               ; at the actual cursor position, so it checks whether a commented / quoted zone opens at the actual cursor position ...
-                               (-> zone-name)
-                               ; ... if yes (a commented / quoted zone opens at the actual cursor position), it updates the output map by adding a vector
-                               ;     with the start boundary (only) of the found commented / quoted zone.
-                               (update result zone-name vector/conj-item [cursor])
+           ; @description
+           ; Adds the actual cursor position (as end boundary) to the last item in the ':commented' vector in the 'result' map.
+           ;
+           ; @param (map) result
+           ; {:commented (vector)}
+           ; @param (map) state
+           ; {:cursor (integer)}
+           ; @param (map) metafunctions
+           ;
+           ; @return (map)
+           (f4 [{:keys [commented] :as result} {:keys [cursor]} _]
+               (update-in result [:commented (seqable/last-dex commented)] vector/conj-item (dec cursor)))
 
-                               ; ...
-                               :return result)))]
+           ; @description
+           ; Adds the actual cursor position (as end boundary) to the last item in the ':quoted' vector in the 'result' map.
+           ;
+           ; @param (map) result
+           ; {:quoted (vector)}
+           ; @param (map) state
+           ; {:cursor (integer)}
+           ; @param (map) metafunctions
+           ;
+           ; @return (map)
+           (f5 [{:keys [quoted] :as result} {:keys [cursor]} _]
+               (update-in result [:quoted (seqable/last-dex quoted)] vector/conj-item (dec cursor)))
 
-               ; ...
-               (let [initial {:commented [] :escaped? [] :quoted []}]
-                    ; The 'offset' parameter is handled by this ('grey-zones') function (not by the 'interpreter' function),
-                    ; because the interpreter must start on the 0th cursor position in order to make accurate tag map for comments and quotes.
-                    (interpreter/interpreter n f1 initial tags (dissoc options :offset)))))))
+           ; @description
+           ; ...
+           ;
+           ; @param (map) result
+           ; @param (map) state
+           ; @param (map) metafunctions
+           ; {:tag-opened (function)}
+           ;
+           ; @return (map)
+           ; {:commented (integer pairs in vectors in vector)
+           ;  :escaped (integers in vector)
+           ;  :quoted (integer pairs in vectors in vector)}
+           (f6 [result {:keys [cursor] :as state} {:keys [tag-not-opened? tag-opened?] :as metafunctions}]
+               ; The interpreter starts processing at the 0th cursor position in order to make accurate tag map,
+               ; and this ('grey-zones') function starts collecting grey zones from the given 'offset' position.
+               (if-not (-> cursor (>= offset))
+                       (-> result)
+                       (cond ; If the last item is opened in the ':commented' vector in the 'result' map ...
+                             ; ... and if the actual cursor position is not commented, that means the commented zone
+                             ;     ended at the previous cursor position, so its time to store the end boundary.
+                             ; ... and if the actual cursor position is still commented, it returns the unchanged 'result' map.
+                             (-> result f2)
+                             (if (tag-not-opened? :comment)
+                                 (f4 result state metafunctions)
+                                 (-> result))
+                             ; If the last item is opened in the ':quoted' vector in the 'result' map ...
+                             ; ... and if the actual cursor position is not quoted, that means the quoted zone
+                             ;     ended at the previous cursor position, so its time to store the end boundary.
+                             ; ... and if the actual cursor position is still quoted, it returns the unchanged 'result' map.
+                             (-> result f3)
+                             (if (tag-not-opened? :quoted)
+                                 (f5 result state metafunctions)
+                                 (-> result))
+                             ; If a commented zone starts at the actual cursor position ...
+                             ; ... it updates the 'result' map by adding a vector with the start boundary (only) of the found commented zone.
+                             (tag-opened? :comment)
+                             (update result :commented vector/conj-item [cursor])
+                             ; If a quoted zone starts at the actual cursor position ...
+                             ; ... it updates the 'result' map by adding a vector with the start boundary (only) of the found quoted zone.
+                             (tag-opened? :quote)
+                             (update result :quoted vector/conj-item [cursor])
+                             ; ...
+                             :return result)))]
+          ; ...
+          (let [initial {:commented [] :escaped? [] :quoted []}
+                tags    (f0)]
+               ; The 'offset' parameter is handled by this ('grey-zones') function (not by the 'interpreter' function),
+               ; because the interpreter must start on the 0th cursor position in order to make accurate tag map for comments and quotes.
+               (interpreter/interpreter n f6 initial tags (dissoc options :offset))))))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------

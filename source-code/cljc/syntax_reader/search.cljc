@@ -64,32 +64,38 @@
   ([n x tags {:keys [ignore-commented?      ignore-quoted?      offset]
               :or   {ignore-commented? true ignore-quoted? true offset 0}
               :as   options}]
-   (let [; If the 'ignore-commented?' / 'ignore-quoted?' option is passed, ...
-         ; ... it uses the default value of the ':comment' / ':quote' tag, if it is not provided in the given 'tags' map.
-         ; ... it makes sure that the ':disable-interpreter?' option is TRUE for the ':comment' / ':quote' tag, (even if it is provided in the given 'tags' map).
-         tags (cond-> tags ignore-commented? (map/reversed-merge {:comment (-> config/DEFAULT-TAGS :comment)})
-                           ignore-commented? (assoc-in           [:comment 2 :disable-interpreter?] true)
-                           ignore-quoted?    (map/reversed-merge {:quote   (-> config/DEFAULT-TAGS :quote)})
-                           ignore-quoted?    (assoc-in           [:quote   2 :disable-interpreter?] true))]
-        (letfn [; ...
-                (f [_ {:keys [cursor]                     :as state}
-                      {:keys [interpreter-disabled? stop] :as functions}]
-                   (println state)
-                   (cond ; The interpreter starts the process at the 0th cursor position in order to make accurate tag map,
-                         ; and this ('first-position') function starts searching for the given 'x' regex pattern from the given 'offset' position.
-                         (-> offset (> cursor))
-                         (-> nil)
-                         ; The ':comment' / ':quote' tag disables the interpreter if the 'ignore-commented?' / 'ignore-quoted?' option is passed.
-                         (interpreter-disabled?)
-                         (-> nil)
-                         ; ...
-                         (regex/starts-at? n x cursor)
-                         (stop cursor)))]
-               ; ...
-               (let [initial nil]
-                    ; The 'offset' parameter is handled by this ('first-position') function (not by the 'interpreter' function),
-                    ; because the interpreter must start on the 0th cursor position in order to make accurate tag map for comments and quotes.
-                    (interpreter/interpreter n f initial tags (dissoc options :offset)))))))
+   (letfn [; @description
+           ; If the 'ignore-commented?' / 'ignore-quoted?' option is passed, ...
+           ; ... it uses the default value of the ':comment' / ':quote' tag, if the tag is not provided in the given 'tags' map.
+           ; ... it makes sure that the ':disable-interpreter?' option is TRUE for the ':comment' / ':quote' tag, (even if the tag is provided in the given 'tags' map).
+           ;
+           ; @return (map)
+           (f0 []
+               (cond-> tags ignore-commented? (-> (map/reversed-merge {:comment (-> config/DEFAULT-TAGS :comment)})
+                                                  (assoc-in           [:comment 2 :disable-interpreter?] true))
+                            ignore-quoted?    (-> (map/reversed-merge {:quote   (-> config/DEFAULT-TAGS :quote)})
+                                                  (assoc-in           [:quote   2 :disable-interpreter?] true))))
+
+           ; ...
+           (f1 [_ {:keys [cursor]                     :as state}
+                  {:keys [interpreter-disabled? stop] :as metafunctions}]
+               (println state)
+               (cond ; The interpreter starts the process at the 0th cursor position in order to make accurate tag map,
+                     ; and this ('first-position') function starts searching for the given 'x' regex pattern from the given 'offset' position.
+                     (-> offset (> cursor))
+                     (-> nil)
+                     ; If a ':comment' / ':quote' tag disables the interpreter and the 'ignore-commented?' / 'ignore-quoted?' option is passed.
+                     (interpreter-disabled?)
+                     (-> nil)
+                     ; ...
+                     (regex/starts-at? n x cursor)
+                     (stop cursor)))]
+          ; ...
+          (let [initial {}
+                tags    (f0)]
+               ; The 'offset' parameter is handled by this ('first-position') function (not by the 'interpreter' function),
+               ; because the interpreter must start on the 0th cursor position in order to make accurate tag map for comments and quotes.
+               (interpreter/interpreter n f1 initial tags (dissoc options :offset))))))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
@@ -217,32 +223,38 @@
   ([n opening-tag closing-tag tags {:keys [ignore-commented?      ignore-quoted?      offset]
                                     :or   {ignore-commented? true ignore-quoted? true offset 0}
                                     :as   options}]
-   (let [; If the 'ignore-commented?' / 'ignore-quoted?' option is passed, ...
-         ; ... it uses the default value of the ':comment' / ':quote' tag, if it is not provided in the given 'tags' map.
-         ; ... it makes sure that the ':disable-interpreter?' option is TRUE for the ':comment' / ':quote' tag, (even if it is provided in the given 'tags' map).
-         tags (cond-> tags ignore-commented? (map/reversed-merge {:comment (-> config/DEFAULT-TAGS :comment)})
-                           ignore-commented? (assoc-in           [:comment 2 :disable-interpreter?] true)
-                           ignore-quoted?    (map/reversed-merge {:quote   (-> config/DEFAULT-TAGS :quote)})
-                           ignore-quoted?    (assoc-in           [:quote   2 :disable-interpreter?] true))]
-        (letfn [; ...
-                (f [_ {:keys [cursor]                                                          :as state}
-                      {:keys [closing-tag-starts? interpreter-disabled? stop tag-actual-depth] :as functions}]
-                   (cond ; The interpreter starts the process at the 0th cursor position in order to make accurate tag map,
-                         ; and this ('closing-tag-position') function starts searching for the given 'closing-tag' regex pattern from the given 'offset' position.
-                         (-> offset (> cursor))
-                         (-> nil)
-                         ; The ':comment' / ':quote' tag disables the interpreter if the 'ignore-commented?' / 'ignore-quoted?' option is passed.
-                         (interpreter-disabled?)
-                         (-> nil)
-                         ; If the given tag is closing (the given 'closing-tag' regex pattern starts at the actual cursor position),
-                         ; and it also closes its 1st depth (inner pairs of the given 'opening-tag' and 'closing-tag' regex patterns have higher depth value than 1) ...
-                         (and (-> ::tag closing-tag-starts?)
-                              (-> ::tag tag-actual-depth (= 1)))
-                         ; ... returns the actual cursor position.
-                         (stop cursor)))]
-               ; ...
-               (let [initial nil]
-                    ; The 'offset' parameter is handled by this ('closing-tag-position') function (not by the 'interpreter' function),
-                    ; because the interpreter must start on the 0th cursor position in order to make accurate tag map for comments and quotes.
-                    (interpreter/interpreter n f initial (assoc  tags ::tag [opening-tag closing-tag])
-                                                         (dissoc options :offset)))))))
+   (letfn [; @description
+           ; If the 'ignore-commented?' / 'ignore-quoted?' option is passed, ...
+           ; ... it uses the default value of the ':comment' / ':quote' tag, if the tag is not provided in the given 'tags' map.
+           ; ... it makes sure that the ':disable-interpreter?' option is TRUE for the ':comment' / ':quote' tag, (even if the tag is provided in the given 'tags' map).
+           ;
+           ; @return (map)
+           (f0 []
+               (cond-> tags ignore-commented? (-> (map/reversed-merge {:comment (-> config/DEFAULT-TAGS :comment)})
+                                                  (assoc-in           [:comment 2 :disable-interpreter?] true))
+                            ignore-quoted?    (-> (map/reversed-merge {:quote   (-> config/DEFAULT-TAGS :quote)})
+                                                  (assoc-in           [:quote   2 :disable-interpreter?] true))))
+
+           ; ...
+           (f1 [_ {:keys [cursor]                                                          :as state}
+                  {:keys [closing-tag-starts? interpreter-disabled? stop tag-actual-depth] :as metafunctions}]
+               (cond ; The interpreter starts the process at the 0th cursor position in order to make accurate tag map,
+                     ; and this ('closing-tag-position') function starts searching for the given 'closing-tag' regex pattern from the given 'offset' position.
+                     (-> offset (> cursor))
+                     (-> nil)
+                     ; If a ':comment' / ':quote' tag disables the interpreter and the 'ignore-commented?' / 'ignore-quoted?' option is passed.
+                     (interpreter-disabled?)
+                     (-> nil)
+                     ; If the given tag is closing (the given 'closing-tag' regex pattern starts at the actual cursor position),
+                     ; and it also closes its 1st depth (inner pairs of the given 'opening-tag' and 'closing-tag' regex patterns have higher depth value than 1) ...
+                     (and (-> ::tag closing-tag-starts?)
+                          (-> ::tag tag-actual-depth (= 1)))
+                     ; ... returns the actual cursor position.
+                     (stop cursor)))]
+          ; ...
+          (let [initial {}
+                tags    (f0)]
+               ; The 'offset' parameter is handled by this ('closing-tag-position') function (not by the 'interpreter' function),
+               ; because the interpreter must start on the 0th cursor position in order to make accurate tag map for comments and quotes.
+               (interpreter/interpreter n f1 initial (assoc  tags ::tag [opening-tag closing-tag])
+                                                     (dissoc options :offset))))))
