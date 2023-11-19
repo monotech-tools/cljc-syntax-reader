@@ -17,7 +17,7 @@
   ; @param (map) state
   ;
   ; @return (function)
-  [n tags options tate]
+  [n tags options state]
   ; @description
   ; Returns TRUE if the interpreter is disabled by an opened tag.
   ;
@@ -39,7 +39,7 @@
   ; @param (map) state
   ;
   ; @return (function)
-  [n tags options tate]
+  [n tags options state]
   ; @description
   ; Returns TRUE if the interpreter is NOT disabled by an opened tag.
   ;
@@ -73,10 +73,25 @@
   ; @return (vector)
   ; [(namespaced keyword) stop-marker
   ;  (*) result]
-  (fn [result] [::$stop result]))
+  (fn [result] [:$stop result]))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
+
+(defn parent-tag-name-f
+  ; @ignore
+  ;
+  ; @description
+  ; Returns the 'parent-tag-name' metafunction.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ;
+  ; @return (function)
+  [n tags options state]
+  (fn [] (-> state interpreter.utils/innermost-tag :name)))
 
 (defn tag-actual-depth-f
   ; @ignore

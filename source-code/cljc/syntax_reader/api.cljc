@@ -1,27 +1,27 @@
 
 (ns syntax-reader.api
-    (:require [syntax-reader.check       :as check]
-              [syntax-reader.config      :as config]
+    (:require [syntax-reader.core.check       :as core.check]
+              [syntax-reader.core.config      :as core.config]
               [syntax-reader.grey-zones  :as grey-zones]
-              [syntax-reader.interpreter :as interpreter]
+              [syntax-reader.interpreter.core :as interpreter.core]
               [syntax-reader.search      :as search]
               [syntax-reader.tags        :as tags]))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
 
-; syntax-reader.check
-(def position-escaped? check/position-escaped?)
+; syntax-reader.core.check
+(def position-escaped? core.check/position-escaped?)
 
-; syntax-reader.config
-(def DEFAULT-TAGS config/DEFAULT-TAGS)
+; syntax-reader.core.config
+(def DEFAULT-TAGS core.config/DEFAULT-TAGS)
 
 ; syntax-reader.grey-zones
 (def grey-zones             grey-zones/grey-zones)
 (def remove-commented-parts grey-zones/remove-commented-parts)
 
-; syntax-reader.interpreter
-(def interpreter interpreter/interpreter)
+; syntax-reader.interpreter.core
+(def interpreter interpreter.core/interpreter)
 
 ; syntax-reader.search
 (def first-position       search/first-position)

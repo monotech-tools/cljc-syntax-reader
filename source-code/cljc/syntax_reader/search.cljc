@@ -2,8 +2,8 @@
 (ns syntax-reader.search
     (:require [map.api                   :as map]
               [regex.api                 :as regex]
-              [syntax-reader.config      :as config]
-              [syntax-reader.interpreter :as interpreter]))
+              [syntax-reader.core.config      :as core.config]
+              [syntax-reader.interpreter.core :as interpreter.core]))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
@@ -71,9 +71,9 @@
            ;
            ; @return (map)
            (f0 []
-               (cond-> tags ignore-commented? (-> (map/reversed-merge {:comment (-> config/DEFAULT-TAGS :comment)})
+               (cond-> tags ignore-commented? (-> (map/reversed-merge {:comment (-> core.config/DEFAULT-TAGS :comment)})
                                                   (assoc-in           [:comment 2 :disable-interpreter?] true))
-                            ignore-quoted?    (-> (map/reversed-merge {:quote   (-> config/DEFAULT-TAGS :quote)})
+                            ignore-quoted?    (-> (map/reversed-merge {:quote   (-> core.config/DEFAULT-TAGS :quote)})
                                                   (assoc-in           [:quote   2 :disable-interpreter?] true))))
 
            ; ...
@@ -92,10 +92,9 @@
                      (stop cursor)))]
           ; ...
           (let [initial {}
+                options (dissoc options :offset)
                 tags    (f0)]
-               ; The 'offset' parameter is handled by this ('first-position') function (not by the 'interpreter' function),
-               ; because the interpreter must start on the 0th cursor position in order to make accurate tag map for comments and quotes.
-               (interpreter/interpreter n f1 initial tags (dissoc options :offset))))))
+               (interpreter.core/interpreter n f1 initial tags options)))))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
@@ -230,10 +229,11 @@
            ;
            ; @return (map)
            (f0 []
-               (cond-> tags ignore-commented? (-> (map/reversed-merge {:comment (-> config/DEFAULT-TAGS :comment)})
+               (cond-> tags ignore-commented? (-> (map/reversed-merge {:comment (-> core.config/DEFAULT-TAGS :comment)})
                                                   (assoc-in           [:comment 2 :disable-interpreter?] true))
-                            ignore-quoted?    (-> (map/reversed-merge {:quote   (-> config/DEFAULT-TAGS :quote)})
-                                                  (assoc-in           [:quote   2 :disable-interpreter?] true))))
+                            ignore-quoted?    (-> (map/reversed-merge {:quote   (-> core.config/DEFAULT-TAGS :quote)})
+                                                  (assoc-in           [:quote   2 :disable-interpreter?] true))
+                            :add-searched-tag (-> (assoc              ::tag [opening-tag closing-tag]))))
 
            ; ...
            (f1 [_ {:keys [cursor]                                                          :as state}
@@ -253,8 +253,6 @@
                      (stop cursor)))]
           ; ...
           (let [initial {}
+                options (dissoc options :offset)
                 tags    (f0)]
-               ; The 'offset' parameter is handled by this ('closing-tag-position') function (not by the 'interpreter' function),
-               ; because the interpreter must start on the 0th cursor position in order to make accurate tag map for comments and quotes.
-               (interpreter/interpreter n f1 initial (assoc  tags ::tag [opening-tag closing-tag])
-                                                     (dissoc options :offset))))))
+               (interpreter.core/interpreter n f1 initial tags options)))))

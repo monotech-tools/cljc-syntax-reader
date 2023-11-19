@@ -3,8 +3,8 @@
     (:require [map.api                   :as map]
               [seqable.api               :as seqable]
               [string.api                :as string]
-              [syntax-reader.config      :as config]
-              [syntax-reader.interpreter :as interpreter]
+              [syntax-reader.core.config      :as core.config]
+              [syntax-reader.interpreter.core :as interpreter.core]
               [vector.api                :as vector]))
 
 ;; ----------------------------------------------------------------------------
@@ -79,9 +79,9 @@
            ;
            ; @return (map)
            (f0 []
-               (-> tags (-> (map/reversed-merge {:comment (-> config/DEFAULT-TAGS :comment)})
+               (-> tags (-> (map/reversed-merge {:comment (-> core.config/DEFAULT-TAGS :comment)})
                             (assoc-in           [:comment 2 :disable-interpreter?] true))
-                        (-> (map/reversed-merge {:quote   (-> config/DEFAULT-TAGS :quote)})
+                        (-> (map/reversed-merge {:quote   (-> core.config/DEFAULT-TAGS :quote)})
                             (assoc-in           [:quote   2 :disable-interpreter?] true))))
 
            ; @description
@@ -179,10 +179,9 @@
                              :return result)))]
           ; ...
           (let [initial {:commented [] :escaped? [] :quoted []}
+                options (dissoc options :offset)
                 tags    (f0)]
-               ; The 'offset' parameter is handled by this ('grey-zones') function (not by the 'interpreter' function),
-               ; because the interpreter must start on the 0th cursor position in order to make accurate tag map for comments and quotes.
-               (interpreter/interpreter n f6 initial tags (dissoc options :offset))))))
+               (interpreter.core/interpreter n f6 initial tags options)))))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
@@ -210,14 +209,19 @@
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the endpoint position in the given 'n' string.
-  ;  :fix-indents? (boolean)(opt)
-  ;   Default: false
   ;  :ignore-escaped? (boolean)(opt)
   ;   Default: true
+  ;  :keep-indents? (boolean)(opt)
+  ;   TODO
+  ;   Default: false
   ;  :offset (integer)(opt)
   ;   Starts searching at the offset position in the given 'n' string.
   ;   Default: 0
-  ;  :remove-leftover-newlines? (boolean)(opt)
+  ;  :remove-leftover-blank-lines? (boolean)(opt)
+  ;   TODO
+  ;   Default: false
+  ;  :trim-line-ends? (boolean)(opt)
+  ;   TODO
   ;   Default: false}
   ;
   ; @usage
@@ -241,7 +245,7 @@
   ([n tags]
    (remove-commented-parts n tags {}))
 
-  ([n tags {:keys [fix-indents? remove-leftover-newlines?] :as options}]
+  ([n tags {:keys [keep-indents? remove-leftover-blank-lines?] :as options}]
    (let [grey-zones (grey-zones n tags options)]
         (letfn [; - If there is at least one commented zone left in the 'commented-zones' vector,
                 ;   it uses the first commented zone's boundaries to cut out that zone from the 'result' string
