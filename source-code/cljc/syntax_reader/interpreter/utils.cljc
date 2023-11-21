@@ -9,6 +9,42 @@
 ;; -- Interpreter functions ---------------------------------------------------
 ;; ----------------------------------------------------------------------------
 
+(defn offset-reached?
+  ; @ignore
+  ;
+  ; @description
+  ; Returns TRUE if the actual cursor position reached the given 'offset' position.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; {:offset (integer)(opt)}
+  ; @param (map) state
+  ; {:cursor (integer)}
+  ;
+  ; @return (keyword)
+  [n _ {:keys [offset] :or {offset 0}} {:keys [cursor]}]
+  (let [offset (seqable/normalize-cursor n offset)]
+       (>= cursor offset)))
+
+(defn endpoint-reached?
+  ; @ignore
+  ;
+  ; @description
+  ; Returns TRUE if the actual cursor position reached the given 'endpoint' position.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; {:endpoint (integer)(opt)}
+  ; @param (map) state
+  ; {:cursor (integer)}
+  ;
+  ; @return (keyword)
+  [n _ {:keys [endpoint] :or {endpoint (count n)}} {:keys [cursor]}]
+  (let [endpoint (seqable/normalize-cursor n endpoint)]
+       (>= cursor endpoint)))
+
 (defn interpreter-disabled-by
   ; @ignore
   ;

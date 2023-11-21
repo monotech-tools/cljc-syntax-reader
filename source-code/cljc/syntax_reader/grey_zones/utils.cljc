@@ -1,24 +1,6 @@
 
 (ns syntax-reader.grey-zones.utils
-    (:require [string.api :as string]
-              [vector.api :as vector]))
-
-;; ----------------------------------------------------------------------------
-;; ----------------------------------------------------------------------------
-
-(defn offset-exceeded?
-  ; @ignore
-  ;
-  ; @description
-  ; Returns TRUE if the actual cursor value exceeded the given 'offset' value.
-  ;
-  ; @param (map) result
-  ; @param (map) state
-  ; {}
-  ; @param (map) metafunctions
-  ;
-  ; @return (boolean)
-  [_ {:keys [cursor]} _])
+    (:require [vector.api :as vector]))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
@@ -253,29 +235,3 @@
   (cond (opening-tag-starts? :comment) (update result :commented vector/conj-item {:started-at cursor})
         (opening-tag-starts? :quote)   (update result :quoted    vector/conj-item {:started-at cursor})
         :return result))
-
-;; ----------------------------------------------------------------------------
-;; ----------------------------------------------------------------------------
-
-(defn remove-commented-part
-  ; @ignore
-  ;
-  ; @description
-  ; ...
-  ;
-  ; @param (string) result
-  ; @param (integer) adjust
-  ; @param (map) commented-zone
-  ; {:ended-at (integer)
-  ;  :started-at (integer)}
-  ; @param (map) options
-  ; {:keep-indents? (boolean)(opt)
-  ;  :remove-leftover-blank-lines? (boolean)(opt)}
-  [result adjust {:keys [started-at ended-at]} {:keys [keep-indents? remove-leftover-blank-lines?]}]
-  (let [zone-start (-> started-at (- adjust))
-        zone-end   (-> ended-at   (- adjust))]
-       (as-> result % ; Removing the commented part ...
-                      (string/cut-range % zone-start zone-end {:keep-inline-position? keep-indents?})
-                      ; Removing leftover blank line (if any) ...
-                      (cond-> % (and remove-leftover-blank-lines? (string/in-blank-line? % zone-start))
-                                (string/remove-containing-line zone-start)))))

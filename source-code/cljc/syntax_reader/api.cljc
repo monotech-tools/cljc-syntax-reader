@@ -1,14 +1,19 @@
 
 (ns syntax-reader.api
-    (:require [syntax-reader.core.check         :as core.check]
+    (:require [syntax-reader.comments.engine    :as comments.engine]
+              [syntax-reader.core.check         :as core.check]
               [syntax-reader.core.config        :as core.config]
               [syntax-reader.grey-zones.engine  :as grey-zones.engine]
               [syntax-reader.interpreter.engine :as interpreter.engine]
               [syntax-reader.search.engine      :as search.engine]
-              [syntax-reader.tags        :as tags]))
+              [syntax-reader.tags.defaults      :as tags.defaults]
+              [syntax-reader.tags.engine        :as tags.engine]))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
+
+; syntax-reader.comments.engine
+(def remove-commented-parts comments.engine/remove-commented-parts)
 
 ; syntax-reader.core.check
 (def position-escaped? core.check/position-escaped?)
@@ -17,21 +22,22 @@
 (def DEFAULT-TAGS core.config/DEFAULT-TAGS)
 
 ; syntax-reader.grey-zones.engine
-(def grey-zones             grey-zones.engine/grey-zones)
-(def remove-commented-parts grey-zones.engine/remove-commented-parts)
+(def grey-zones grey-zones.engine/grey-zones)
 
 ; syntax-reader.interpreter.engine
 (def interpreter interpreter.engine/interpreter)
 
 ; syntax-reader.search.engine
-(def first-position       search.engine/first-position)
-(def opening-tag-position search.engine/opening-tag-position)
-(def closing-tag-position search.engine/closing-tag-position)
+(def first-position search.engine/first-position)
 
-; syntax-reader.tags
-(def opening-brace-position   tags/opening-brace-position)
-(def closing-brace-position   tags/closing-brace-position)
-(def opening-bracket-position tags/opening-bracket-position)
-(def closing-bracket-position tags/closing-bracket-position)
-(def opening-paren-position   tags/opening-paren-position)
-(def closing-paren-position   tags/closing-paren-position)
+; syntax-reader.tags.defaults
+(def opening-brace-position   tags.defaults/opening-brace-position)
+(def closing-brace-position   tags.defaults/closing-brace-position)
+(def opening-bracket-position tags.defaults/opening-bracket-position)
+(def closing-bracket-position tags.defaults/closing-bracket-position)
+(def opening-paren-position   tags.defaults/opening-paren-position)
+(def closing-paren-position   tags.defaults/closing-paren-position)
+
+; syntax-reader.tags.engine
+(def opening-tag-position tags.engine/opening-tag-position)
+(def closing-tag-position tags.engine/closing-tag-position)

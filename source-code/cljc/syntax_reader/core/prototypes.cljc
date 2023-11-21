@@ -8,46 +8,75 @@
 (defn comment-tag-prototype
   ; @ignore
   ;
-  ; @description
-  ; - Uses the default value of the ':comment' / ':quote' tag, in case the tag is not provided in the given 'tags' map.
-  ; - Ensures that the ':disable-interpreter?' option is TRUE for the ':comment' / ':quote' tag, (even if the tag is provided in the given 'tags' map).
+  ; @param (vector) comment-tag
+  ; [(regex pattern) opening-tag
+  ;  (regex pattern) closing-tag
+  ;  (map)(opt) options]
   ;
-  ; @param (map) tags
-  ; {:comment (vector)}
+  ; @example
+  ; (comment-tag-prototype [#";" #"\n"])
+  ; =>
+  ; [#";" #"\n" {:disable-interpreter? true}]
+  ;
+  ; @example
+  ; (comment-tag-prototype [])
+  ; =>
+  ; [#";" #"\n" {:disable-interpreter? true}]
   ;
   ; @return (vector)
   ; [(regex-pattern) opening-tag
   ;  (regex-pattern) closing-tag
   ;  (map) options]
-  [tags]
-  [(or (-> tags                     :comment first)
-       (-> core.config/DEFAULT-TAGS :comment first))
-   (or (-> tags                     :comment second)
-       (-> core.config/DEFAULT-TAGS :comment second))
-   {:disable-interpreter? true}])
+  [[opening-tag closing-tag options]]
+  [(or opening-tag (-> core.config/DEFAULT-TAGS :comment first))
+   (or closing-tag (-> core.config/DEFAULT-TAGS :comment second))
+   (merge options {:disable-interpreter? true})])
 
-(defn comment-tag-prototype
+(defn quote-tag-prototype
   ; @ignore
   ;
-  ; @description
-  ; - Uses the default value of the ':comment' / ':quote' tag, in case the tag is not provided in the given 'tags' map.
-  ; - Ensures that the ':disable-interpreter?' option is TRUE for the ':comment' / ':quote' tag, (even if the tag is provided in the given 'tags' map).
+  ; @param (vector) quote-tag
+  ; [(regex pattern) opening-tag
+  ;  (regex pattern) closing-tag
+  ;  (map)(opt) options]
+  ;
+  ; @example
+  ; (quote-tag-prototype [#"\"" #"\""])
+  ; =>
+  ; [#"\"" #"\"" {:disable-interpreter? true}]
+  ;
+  ; @example
+  ; (quote-tag-prototype [])
+  ; =>
+  ; [#"\"" #"\"" {:disable-interpreter? true}]
+  ;
+  ; @return (vector)
+  ; [(regex-pattern) opening-tag
+  ;  (regex-pattern) closing-tag
+  ;  (map) options]
+  [[opening-tag closing-tag options]]
+  [(or opening-tag (-> core.config/DEFAULT-TAGS :quote first))
+   (or closing-tag (-> core.config/DEFAULT-TAGS :quote second))
+   (merge options {:disable-interpreter? true})])
+
+;; ----------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
+
+(defn tags-prototype
+  ; @ignore
   ;
   ; @param (map) tags
-  ; {:comment (vector)
-  ;  :quote (vector)}
+  ; {:comment (vector)(opt)
+  ;  :quote (vector)(opt)}
+  ; @param (map) options
+  ; {:ignore-commented? (boolean)(opt)
+  ;   Default: true
+  ;  :ignore-quoted? (boolean)(opt)
+  ;   Default: true}
   ;
   ; @return (map)
   ; {:comment (vector)
   ;  :quote (vector)}
-  [tags]
-  {:comment [(or (-> tags                     :comment first)
-                 (-> core.config/DEFAULT-TAGS :comment first))
-             (or (-> tags                     :comment second)
-                 (-> core.config/DEFAULT-TAGS :comment second))
-             {:disable-interpreter? true}]
-   :quote   [(or (-> tags                     :quote first)
-                 (-> core.config/DEFAULT-TAGS :quote first))
-             (or (-> tags                     :quote second)
-                 (-> core.config/DEFAULT-TAGS :quote second))
-             {:disable-interpreter? true}]})
+  [{:keys [comment quote] :as tags} {:keys [ignore-commented? ignore-quoted?] :or {ignore-commented? true ignore-quoted? true}}]
+  (merge tags (if ignore-commented? {:comment (comment-tag-prototype comment)})
+              (if ignore-quoted?    {:quote   (quote-tag-prototype   quote)})))

@@ -47,11 +47,16 @@
   ;      :disable-interpreter? (boolean)(opt)
   ;       Disables processing of other tags whithin the tag (for comments, quotes, etc.).}]}
   ; @param (map)(opt) options
-  ; {:ignore-escaped? (boolean)(opt)
+  ; {:endpoint (integer)(opt)
+  ;   Stops the interpreter at the given 'endpoint' position.
+  ;  :ignore-escaped? (boolean)(opt)
   ;   TODO
   ;   Default: true
+  ;  :offset (integer)(opt)
+  ;   Starts applying the given 'f' function at the given 'offset' position.
+  ;   In order to make accurate tag map, the interpreter starts processing at the 0th position even if the 'offset' value is not 0.
   ;  :tag-priority-order (keywords in vector)(opt)
-  ;   List of high priority tags' names (in order of priority.}
+  ;   List of high priority tags' names (in order of priority) that are processed with priority if more than one opening tag starts at a cursor position.}
   ;
   ; @usage
   ; (interpreter "My string" (fn [result state metafunctions]) nil)
@@ -135,10 +140,13 @@
                (loop [{:keys [result] :as state} initial-state]
                      (let [actual-state           (interpreter.utils/update-actual-state   n tags options state)
                            provided-state         (interpreter.utils/filter-provided-state n tags options actual-state)
+                           offset-reached?        (interpreter.utils/offset-reached?       n tags options actual-state)
+                           applied-function       (fn [result state metafunctions] (if offset-reached? (f result state metafunctions) result))
                            provided-metafunctions (-> actual-state f0)
-                           updated-result         (-> result (f provided-state provided-metafunctions))
+                           updated-result         (-> result (applied-function provided-state provided-metafunctions))
                            updated-state          (-> actual-state (assoc :result updated-result))]
-                          (cond (interpreter.utils/interpreter-ended?   n tags options updated-state) (-> updated-result)
+                          (cond (interpreter.utils/endpoint-reached?    n tags options updated-state) (-> updated-result)
+                                (interpreter.utils/interpreter-ended?   n tags options updated-state) (-> updated-result)
                                 (interpreter.utils/interpreter-stopped? n tags options updated-state) (-> updated-result second)
                                 :next-iteration (let [prepared-state (interpreter.utils/prepare-next-state n tags options updated-state)]
                                                      (recur (-> prepared-state (update :cursor inc)))))))))))
