@@ -434,8 +434,7 @@
   ;
   ; @return (boolean)
   [_ _ _ {:keys [actual-tags cursor]}]
-  (if-let [innermost-tag-will-open-at (-> actual-tags last :will-open-at)]
-          (> innermost-tag-will-open-at cursor)))
+  (-> actual-tags last :will-open-at some?))
 
 (defn reading-closing-tag?
   ; @ignore
@@ -453,8 +452,7 @@
   ;
   ; @return (boolean)
   [_ _ _ {:keys [actual-tags cursor]}]
-  (if-let [innermost-tag-will-end-at (-> actual-tags last :will-end-at)]
-          (> innermost-tag-will-end-at cursor)))
+  (-> actual-tags last :will-end-at some?))
 
 (defn actualize-innermost-tag
   ; @ignore
@@ -480,7 +478,7 @@
   ; @ignore
   ;
   ; @description
-  ; - Adds a new innermost tag to the 'actual-tags' vector if an opening tag starts at the actual cursor position.
+  ; - If an opening tag starts at the actual cursor position, it adds a new innermost tag to the 'actual-tags' vector.
   ; - At first it checks for tags that are presented also in the ':tag-priority-order' vector, then it checks for the rest
   ;   that are presented only in the given 'tags' map.
   ;
@@ -505,7 +503,7 @@
   ; @ignore
   ;
   ; @description
-  ; Closes the innermost tag in the 'actual-tags' vector if its closing tag starts at the actual cursor position.
+  ; If the innermost tag's closing tag starts at the actual cursor position, it closes that tag in the 'actual-tags' vector.
   ;
   ; @param (string) n
   ; @param (map) tags

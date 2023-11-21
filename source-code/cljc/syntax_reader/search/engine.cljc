@@ -1,9 +1,9 @@
 
-(ns syntax-reader.search
+(ns syntax-reader.search.engine
     (:require [map.api                   :as map]
               [regex.api                 :as regex]
-              [syntax-reader.core.config      :as core.config]
-              [syntax-reader.interpreter.core :as interpreter.core]))
+              [syntax-reader.core.config        :as core.config]
+              [syntax-reader.interpreter.engine :as interpreter.engine]))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
@@ -12,7 +12,7 @@
   ; @description
   ; - Returns the position of the first 'x' regex pattern in the given 'n' string.
   ; - If the 'offset' parameter is passed, the search starts from the offset position.
-  ; - The returned position is an absolute value and it is independent from the offset value.
+  ; - The returned position is an absolute value and it is independent from the given offset value.
   ;
   ; @param (string) n
   ; @param (regex pattern) x
@@ -64,19 +64,7 @@
   ([n x tags {:keys [ignore-commented?      ignore-quoted?      offset]
               :or   {ignore-commented? true ignore-quoted? true offset 0}
               :as   options}]
-   (letfn [; @description
-           ; If the 'ignore-commented?' / 'ignore-quoted?' option is passed, ...
-           ; ... it uses the default value of the ':comment' / ':quote' tag, if the tag is not provided in the given 'tags' map.
-           ; ... it makes sure that the ':disable-interpreter?' option is TRUE for the ':comment' / ':quote' tag, (even if the tag is provided in the given 'tags' map).
-           ;
-           ; @return (map)
-           (f0 []
-               (cond-> tags ignore-commented? (-> (map/reversed-merge {:comment (-> core.config/DEFAULT-TAGS :comment)})
-                                                  (assoc-in           [:comment 2 :disable-interpreter?] true))
-                            ignore-quoted?    (-> (map/reversed-merge {:quote   (-> core.config/DEFAULT-TAGS :quote)})
-                                                  (assoc-in           [:quote   2 :disable-interpreter?] true))))
-
-           ; ...
+   (letfn [; ...
            (f1 [_ {:keys [cursor]                     :as state}
                   {:keys [interpreter-disabled? stop] :as metafunctions}]
                (println state)
@@ -92,9 +80,9 @@
                      (stop cursor)))]
           ; ...
           (let [initial {}
-                options (dissoc options :offset)
-                tags    (f0)]
-               (interpreter.core/interpreter n f1 initial tags options)))))
+                tags    (cond-> {} ignore-commented? (assoc :comment (core.prototypes/comment-tag-prototype tags))
+                                   ignore-quoted?    (assoc :quote   (core.prototypes/quote-tag-prototype   tags)))]
+               (interpreter.engine/interpreter n f1 initial tags options)))))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
@@ -103,7 +91,7 @@
   ; @description
   ; - Returns the position of the first 'opening-tag' regex pattern in the given 'n' string.
   ; - If the 'offset' parameter is passed, the search starts from the offset position.
-  ; - The returned position is an absolute value and it is independent from the offset value.
+  ; - The returned position is an absolute value and it is independent from the given offset value.
   ;
   ; @param (string) n
   ; @param (regex pattern) opening-tag
@@ -164,7 +152,7 @@
   ; @description
   ; - Returns the position of the corresponding closing tag of the first occurence of the 'opening-tag' regex pattern in the given 'n' string.
   ; - If the 'offset' parameter is passed, the search starts from the offset position.
-  ; - The returned position is an absolute value and it is independent from the offset value.
+  ; - The returned position is an absolute value and it is independent from the given offset value.
   ;
   ; @param (string) n
   ; @param (regex pattern) opening-tag
@@ -225,7 +213,7 @@
    (letfn [; @description
            ; If the 'ignore-commented?' / 'ignore-quoted?' option is passed, ...
            ; ... it uses the default value of the ':comment' / ':quote' tag, if the tag is not provided in the given 'tags' map.
-           ; ... it makes sure that the ':disable-interpreter?' option is TRUE for the ':comment' / ':quote' tag, (even if the tag is provided in the given 'tags' map).
+           ; ... it ensures that the ':disable-interpreter?' option is TRUE for the ':comment' / ':quote' tag, (even if the tag is provided in the given 'tags' map).
            ;
            ; @return (map)
            (f0 []
@@ -253,6 +241,7 @@
                      (stop cursor)))]
           ; ...
           (let [initial {}
-                options (dissoc options :offset)
-                tags    (f0)]
-               (interpreter.core/interpreter n f1 initial tags options)))))
+                tags    (cond-> {} ignore-commented? (assoc :comment (core.prototypes/comment-tag-prototype tags))
+                                   ignore-quoted?    (assoc :quote   (core.prototypes/quote-tag-prototype   tags))
+                                   :searched-tag     (assoc ::tag    [opening-tag closing-tag]))]
+               (interpreter.engine/interpreter n f1 initial tags options)))))

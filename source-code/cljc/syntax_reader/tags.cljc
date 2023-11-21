@@ -1,6 +1,6 @@
 
 (ns syntax-reader.tags
-    (:require [syntax-reader.search :as search]))
+    (:require [syntax-reader.search.engine :as search.engine]))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
@@ -9,7 +9,7 @@
   ; @description
   ; - Returns the position of the first opening brace character in the given 'n' string.
   ; - If the 'offset' parameter is passed, the search starts from the offset position.
-  ; - The returned position is an absolute value and it is independent from the offset value.
+  ; - The returned position is an absolute value and it is independent from the given offset value.
   ;
   ; @param (string) n
   ; @param (map)(opt) tags
@@ -58,13 +58,13 @@
    (opening-brace-position n tags {}))
 
   ([n tags options]
-   (search/opening-tag-position n #"\{" tags options)))
+   (search.engine/opening-tag-position n #"\{" tags options)))
 
 (defn closing-brace-position
   ; @description
   ; - Returns the position of the closing brace character that corresponds to the first opening brace character in the 'n' string.
   ; - If the 'offset' parameter is passed, the search starts from the offset position.
-  ; - The returned position is an absolute value and it is independent from the offset value.
+  ; - The returned position is an absolute value and it is independent from the given offset value.
   ;
   ; @param (string) n
   ; @param (map)(opt) tags
@@ -113,7 +113,7 @@
    (closing-brace-position n tags {}))
 
   ([n tags options]
-   (search/closing-tag-position n #"\{" #"\}" tags options)))
+   (search.engine/closing-tag-position n #"\{" #"\}" tags options)))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
@@ -122,7 +122,7 @@
   ; @description
   ; - Returns the position of the first opening bracket character in the given 'n' string.
   ; - If the 'offset' parameter is passed, the search starts from the offset position.
-  ; - The returned position is an absolute value and it is independent from the offset value.
+  ; - The returned position is an absolute value and it is independent from the given offset value.
   ;
   ; @param (string) n
   ; @param (map)(opt) tags
@@ -171,13 +171,13 @@
    (opening-bracket-position n tags {}))
 
   ([n tags options]
-   (search/opening-tag-position n #"\[" tags options)))
+   (search.engine/opening-tag-position n #"\[" tags options)))
 
 (defn closing-bracket-position
   ; @description
   ; - Returns the position of the closing bracket character that corresponds to the first opening bracket character in the 'n' string.
   ; - If the 'offset' parameter is passed, the search starts from the offset position.
-  ; - The returned position is an absolute value and it is independent from the offset value.
+  ; - The returned position is an absolute value and it is independent from the given offset value.
   ;
   ; @param (string) n
   ; @param (map)(opt) tags
@@ -226,7 +226,7 @@
    (closing-bracket-position n tags {}))
 
   ([n tags options]
-   (search/closing-tag-position n #"\[" #"\]" tags options)))
+   (search.engine/closing-tag-position n #"\[" #"\]" tags options)))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
@@ -235,7 +235,7 @@
   ; @description
   ; - Returns the position of the first opening paren character in the given 'n' string.
   ; - If the 'offset' parameter is passed, the search starts from the offset position.
-  ; - The returned position is an absolute value and it is independent from the offset value.
+  ; - The returned position is an absolute value and it is independent from the given offset value.
   ;
   ; @param (string) n
   ; @param (map)(opt) tags
@@ -284,13 +284,13 @@
    (opening-paren-position n tags {}))
 
   ([n tags options]
-   (search/opening-tag-position n #"\(" tags options)))
+   (search.engine/opening-tag-position n #"\(" tags options)))
 
 (defn closing-paren-position
   ; @description
   ; - Returns the position of the closing parenthesis character that corresponds to the first opening parenthesis character in the 'n' string.
   ; - If the 'offset' parameter is passed, the search starts from the offset position.
-  ; - The returned position is an absolute value and it is independent from the offset value.
+  ; - The returned position is an absolute value and it is independent from the given offset value.
   ;
   ; @param (string) n
   ; @param (map)(opt) tags
@@ -339,4 +339,4 @@
    (closing-paren-position n tags {}))
 
   ([n tags options]
-   (search/closing-tag-position n #"\(" #"\)" tags options)))
+   (search.engine/closing-tag-position n #"\(" #"\)" tags options)))

@@ -1,5 +1,5 @@
 
-(ns syntax-reader.interpreter.core
+(ns syntax-reader.interpreter.engine
     (:require [syntax-reader.interpreter.metafunctions :as interpreter.metafunctions]
               [syntax-reader.interpreter.utils         :as interpreter.utils]))
 
@@ -14,10 +14,14 @@
   ; - Metafunctions that are available within the applied 'f' function:
   ;   - 'closing-tag-starts?'
   ;   - 'closing-tag-ends?'
+  ;   - 'interpreter-disabled-by'
   ;   - 'interpreter-disabled?'
   ;   - 'interpreter-enabled?'
+  ;   - 'jump'
   ;   - 'opening-tag-starts?'
   ;   - 'opening-tag-ends?'
+  ;   - 'reading-closing-tag?'
+  ;   - 'reading-opening-tag?'
   ;   - 'stop'
   ;   - 'parent-tag-name'
   ;   - 'tag-actual-depth'
@@ -92,11 +96,15 @@
            ; @return (map)
            ; {:closing-tag-ends? (function)
            ;  :closing-tag-starts? (function)
+           ;  :interpreter-disabled-by (function)
            ;  :interpreter-disabled? (function)
            ;  :interpreter-enabled? (function)
+           ;  :jump (function)
            ;  :opening-tag-ends? (function)
            ;  :opening-tag-starts? (function)
            ;  :parent-tag-name (function)
+           ;  :reading-closing-tag? (function)
+           ;  :reading-opening-tag? (function)
            ;  :stop (function)
            ;  :tag-actual-depth (function)
            ;  :tag-not-opened? (function)
@@ -104,25 +112,29 @@
            ;  :tag-opened-at (function)
            ;  :tag-started-at (function)}
            (f0 [state]
-               {:closing-tag-ends?     (interpreter.metafunctions/closing-tag-ends-f     n tags options state)
-                :closing-tag-starts?   (interpreter.metafunctions/closing-tag-starts-f   n tags options state)
-                :interpreter-disabled? (interpreter.metafunctions/interpreter-disabled-f n tags options state)
-                :interpreter-enabled?  (interpreter.metafunctions/interpreter-enabled-f  n tags options state)
-                :opening-tag-ends?     (interpreter.metafunctions/opening-tag-ends-f     n tags options state)
-                :opening-tag-starts?   (interpreter.metafunctions/opening-tag-starts-f   n tags options state)
-                :parent-tag-name       (interpreter.metafunctions/parent-tag-name-f      n tags options state)
-                :stop                  (interpreter.metafunctions/stop-f                 n tags options state)
-                :tag-actual-depth      (interpreter.metafunctions/tag-actual-depth-f     n tags options state)
-                :tag-not-opened?       (interpreter.metafunctions/tag-not-opened-f       n tags options state)
-                :tag-opened?           (interpreter.metafunctions/tag-opened-f           n tags options state)
-                :tag-opened-at         (interpreter.metafunctions/tag-opened-at-f        n tags options state)
-                :tag-started-at        (interpreter.metafunctions/tag-started-at-f       n tags options state)})]
+               {:closing-tag-ends?       (interpreter.metafunctions/closing-tag-ends-f        n tags options state)
+                :closing-tag-starts?     (interpreter.metafunctions/closing-tag-starts-f      n tags options state)
+                :interpreter-disabled-by (interpreter.metafunctions/interpreter-disabled-by-f n tags options state)
+                :interpreter-disabled?   (interpreter.metafunctions/interpreter-disabled-f    n tags options state)
+                :interpreter-enabled?    (interpreter.metafunctions/interpreter-enabled-f     n tags options state)
+                :jump                    (interpreter.metafunctions/jump-f                    n tags options state)
+                :opening-tag-ends?       (interpreter.metafunctions/opening-tag-ends-f        n tags options state)
+                :opening-tag-starts?     (interpreter.metafunctions/opening-tag-starts-f      n tags options state)
+                :parent-tag-name         (interpreter.metafunctions/parent-tag-name-f         n tags options state)
+                :reading-closing-tag?    (interpreter.metafunctions/reading-closing-tag-f     n tags options state)
+                :reading-opening-tag?    (interpreter.metafunctions/reading-opening-tag-f     n tags options state)
+                :stop                    (interpreter.metafunctions/stop-f                    n tags options state)
+                :tag-actual-depth        (interpreter.metafunctions/tag-actual-depth-f        n tags options state)
+                :tag-not-opened?         (interpreter.metafunctions/tag-not-opened-f          n tags options state)
+                :tag-opened?             (interpreter.metafunctions/tag-opened-f              n tags options state)
+                :tag-opened-at           (interpreter.metafunctions/tag-opened-at-f           n tags options state)
+                :tag-started-at          (interpreter.metafunctions/tag-started-at-f          n tags options state)})]
 
           ; ...
           (let [initial-state {:actual-tags nil :cursor 0 :result initial}]
                (loop [{:keys [result] :as state} initial-state]
-                     (let [actual-state   (interpreter.utils/update-actual-state   n tags options state)
-                           provided-state (interpreter.utils/filter-provided-state n tags options actual-state)
+                     (let [actual-state           (interpreter.utils/update-actual-state   n tags options state)
+                           provided-state         (interpreter.utils/filter-provided-state n tags options actual-state)
                            provided-metafunctions (-> actual-state f0)
                            updated-result         (-> result (f provided-state provided-metafunctions))
                            updated-state          (-> actual-state (assoc :result updated-result))]

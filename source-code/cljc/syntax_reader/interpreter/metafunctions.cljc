@@ -5,6 +5,28 @@
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
 
+(defn interpreter-disabled-by-f
+  ; @ignore
+  ;
+  ; @description
+  ; Returns the 'interpreter-disabled-by' metafunction.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ;
+  ; @return (function)
+  [n tags options state]
+  ; @description
+  ; Returns the disabling tag's name if the interpreter is disabled by an opened tag.
+  ;
+  ; @usage
+  ; (interpreter-disabled-by)
+  ;
+  ; @return (boolean)
+  (fn [] (interpreter.utils/interpreter-disabled-by n tags options state)))
+
 (defn interpreter-disabled-f
   ; @ignore
   ;
@@ -25,7 +47,7 @@
   ; (interpreter-disabled?)
   ;
   ; @return (boolean)
-  (fn [] (-> (interpreter.utils/interpreter-disabled-by n tags options state) some?)))
+  (fn [] (interpreter.utils/interpreter-disabled? n tags options state)))
 
 (defn interpreter-enabled-f
   ; @ignore
@@ -47,7 +69,7 @@
   ; (interpreter-enabled?)
   ;
   ; @return (boolean)
-  (fn [] (-> (interpreter.utils/interpreter-disabled-by n tags options state) not)))
+  (fn [] (interpreter.utils/interpreter-enabled? n tags options state)))
 
 (defn stop-f
   ; @ignore
@@ -61,7 +83,7 @@
   ; @param (map) state
   ;
   ; @return (function)
-  [n tags options state]
+  [_ _ _ _]
   ; @description
   ; Stops the interpreter immediatelly and it returns the parameter of this ('stop') function as interpreter output.
   ;
@@ -71,9 +93,40 @@
   ; (stop "My output")
   ;
   ; @return (vector)
-  ; [(namespaced keyword) stop-marker
+  ; [(keyword) stop-marker
   ;  (*) result]
   (fn [result] [:$stop result]))
+
+(defn jump-f
+  ; @ignore
+  ;
+  ; @description
+  ; Returns the 'jump' metafunction.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ;
+  ; @return (function)
+  [n _ _ _]
+  ; @description
+  ; Makes the interpreter jump to the given cursor position.
+  ;
+  ; @param (integer) destination-position
+  ; @param (*) result
+  ;
+  ; @usage
+  ; (jump 42 "My output")
+  ;
+  ; @return (vector)
+  ; [(keyword) jump-marker
+  ;  (integer) destination-position
+  ;  (*) result]
+  ;
+  ; TODO
+  ; Normalize the given cursor!
+  (fn [destination-position result] [:$jump destination-position result]))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
@@ -167,142 +220,196 @@
 
 (defn tag-opened-at-f
   ; @ignore
-   ; @description
-   ; Returns the 'tag-opened-at' metafunction.
-   ;
-   ; @param (string) n
-   ; @param (map) tags
-   ; @param (map) options
-   ; @param (map) state
-   ;
-   ; @return (function)
-   [n tags options state]
-   ; @description
-   ; Returns the cursor position where the tag's opening tag ended.
-   ;
-   ; @param (keyword) tag-name
-   ;
-   ; @usage
-   ; (tag-opened-at :my-tag)
-   ;
-   ; @return (integer)
-   (fn [tag-name] (interpreter.utils/tag-opened-at n tags options state tag-name)))
+  ;
+  ; @description
+  ; Returns the 'tag-opened-at' metafunction.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ;
+  ; @return (function)
+  [n tags options state]
+  ; @description
+  ; Returns the cursor position where the tag's opening tag ended.
+  ;
+  ; @param (keyword) tag-name
+  ;
+  ; @usage
+  ; (tag-opened-at :my-tag)
+  ;
+  ; @return (integer)
+  (fn [tag-name] (interpreter.utils/tag-opened-at n tags options state tag-name)))
 
 (defn tag-started-at-f
   ; @ignore
-   ; @description
-   ; Returns the 'tag-started-at' metafunction.
-   ;
-   ; @param (string) n
-   ; @param (map) tags
-   ; @param (map) options
-   ; @param (map) state
-   ;
-   ; @return (function)
-   [n tags options state]
-   ; @description
-   ; Returns the cursor position where the tag's opening tag started.
-   ;
-   ; @param (keyword) tag-name
-   ;
-   ; @usage
-   ; (tag-started-at :my-tag)
-   ;
-   ; @return (integer)
-   (fn [tag-name] (interpreter.utils/tag-started-at n tags options state tag-name)))
+  ;
+  ; @description
+  ; Returns the 'tag-started-at' metafunction.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ;
+  ; @return (function)
+  [n tags options state]
+  ; @description
+  ; Returns the cursor position where the tag's opening tag started.
+  ;
+  ; @param (keyword) tag-name
+  ;
+  ; @usage
+  ; (tag-started-at :my-tag)
+  ;
+  ; @return (integer)
+  (fn [tag-name] (interpreter.utils/tag-started-at n tags options state tag-name)))
 
 (defn opening-tag-starts-f
   ; @ignore
-   ; @description
-   ; Returns the 'opening-tag-starts?' metafunction.
-   ;
-   ; @param (string) n
-   ; @param (map) tags
-   ; @param (map) options
-   ; @param (map) state
-   ;
-   ; @return (function)
-   [n tags options state]
-   ; @description
-   ; Returns whether the given tag's opening tag starts at the actual cursor position.
-   ;
-   ; @param (keyword) tag-name
-   ;
-   ; @usage
-   ; (opening-tag-starts? :my-tag)
-   ;
-   ; @return (boolean)
-   (fn [tag-name] (if-not (interpreter.utils/interpreter-disabled? n tags options state)
-                          (interpreter.utils/opening-tag-starts?   n tags options state tag-name))))
+  ;
+  ; @description
+  ; Returns the 'opening-tag-starts?' metafunction.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; {:actual-tags (maps in vector)
+  ;  :cursor (integer)}
+  ;
+  ; @return (function)
+  [n tags options {:keys [actual-tags cursor] :as state}]
+  ; @description
+  ; Returns whether the given tag's opening tag starts at the actual cursor position.
+  ;
+  ; @param (keyword) tag-name
+  ;
+  ; @usage
+  ; (opening-tag-starts? :my-tag)
+  ;
+  ; @return (boolean)
+  (fn [tag-name] (and (or (interpreter.utils/interpreter-enabled? n tags options state)
+                          ; If the interpreter is disabled, all opening and closing tags are ignored ...
+                          ; ... except the disabling tag's opening tag that opens the actual disabled part,
+                          ; ... and the corresponding closing tag that closes the disabled part.
+                          (and (= tag-name (interpreter.utils/interpreter-disabled-by n tags options state))
+                               (= cursor   (-> actual-tags last :started-at))))
+                      (interpreter.utils/opening-tag-starts?  n tags options state tag-name))))
 
 (defn opening-tag-ends-f
   ; @ignore
-   ; @description
-   ; Returns the 'opening-tag-ends?' metafunction.
-   ;
-   ; @param (string) n
-   ; @param (map) tags
-   ; @param (map) options
-   ; @param (map) state
-   ;
-   ; @return (function)
-   [n tags options state]
-   ; @description
-   ; Returns whether the given tag's opening tag ends at the actual cursor position.
-   ;
-   ; @param (keyword) tag-name
-   ;
-   ; @usage
-   ; (opening-tag-ends? :my-tag)
-   ;
-   ; @return (boolean)
-   (fn [tag-name] (if-not (interpreter.utils/interpreter-disabled? n tags options state)
-                          (interpreter.utils/opening-tag-ends?     n tags options state tag-name))))
+  ;
+  ; @description
+  ; Returns the 'opening-tag-ends?' metafunction.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; {:actual-tags (maps in vector)
+  ;  :cursor (integer)}
+  ;
+  ; @return (function)
+  [n tags options {:keys [actual-tags cursor] :as state}]
+  ; @description
+  ; Returns whether the given tag's opening tag ends at the actual cursor position.
+  ;
+  ; @param (keyword) tag-name
+  ;
+  ; @usage
+  ; (opening-tag-ends? :my-tag)
+  ;
+  ; @return (boolean)
+  (fn [tag-name] (and (or (interpreter.utils/interpreter-enabled? n tags options state)
+                          ; If the interpreter is disabled, all opening and closing tags are ignored ...
+                          ; ... except the disabling tag's opening tag that opens the actual disabled part,
+                          ; ... and the corresponding closing tag that closes the disabled part.
+                          (and (= tag-name (interpreter.utils/interpreter-disabled-by n tags options state))
+                               (= cursor   (-> actual-tags last :opened-at))))
+                      (interpreter.utils/opening-tag-ends? n tags options state tag-name))))
 
 (defn closing-tag-starts-f
   ; @ignore
-   ; @description
-   ; Returns the 'closing-tag-starts?' metafunction.
-   ;
-   ; @param (string) n
-   ; @param (map) tags
-   ; @param (map) options
-   ; @param (map) state
-   ;
-   ; @return (function)
-   [n tags options state]
-   ; @description
-   ; Returns whether the given tag's closing tag starts at the actual cursor position.
-   ;
-   ; @param (keyword) tag-name
-   ;
-   ; @usage
-   ; (closing-tag-starts? :my-tag)
-   ;
-   ; @return (boolean)
-   (fn [tag-name] (if-not (interpreter.utils/interpreter-disabled? n tags options state)
-                          (interpreter.utils/closing-tag-starts?   n tags options state tag-name))))
+  ;
+  ; @description
+  ; Returns the 'closing-tag-starts?' metafunction.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ;
+  ; @return (function)
+  [n tags options state]
+  ; @description
+  ; Returns whether the given tag's closing tag starts at the actual cursor position.
+  ;
+  ; @param (keyword) tag-name
+  ;
+  ; @usage
+  ; (closing-tag-starts? :my-tag)
+  ;
+  ; @return (boolean)
+  (fn [tag-name] (and (or (interpreter.utils/interpreter-enabled? n tags options state)
+                          ; If the interpreter is disabled, all opening and closing tags are ignored ...
+                          ; ... except the disabling tag's opening tag that opens the actual disabled part,
+                          ; ... and the corresponding closing tag that closes the disabled part.
+                          (= tag-name (interpreter.utils/interpreter-disabled-by n tags options state)))
+                      (interpreter.utils/closing-tag-starts? n tags options state tag-name))))
 
 (defn closing-tag-ends-f
   ; @ignore
-   ; @description
-   ; Returns the 'closing-tag-ends?' metafunction.
-   ;
-   ; @param (string) n
-   ; @param (map) tags
-   ; @param (map) options
-   ; @param (map) state
-   ;
-   ; @return (function)
-   [n tags options state]
-   ; @description
-   ; Returns whether the given tag's closing tag ends at the actual cursor position.
-   ;
-   ; @param (keyword) tag-name
-   ;
-   ; @usage
-   ; (closing-tag-ends? :my-tag)
-   ;
-   ; @return (boolean)
-   (fn [tag-name] (if-not (interpreter.utils/interpreter-disabled? n tags options state)
-                          (interpreter.utils/closing-tag-ends?     n tags options state tag-name))))
+  ;
+  ; @description
+  ; Returns the 'closing-tag-ends?' metafunction.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ;
+  ; @return (function)
+  [n tags options state]
+  ; @description
+  ; Returns whether the given tag's closing tag ends at the actual cursor position.
+  ;
+  ; @param (keyword) tag-name
+  ;
+  ; @usage
+  ; (closing-tag-ends? :my-tag)
+  ;
+  ; @return (boolean)
+  (fn [tag-name] (and (interpreter.utils/interpreter-enabled? n tags options state)
+                      (interpreter.utils/closing-tag-ends?    n tags options state tag-name))))
+
+(defn reading-opening-tag-f
+  ; @ignore
+  ;
+  ; @description
+  ; Returns the 'reading-opening-tag?' metafunction.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ;
+  ; @return (function)
+  [n tags options state]
+  (fn [] (interpreter.utils/reading-opening-tag? n tags options state)))
+
+(defn reading-closing-tag-f
+  ; @ignore
+  ;
+  ; @description
+  ; Returns the 'reading-closing-tag?' metafunction.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ;
+  ; @return (function)
+  [n tags options state]
+  (fn [] (interpreter.utils/reading-closing-tag? n tags options state)))
