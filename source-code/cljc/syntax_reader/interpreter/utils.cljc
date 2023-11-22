@@ -6,7 +6,116 @@
               [seqable.api :as seqable]
               [vector.api  :as vector]))
 
-;; -- Interpreter functions ---------------------------------------------------
+;; -- Ancestor / parent tag functions -----------------------------------------
+;; ----------------------------------------------------------------------------
+
+(defn no-tags-opened?
+  ; @ignore
+  ;
+  ; @description
+  ; Returns TRUE if there is no opened tag at the actual cursor position.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; @param (keyword) tag-name
+  ;
+  ; @return (boolean)
+  [_ _ _ {:keys [actual-tags]} _]
+  (letfn [(f [{:keys [closed-at opened-at opens-at]}]
+             (or closed-at (not (or opens-at opened-at))))]
+         (vector/all-items-match? actual-tags f)))
+
+(defn tag-actual-depth
+  ; @ignore
+  ;
+  ; @description
+  ; Returns the actual opened depth of a specific tag.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; {:actual-tags (maps in vector)}
+  ; @param (keyword) tag-name
+  ;
+  ; @return (integer)
+  [_ _ _ {:keys [actual-tags]} tag-name]
+  (letfn [(f [actual-tag] (and (-> actual-tag :name (= tag-name))
+                               (-> actual-tag :closed-at nil?)
+                               (or (-> actual-tag :opens-at  integer?)
+                                   (-> actual-tag :opened-at integer?))))]
+         (vector/match-count actual-tags f)))
+
+(defn ancestor-tags
+  ; @ignore
+  ;
+  ; @description
+  ; Returns the ancestor tags of the actual cursor position.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; {:actual-tags (maps in vector)}
+  ;
+  ; @return (maps in vector)
+  [_ _ _ {:keys [actual-tags]}]
+  (letfn [(f [{:keys [opened-at opens-at closed-at]}] (and (or opens-at opened-at) (not closed-at)))]
+         (vector/keep-items-by actual-tags f)))
+
+(defn parent-tag
+  ; @ignore
+  ;
+  ; @description
+  ; Returns the parent tag of the actual cursor position.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; {:actual-tags (maps in vector)}
+  ;
+  ; @return (map)
+  [_ _ _ {:keys [actual-tags]}]
+  (letfn [(f [{:keys [opened-at opens-at closed-at]}] (and (or opens-at opened-at) (not closed-at)))]
+         (vector/last-match actual-tags f)))
+
+(defn tag-ancestor?
+  ; @ignore
+  ;
+  ; @description
+  ; Returns TRUE the given tag is an opened ancestor tag of the actual cursor position.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; @param (keyword) tag-name
+  ;
+  ; @return (integer)
+  [n tags options state tag-name]
+  (< 0 (tag-actual-depth n tags options state tag-name)))
+
+(defn tag-parent?
+  ; @ignore
+  ;
+  ; @description
+  ; Returns TRUE if the given tag is the opened parent tag of the actual cursor position.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; @param (keyword) tag-name
+  ;
+  ; @return (boolean)
+  [n tags options state tag-name]
+  (if-let [parent-tag (parent-tag n tags options state)]
+          (-> parent-tag :name (= tag-name))))
+
+;; -- Iteration functions -----------------------------------------------------
 ;; ----------------------------------------------------------------------------
 
 (defn offset-reached?
@@ -45,6 +154,41 @@
   (let [endpoint (seqable/normalize-cursor n endpoint)]
        (>= cursor endpoint)))
 
+(defn iteration-ended?
+  ; @ignore
+  ;
+  ; @description
+  ; Returns TRUE if the actual cursor position reached the last cursor position in the given 'n' string.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; {:cursor (integer)}
+  ;
+  ; @return (boolean)
+  [n _ _ {:keys [cursor]}]
+  (seqable/cursor-last? n cursor))
+
+(defn iteration-stopped?
+  ; @ignore
+  ;
+  ; @description
+  ; Returns TRUE if the 'stop' metafunction stopped the iteration.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; {:cursor (integer)}
+  ;
+  ; @return (boolean)
+  [_ _ _ {:keys [cursor]}]
+  (= cursor :iteration-stopped))
+
+;; -- Interpreter functions ---------------------------------------------------
+;; ----------------------------------------------------------------------------
+
 (defn interpreter-disabled-by
   ; @ignore
   ;
@@ -58,10 +202,10 @@
   ; {:actual-tags (maps in vector)}
   ;
   ; @return (keyword)
-  [_ tags _ {:keys [actual-tags]}]
-  (if-let [tag-name (-> actual-tags last :name)]
-          (if (-> tags (get-in [tag-name 2 :disable-interpreter?]))
-              (-> tag-name))))
+  [n tags options {:keys [actual-tags] :as state}]
+  (if-let [parent-tag (parent-tag n tags options state)]
+          (if (-> tags (get-in [(:name parent-tag) 2 :disable-interpreter?]))
+              (:name parent-tag))))
 
 (defn interpreter-disabled?
   ; @ignore
@@ -93,67 +237,11 @@
   [n tags options state]
   (-> (interpreter-disabled-by n tags options state) not))
 
-(defn interpreter-ended?
+(defn reading-any-opening-tag?
   ; @ignore
   ;
   ; @description
-  ; Returns TRUE if the actual cursor position exceeded the end of the given 'n' string.
-  ;
-  ; @param (string) n
-  ; @param (map) tags
-  ; @param (map) options
-  ; @param (map) state
-  ; {:cursor (integer)}
-  ;
-  ; @return (boolean)
-  [n _ _ {:keys [cursor]}]
-  (seqable/cursor-last? n cursor))
-
-(defn interpreter-stopped?
-  ; @ignore
-  ;
-  ; @description
-  ; Returns TRUE if the 'stop' metafunction stopped the iteration by ...
-  ; ... wrapping the 'result' value within a vector,
-  ; ... putting the ':$stop' marker into the wrapping vector as its first item.
-  ;
-  ; @param (string) n
-  ; @param (map) tags
-  ; @param (map) options
-  ; @param (map) state
-  ; {:result (*)}
-  ;
-  ; @return (boolean)
-  [_ _ _ {:keys [result]}]
-  (and (-> result vector?)
-       (-> result first (= :$stop))))
-
-;; -- State functions ---------------------------------------------------------
-;; ----------------------------------------------------------------------------
-
-(defn filter-provided-state
-  ; @ignore
-  ;
-  ; @description
-  ; Filters the given state for the keys that are presented in the provided state (provided for the applied 'f' function).
-  ;
-  ; @param (string) n
-  ; @param (map) tags
-  ; @param (map) options
-  ; @param (map) state
-  ;
-  ; @return (map)
-  [_ _ _ state]
-  (select-keys state [:actual-tags :cursor]))
-
-;; -- Tag functions -----------------------------------------------------------
-;; ----------------------------------------------------------------------------
-
-(defn innermost-tag
-  ; @ignore
-  ;
-  ; @description
-  ; Returns the innermost / last opened tag's actual state.
+  ; Returns TRUE if the last found opening tag is already started but not ended yet at the actual cursor position.
   ;
   ; @param (string) n
   ; @param (map) tags
@@ -161,35 +249,34 @@
   ; @param (map) state
   ; {:actual-tags (maps in vector)}
   ;
-  ; @return (map)
+  ; @return (boolean)
   [_ _ _ {:keys [actual-tags]}]
-  (vector/last-item actual-tags))
+  (-> actual-tags last :will-open-at some?))
 
-(defn tag-actual-depth
+(defn reading-any-closing-tag?
   ; @ignore
   ;
   ; @description
-  ; Returns the actual opened depth of the given tag.
+  ; Returns TRUE if the last found closing tag is already started but not ended yet at the actual cursor position.
   ;
   ; @param (string) n
   ; @param (map) tags
   ; @param (map) options
   ; @param (map) state
   ; {:actual-tags (maps in vector)}
-  ; @param (keyword) tag-name
   ;
-  ; @return (integer)
-  [_ _ _ {:keys [actual-tags]} tag-name]
-  (letfn [(f [actual-tag] (and (-> actual-tag :name (= tag-name))
-                               (-> actual-tag :opened-at integer?)
-                               (-> actual-tag :closed-at nil?)))]
-         (vector/match-count actual-tags f)))
+  ; @return (boolean)
+  [_ _ _ {:keys [actual-tags]}]
+  (-> actual-tags last :will-end-at some?))
 
-(defn tag-opened?
+;; -- Tag processing requirement functions ------------------------------------
+;; ----------------------------------------------------------------------------
+
+(defn tag-requires-no-ancestors?
   ; @ignore
   ;
   ; @description
-  ; Returns whether the given tag is opened in any depth.
+  ; Returns TRUE if the given tag requires no ancestor tags.
   ;
   ; @param (string) n
   ; @param (map) tags
@@ -197,9 +284,134 @@
   ; @param (map) state
   ; @param (keyword) tag-name
   ;
-  ; @return (integer)
-  [_ _ _ state tag-name]
-  (< 0 (tag-actual-depth state tag-name)))
+  ; @return (boolean)
+  [_ tags _ _ tag-name]
+  (-> tags tag-name last :accepted-ancestors (= [])))
+
+(defn tag-requires-no-parents?
+  ; @ignore
+  ;
+  ; @description
+  ; Returns TRUE if the given tag requires no parent tags.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; @param (keyword) tag-name
+  ;
+  ; @return (boolean)
+  [_ tags _ _ tag-name]
+  (-> tags tag-name last :accepted-parents (= [])))
+
+(defn tag-requires-accepted-ancestor?
+  ; @ignore
+  ;
+  ; @description
+  ; Returns TRUE if the given tag requires any accepted ancestor tags.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; @param (keyword) tag-name
+  ;
+  ; @return (boolean)
+  [_ tags _ _ tag-name]
+  (-> tags tag-name last :accepted-ancestors vector/nonempty?))
+
+(defn tag-requires-accepted-parent?
+  ; @ignore
+  ;
+  ; @description
+  ; Returns TRUE if the given tag requires any accepted ancestor tags.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; @param (keyword) tag-name
+  ;
+  ; @return (boolean)
+  [_ tags _ _ tag-name]
+  (-> tags tag-name last :accepted-parents vector/nonempty?))
+
+(defn tag-any-accepted-ancestor-opened?
+  ; @ignore
+  ;
+  ; @description
+  ; Returns TRUE if at least one of the accepted ancestor tags of the given tag is opened.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; @param (keyword) tag-name
+  ;
+  ; @return (boolean)
+  [n tags options state tag-name]
+  (if-let [accepted-ancestors (-> tags tag-name last :accepted-ancestors)]
+          (letfn [(f [accepted-ancestor] (tag-ancestor? n tags options state accepted-ancestor))]
+                 (some f accepted-ancestors))))
+
+(defn tag-any-accepted-parent-opened?
+  ; @ignore
+  ;
+  ; @description
+  ; Returns TRUE if at least one of the accepted parent tags of the given tag is opened (as the the actual parent tag).
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; @param (keyword) tag-name
+  ;
+  ; @return (boolean)
+  [n tags options state tag-name]
+  (if-let [accepted-parents (-> tags tag-name last :accepted-parents)]
+          (letfn [(f [accepted-parent] (tag-parent? n tags options state accepted-parent))]
+                 (some f accepted-parents))))
+
+(defn tag-ancestor-requirements-met?
+  ; @ignore
+  ;
+  ; @description
+  ; Returns TRUE if the actual cursor position meets the given tag's ancestor requirements.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; @param (keyword) tag-name
+  ;
+  ; @return (boolean)
+  [n tags options state tag-name]
+  (and (or (-> (tag-requires-no-ancestors?        n tags options state tag-name) not)
+           (-> (no-tags-opened?                   n tags options state)))
+       (or (-> (tag-requires-accepted-ancestor?   n tags options state tag-name) not)
+           (-> (tag-any-accepted-ancestor-opened? n tags options state tag-name)))))
+
+(defn tag-parent-requirements-met?
+  ; @ignore
+  ;
+  ; @description
+  ; Returns TRUE if the actual cursor position meets the given tag's parent requirements.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; @param (keyword) tag-name
+  ;
+  ; @return (boolean)
+  [n tags options state tag-name]
+  (and (or (-> (tag-requires-no-parents?        n tags options state tag-name) not)
+           (-> (no-tags-opened?                 n tags options state)))
+       (or (-> (tag-requires-accepted-parent?   n tags options state tag-name) not)
+           (-> (tag-any-accepted-parent-opened? n tags options state tag-name)))))
+
+;; -- Regex functions ---------------------------------------------------------
+;; ----------------------------------------------------------------------------
 
 (defn opening-tag-starts?
   ; @ignore
@@ -273,44 +485,6 @@
   (if-let [closing-tag (-> tags tag-name second)]
           (regex/ends-at? n closing-tag cursor)))
 
-(defn tag-opened-at
-  ; @ignore
-  ;
-  ; @description
-  ; Returns the cursor position where the given tag's innermost depth opened (where its opening tag ended).
-  ;
-  ; @param (string) n
-  ; @param (map) tags
-  ; @param (map) options
-  ; @param (map) state
-  ; {:actual-tags (maps in vector)}
-  ; @param (keyword) tag-name
-  ;
-  ; @return (integer)
-  [_ _ _ {:keys [actual-tags]} tag-name]
-  (letfn [(f [actual-tag] (-> actual-tag :name (= tag-name)))]
-         (if-let [innermost-tag (vector/last-match actual-tags f)]
-                 (:opened-at innermost-tag))))
-
-(defn tag-started-at
-  ; @ignore
-  ;
-  ; @description
-  ; Returns the cursor position where the given tag's opening tag started.
-  ;
-  ; @param (string) n
-  ; @param (map) tags
-  ; @param (map) options
-  ; @param (map) state
-  ; {:actual-tags (maps in vector)}
-  ; @param (keyword) tag-name
-  ;
-  ; @return (integer)
-  [_ _ _ {:keys [actual-tags]} tag-name]
-  (letfn [(f [actual-tag] (-> actual-tag :name (= tag-name)))]
-         (if-let [innermost-tag (vector/last-match actual-tags f)]
-                 (:started-at innermost-tag))))
-
 (defn tag-will-open-at
   ; @ignore
   ;
@@ -351,44 +525,10 @@
                   (regex/re-first (-> tags tag-name second))
                   (count))))
 
-(defn tag-not-requires-any-accepted-parent?
-  ; @ignore
-  ;
-  ; @description
-  ; Returns TRUE if the given tag does not require an accepted parent.
-  ;
-  ; @param (string) n
-  ; @param (map) tags
-  ; @param (map) options
-  ; @param (map) state
-  ; @param (keyword) tag-name
-  ;
-  ; @return (boolean)
-  [n tags options state tag-name]
-  (-> tags tag-name last :accepted-parents empty?))
-
-(defn tag-any-accepted-parent-opened?
-  ; @ignore
-  ;
-  ; @description
-  ; Returns TRUE if at least one of the accepted parents of the given tag is opened at the actual cursor position.
-  ;
-  ; @param (string) n
-  ; @param (map) tags
-  ; @param (map) options
-  ; @param (map) state
-  ; @param (keyword) tag-name
-  ;
-  ; @return (boolean)
-  [n tags options state tag-name]
-  (if-let [accepted-parents (-> tags tag-name last :accepted-parents)]
-          (letfn [(f [accepted-parent] (tag-opened? n tags options state accepted-parent))]
-                 (some f accepted-parents))))
-
-;; -- Actual tag functions ----------------------------------------------------
+;; -- Update child / parent tag functions -------------------------------------
 ;; ----------------------------------------------------------------------------
 
-(defn add-innermost-tag
+(defn start-child-tag
   ; @ignore
   ;
   ; @description
@@ -402,30 +542,25 @@
   ; @param (keyword) tag-name
   ;
   ; @example
-  ; (add-innermost-tag "..." {...} {...}
-  ;                    {:cursor 7 :actual-tags [{:name :paren :depth 1 :started-at 1 :opened-at 2}
-  ;                                             {:name :paren :depth 2 :started-at 4 :opened-at 5}]}
-  ;                    :paren)
+  ; (start-child-tag "..." {...} {...}
+  ;                  {:cursor 7 :actual-tags [{:name :paren :started-at 1 :opened-at 2}
+  ;                                           {:name :paren :started-at 4 :opened-at 5}]}
+  ;                  :paren)
   ; =>
-  ; {:cursor 7 :actual-tags [{:name :paren :depth 1 :started-at 1 :opened-at 2}
-  ;                          {:name :paren :depth 2 :started-at 4 :opened-at 5}
-  ;                          {:name :paren :depth 3 :started-at 7 :will-open-at 8}]}
+  ; {:cursor 7 :actual-tags [{:name :paren :started-at 1 :opened-at 2}
+  ;                          {:name :paren :started-at 4 :opened-at 5}
+  ;                          {:name :paren :starts-at  7 :will-open-at 8}]}
   ;
   ; @return (map)
   [n tags options {:keys [cursor] :as state} tag-name]
-  (let [tag-actual-depth  (tag-actual-depth n tags options state tag-name)
-        tag-will-open-at  (tag-will-open-at n tags options state tag-name)
-        tag-opening-depth (inc tag-actual-depth)]
-       (update state :actual-tags vector/conj-item {:depth        tag-opening-depth
-                                                    :name         tag-name
-                                                    :started-at   cursor
-                                                    :will-open-at tag-will-open-at})))
+  (let [tag-will-open-at (tag-will-open-at n tags options state tag-name)]
+       (update state :actual-tags vector/conj-item {:name tag-name :starts-at cursor :will-open-at tag-will-open-at})))
 
-(defn close-innermost-tag
+(defn close-parent-tag
   ; @ignore
   ;
   ; @description
-  ; Updates the given 'state' by closing the innermost tag in the 'actual-tags' vector.
+  ; Updates the given 'state' by closing the actual parent tag in the 'actual-tags' vector.
   ;
   ; @param (string) n
   ; @param (map) tags
@@ -433,128 +568,126 @@
   ; @param (map) state
   ; {:actual-tags (maps in vector)
   ;  :cursor (integer)}
+  ; @param (keyword) tag-name
   ;
   ; @example
-  ; (close-innermost-tag "..." {...} {...}
-  ;                      {:cursor 10 :actual-tags [{:name :paren :depth 1 :started-at 1 :opened-at 2}
-  ;                                                {:name :paren :depth 2 :started-at 4 :opened-at 5}
-  ;                                                {:name :paren :depth 3 :started-at 7 :opened-at 8}]})
+  ; (close-parent-tag "..." {...} {...}
+  ;                   {:cursor 10 :actual-tags [{:name :paren :started-at 1 :opened-at 2}
+  ;                                             {:name :paren :started-at 4 :opened-at 5}
+  ;                                             {:name :paren :started-at 7 :opened-at 8}]})
   ; =>
-  ; {:cursor 10 :actual-tags [{:name :paren :depth 1 :started-at 1 :opened-at 2}
-  ;                           {:name :paren :depth 2 :started-at 4 :opened-at 5}
-  ;                           {:name :paren :depth 3 :started-at 7 :opened-at 8 :closed-at 10 :will-end-at 11}]}
+  ; {:cursor 10 :actual-tags [{:name :paren :started-at 1 :opened-at 2}
+  ;                           {:name :paren :started-at 4 :opened-at 5}
+  ;                           {:name :paren :started-at 7 :opened-at 8 :closes-at 10 :will-end-at 11}]}
   ;
   ; @return (map)
-  [n tags options {:keys [actual-tags cursor] :as state}]
-  (let [tag-name        (-> actual-tags last :name)
-        tag-will-end-at (tag-will-end-at n tags options state tag-name)]
-       (update state :actual-tags vector/update-last-item merge {:closed-at   cursor
-                                                                 :will-end-at tag-will-end-at})))
+  [n tags options {:keys [actual-tags cursor] :as state} _]
+  (let [parent-tag      (parent-tag n tags options state)
+        parent-tag-dex  (vector/last-dex-of actual-tags parent-tag)
+        tag-will-end-at (tag-will-end-at n tags options state (:name parent-tag))]
+       (update state :actual-tags vector/update-nth-item parent-tag-dex merge {:closes-at cursor :will-end-at tag-will-end-at})))
+
+;; -- State functions ---------------------------------------------------------
+;; ----------------------------------------------------------------------------
+
+(defn filter-provided-state
+  ; @ignore
+  ;
+  ; @description
+  ; Removes the ':result' from the actual state, because the result is provided to the applied function in a separate parameter.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ;
+  ; @return (map)
+  [_ _ _ state]
+  (dissoc state :result))
 
 ;; -- Actual state functions --------------------------------------------------
 ;; ----------------------------------------------------------------------------
 
-(defn reading-opening-tag?
+(defn actualize-previous-tags
   ; @ignore
   ;
   ; @description
-  ; Returns TRUE if the last found opening tag is already started but not ended yet at the actual cursor position
-  ; (a tag is started but not opened if its opening tag not ended yet).
+  ; ...
   ;
   ; @param (string) n
   ; @param (map) tags
   ; @param (map) options
   ; @param (map) state
-  ; {:actual-tags (maps in vector)
-  ;  :cursor (integer)}
-  ;
-  ; @return (boolean)
-  [_ _ _ {:keys [actual-tags cursor]}]
-  (-> actual-tags last :will-open-at some?))
-
-(defn reading-closing-tag?
-  ; @ignore
-  ;
-  ; @description
-  ; Returns TRUE if the last found closing tag is already started but not ended yet at the actual cursor position
-  ; (a tag is closed but not ended if its closing tag not ended yet).
-  ;
-  ; @param (string) n
-  ; @param (map) tags
-  ; @param (map) options
-  ; @param (map) state
-  ; {:actual-tags (maps in vector)
-  ;  :cursor (integer)}
-  ;
-  ; @return (boolean)
-  [_ _ _ {:keys [actual-tags cursor]}]
-  (-> actual-tags last :will-end-at some?))
-
-(defn actualize-innermost-tag
-  ; @ignore
-  ;
-  ; @description
-  ; If the last (innermost) tag in the 'actual-tags' vector ...
-  ; ... opens at the actual cursor position, it renames the ':will-open-at' key to ':opened-at' in the tag's property map.
-  ; ... ends at the actual cursor position, it removes the tag from the 'actual-tags' vector.
-  ;
-  ; @param (string) n
-  ; @param (map) tags
-  ; @param (map) options
-  ; @param (map) state
-  ; {:actual-tags (maps in vector)
-  ;  :cursor (integer)}
+  ; {:cursor (integer)}
   ;
   ; @return (map)
-  [_ _ _ {:keys [actual-tags cursor] :as state}]
-  (cond-> state (-> actual-tags last :will-open-at (= cursor)) (update :actual-tags vector/update-last-item map/rekey-item :will-open-at :opened-at)
-                (-> actual-tags last :will-end-at  (= cursor)) (update :actual-tags vector/remove-last-item)))
+  [_ _ _ {:keys [cursor] :as state}]
+  (letfn [(f [%] (cond-> % (-> % :will-open-at (=      cursor))  (map/rekey-item :will-open-at :opens-at)
+                           (-> % :will-end-at  (=      cursor))  (map/rekey-item :will-end-at  :ends-at)
+                           (-> % :starts-at    (= (dec cursor))) (map/rekey-item :starts-at    :started-at)
+                           (-> % :opens-at     (= (dec cursor))) (map/rekey-item :opens-at     :opened-at)
+                           (-> % :closes-at    (= (dec cursor))) (map/rekey-item :closes-at    :closed-at)))]
+         (update state :actual-tags vector/->items f)))
+
+(defn actualize-updated-tags
+  ; @ignore
+  ;
+  ; @description
+  ; ...
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ;
+  ; @return (map)
+  [_ _ _ state]
+  (update state :actual-tags vector/remove-items-by :ends-at))
 
 (defn check-for-opening-tag
   ; @ignore
   ;
   ; @description
-  ; - If an opening tag starts at the actual cursor position, it adds a new innermost tag to the 'actual-tags' vector.
-  ; - At first it checks for tags that are presented also in the ':tag-priority-order' vector, then it checks for the rest
-  ;   that are presented only in the given 'tags' map.
+  ; ...
   ;
   ; @param (string) n
   ; @param (map) tags
   ; @param (map) options
-  ; {:tag-priority-order (keywords in vector)}
   ; @param (map) state
   ;
-  ; @return (map)
-  [n tags {:keys [tag-priority-order] :as options} state]
-  (letfn [(f [tag-name] (and (opening-tag-starts? n tags options state tag-name)
-                             (or (tag-not-requires-any-accepted-parent? n tags options state tag-name)
-                                 (tag-any-accepted-parent-opened?       n tags options state tag-name))
+  ; @return (keyword)
+  [n tags options state]
+  (letfn [(f [tag-name] (and (opening-tag-starts?            n tags options state tag-name)
+                             (tag-ancestor-requirements-met? n tags options state tag-name)
+                             (tag-parent-requirements-met?   n tags options state tag-name)
                              (-> tag-name)))]
-         (or (if-let [found-opening-tag (or (some (fn [tag-name]     (f tag-name)) tag-priority-order)
-                                            (some (fn [[tag-name _]] (f tag-name)) tags))]
-                     (add-innermost-tag n tags options state found-opening-tag))
-             (-> state))))
+         (and (-> (interpreter-enabled?     n tags options state))
+              (-> (reading-any-opening-tag? n tags options state) not)
+              (-> (reading-any-closing-tag? n tags options state) not)
+              (or (some (fn [[tag-name _]] (f tag-name)) (map/filter-values tags (fn [[_ _ {:keys [priority] :or {priority :default}}]] (= priority :high))))
+                  (some (fn [[tag-name _]] (f tag-name)) (map/filter-values tags (fn [[_ _ {:keys [priority] :or {priority :default}}]] (= priority :default))))
+                  (some (fn [[tag-name _]] (f tag-name)) (map/filter-values tags (fn [[_ _ {:keys [priority] :or {priority :default}}]] (= priority :low))))))))
 
 (defn check-for-closing-tag
   ; @ignore
   ;
   ; @description
-  ; If the innermost tag's closing tag starts at the actual cursor position, it closes that tag in the 'actual-tags' vector.
+  ; ...
   ;
   ; @param (string) n
   ; @param (map) tags
   ; @param (map) options
   ; @param (map) state
-  ; {:actual-tags (maps in vector)}
   ;
-  ; @return (map)
-  [n tags options {:keys [actual-tags] :as state}]
-  (or (if-let [innermost-tag (vector/last-item actual-tags)]
-              (if (closing-tag-starts? n tags options state (:name innermost-tag))
-                  (close-innermost-tag n tags options state)))
-      (-> state)))
+  ; @return (keyword)
+  [n tags options state]
+  (and (-> (reading-any-opening-tag? n tags options state) not)
+       (-> (reading-any-closing-tag? n tags options state) not)
+       (if-let [parent-tag (parent-tag n tags options state)]
+               (and (closing-tag-starts? n tags options state (:name parent-tag))
+                    (:name parent-tag)))))
 
-(defn update-actual-state
+(defn update-previous-state
   ; @ignore
   ;
   ; @description
@@ -569,11 +702,33 @@
   ;
   ; @return (map)
   [n tags options state]
-  (let [state (actualize-innermost-tag n tags options state)]
-       (cond (reading-opening-tag?  n tags options state) (-> state)
-             (reading-closing-tag?  n tags options state) (-> state)
-             (interpreter-disabled? n tags options state) (-> state)
-             :return (check-for-opening-tag n tags options state))))
+  (let [state (actualize-previous-tags n tags options state)]
+       (or (if-let [found-opening-tag (check-for-opening-tag n tags options state)]
+                   (start-child-tag n tags options state found-opening-tag))
+           (if-let [found-closing-tag (check-for-closing-tag n tags options state)]
+                   (close-parent-tag n tags options state found-closing-tag))
+           (-> state))))
+
+(defn update-actual-state
+  ; @ignore
+  ;
+  ; @description
+  ; After the 'f' function is applied, it stores the updated result in the actual 'state' map.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; @param (*) updated-result
+  ;
+  ; @return (map)
+  ; {:cursor (integer or keyword)
+  ;  :result (*)}
+  [n tags options state updated-result]
+  (cond (-> updated-result vector? not)           (-> state (assoc :result (-> updated-result)))
+        (-> updated-result first (= :$stop))      (-> state (assoc :result (-> updated-result last) :cursor :iteration-stopped))
+        (-> updated-result first (= :$set-state)) (-> state (merge (-> updated-result second)))
+        :else                                     (-> state (assoc :result (-> updated-result)))))
 
 (defn prepare-next-state
   ; @ignore
@@ -588,6 +743,5 @@
   ;
   ; @return (map)
   [n tags options state]
-  (cond (reading-opening-tag? n tags options state) (-> state)
-        (reading-closing-tag? n tags options state) (-> state)
-        :return (check-for-closing-tag n tags options state)))
+  (let [state (actualize-updated-tags n tags options state)]
+       (-> state)))

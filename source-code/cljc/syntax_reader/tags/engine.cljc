@@ -146,8 +146,9 @@
            ;
            ; @return (nil or vector)
            (f0 [_ {:keys [cursor] :as state} {:keys [stop] :as metafunctions}]
-               (if (tags.utils/closing-tag-found? state metafunctions)
-                   (stop cursor)))]
+               (cond (tags.utils/closing-tag-found? state metafunctions) (stop cursor)
+                     (tags.utils/first-iteration?   state metafunctions) (tags.utils/init-state state metafunctions)))]
+
           ; ...
           (let [tags (assoc tags :$searched-tag [opening-tag closing-tag])
                 tags (core.prototypes/tags-prototype tags options)]

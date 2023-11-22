@@ -77,20 +77,19 @@
    (letfn [; @param (map) result
            ; @param (map) state
            ; @param (map) metafunctions
-           ; {}
            ;
            ; @return (map)
            ; {:commented (integer pairs in vectors in vector)
            ;  :escaped (integers in vector)
            ;  :quoted (integer pairs in vectors in vector)}
-           (f0 [result {:keys [cursor] :as state} {:keys [closing-tag-ends? closing-tag-starts? opening-tag-ends? opening-tag-starts? stop] :as metafunctions}]
-               (cond (grey-zones.utils/last-comment-not-opened-yet? result state metafunctions) (grey-zones.utils/check-if-comment-opening-tag-ends   result state metafunctions)
-                     (grey-zones.utils/last-comment-not-closed-yet? result state metafunctions) (grey-zones.utils/check-if-comment-closing-tag-starts result state metafunctions)
-                     (grey-zones.utils/last-comment-not-ended-yet?  result state metafunctions) (grey-zones.utils/check-if-comment-closing-tag-ends   result state metafunctions)
-                     (grey-zones.utils/last-quote-not-opened-yet?   result state metafunctions) (grey-zones.utils/check-if-quote-opening-tag-ends     result state metafunctions)
-                     (grey-zones.utils/last-quote-not-closed-yet?   result state metafunctions) (grey-zones.utils/check-if-quote-closing-tag-starts   result state metafunctions)
-                     (grey-zones.utils/last-quote-not-ended-yet?    result state metafunctions) (grey-zones.utils/check-if-quote-closing-tag-ends     result state metafunctions)
-                     :else                                                                      (grey-zones.utils/check-if-grey-zone-starts           result state metafunctions)))]
+           (f0 [result state metafunctions]
+               (-> result (grey-zones.utils/check-if-comment-opens    state metafunctions)
+                          (grey-zones.utils/check-if-comment-closes   state metafunctions)
+                          (grey-zones.utils/check-if-comment-ends     state metafunctions)
+                          (grey-zones.utils/check-if-quote-opens      state metafunctions)
+                          (grey-zones.utils/check-if-quote-closes     state metafunctions)
+                          (grey-zones.utils/check-if-quote-ends       state metafunctions)
+                          (grey-zones.utils/check-if-grey-zone-starts state metafunctions)))]
           ; ...
           (let [initial {:commented [] :escaped? [] :quoted []}
                 tags    (core.prototypes/tags-prototype tags options)]

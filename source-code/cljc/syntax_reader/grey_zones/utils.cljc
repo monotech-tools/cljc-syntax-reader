@@ -5,112 +5,7 @@
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
 
-(defn last-comment-not-opened-yet?
-  ; @ignore
-  ;
-  ; @description
-  ; Returns TRUE if ...
-  ; ... at least one item is already added to the ':commented' vector in the 'result' map,
-  ; ... and the last item in that ':commented' vector does not contain the ':opened-at' position (yet).
-  ;
-  ; @param (map) result
-  ; @param (map) state
-  ; @param (map) metafunctions
-  ;
-  ; @return (boolean)
-  [result _ _]
-  (and (-> result :commented last map?)
-       (-> result :commented last :opened-at nil?)))
-
-(defn last-comment-not-closed-yet?
-  ; @ignore
-  ;
-  ; @description
-  ; Returns TRUE if ...
-  ; ... at least one item is already added to the ':commented' vector in the 'result' map,
-  ; ... and the last item in that ':commented' vector does not contain the ':closed-at' position (yet).
-  ;
-  ; @param (map) result
-  ; @param (map) state
-  ; @param (map) metafunctions
-  ;
-  ; @return (boolean)
-  [result _ _]
-  (and (-> result :commented last map?)
-       (-> result :commented last :closed-at nil?)))
-
-(defn last-comment-not-ended-yet?
-  ; @ignore
-  ;
-  ; @description
-  ; Returns TRUE if ...
-  ; ... at least one item is already added to the ':commented' vector in the 'result' map,
-  ; ... and the last item in that ':commented' vector does not contain the ':ended-at' position (yet).
-  ;
-  ; @param (map) result
-  ; @param (map) state
-  ; @param (map) metafunctions
-  ;
-  ; @return (boolean)
-  [result _ _]
-  (and (-> result :commented last map?)
-       (-> result :commented last :ended-at nil?)))
-
-(defn last-quote-not-opened-yet?
-  ; @ignore
-  ;
-  ; @description
-  ; Returns TRUE if ...
-  ; ... at least one item is already added to the ':quoted' vector in the 'result' map,
-  ; ... and the last item in that ':quoted' vector does not contain the ':opened-at' position (yet).
-  ;
-  ; @param (map) result
-  ; @param (map) state
-  ; @param (map) metafunctions
-  ;
-  ; @return (boolean)
-  [result _ _]
-  (and (-> result :quoted last map?)
-       (-> result :quoted last :opened-at nil?)))
-
-(defn last-quote-not-closed-yet?
-  ; @ignore
-  ;
-  ; @description
-  ; Returns TRUE if ...
-  ; ... at least one item is already added to the ':quoted' vector in the 'result' map,
-  ; ... and the last item in that ':quoted' vector does not contain the ':closed-at' position (yet).
-  ;
-  ; @param (map) result
-  ; @param (map) state
-  ; @param (map) metafunctions
-  ;
-  ; @return (boolean)
-  [result _ _]
-  (and (-> result :quoted last map?)
-       (-> result :quoted last :closed-at nil?)))
-
-(defn last-quote-not-ended-yet?
-  ; @ignore
-  ;
-  ; @description
-  ; Returns TRUE if ...
-  ; ... at least one item is already added to the ':quoted' vector in the 'result' map,
-  ; ... and the last item in that ':quoted' vector does not contain the ':ended-at' position (yet).
-  ;
-  ; @param (map) result
-  ; @param (map) state
-  ; @param (map) metafunctions
-  ;
-  ; @return (boolean)
-  [result _ _]
-  (and (-> result :quoted last map?)
-       (-> result :quoted last :ended-at nil?)))
-
-;; ----------------------------------------------------------------------------
-;; ----------------------------------------------------------------------------
-
-(defn check-if-comment-opening-tag-ends
+(defn check-if-comment-opens
   ; @ignore
   ;
   ; @description
@@ -120,15 +15,15 @@
   ; @param (map) state
   ; {:cursor (integer)}
   ; @param (map) metafunctions
-  ; {:opening-tag-ends? (function)}
+  ; {:tag-opens? (function)}
   ;
   ; @return (map)
-  [result {:keys [cursor]} {:keys [opening-tag-ends?]}]
-  (if (-> :comment opening-tag-ends?)
+  [result {:keys [cursor]} {:keys [tag-opens?]}]
+  (if (-> :comment tag-opens?)
       (-> result (update :commented vector/update-last-item assoc :opened-at cursor))
       (-> result)))
 
-(defn check-if-comment-closing-tag-starts
+(defn check-if-comment-closes
   ; @ignore
   ;
   ; @description
@@ -138,15 +33,15 @@
   ; @param (map) state
   ; {:cursor (integer)}
   ; @param (map) metafunctions
-  ; {:closing-tag-starts? (function)}
+  ; {:tag-closes? (function)}
   ;
   ; @return (map)
-  [result {:keys [cursor]} {:keys [closing-tag-starts?]}]
-  (if (-> :comment closing-tag-starts?)
+  [result {:keys [cursor]} {:keys [tag-closes?]}]
+  (if (-> :comment tag-closes?)
       (-> result (update :commented vector/update-last-item assoc :closed-at cursor))
       (-> result)))
 
-(defn check-if-comment-closing-tag-ends
+(defn check-if-comment-ends
   ; @ignore
   ;
   ; @description
@@ -156,15 +51,15 @@
   ; @param (map) state
   ; {:cursor (integer)}
   ; @param (map) metafunctions
-  ; {:closing-tag-ends? (function)}
+  ; {:tag-ends? (function)}
   ;
   ; @return (map)
-  [result {:keys [cursor]} {:keys [closing-tag-ends?]}]
-  (if (-> :comment closing-tag-ends?)
+  [result {:keys [cursor]} {:keys [tag-ends?]}]
+  (if (-> :comment tag-ends?)
       (-> result (update :commented vector/update-last-item assoc :ended-at cursor))
       (-> result)))
 
-(defn check-if-quote-opening-tag-ends
+(defn check-if-quote-opens
   ; @ignore
   ;
   ; @description
@@ -174,15 +69,15 @@
   ; @param (map) state
   ; {:cursor (integer)}
   ; @param (map) metafunctions
-  ; {:opening-tag-ends? (function)}
+  ; {:tag-opens? (function)}
   ;
   ; @return (map)
-  [result {:keys [cursor]} {:keys [opening-tag-ends?]}]
-  (if (-> :quote opening-tag-ends?)
+  [result {:keys [cursor]} {:keys [tag-opens?]}]
+  (if (-> :quote tag-opens?)
       (-> result (update :quoted vector/update-last-item assoc :opened-at cursor))
       (-> result)))
 
-(defn check-if-quote-closing-tag-starts
+(defn check-if-quote-closes
   ; @ignore
   ;
   ; @description
@@ -192,15 +87,15 @@
   ; @param (map) state
   ; {:cursor (integer)}
   ; @param (map) metafunctions
-  ; {:closing-tag-starts? (function)}
+  ; {:tag-closes? (function)}
   ;
   ; @return (map)
-  [result {:keys [cursor]} {:keys [closing-tag-starts?]}]
-  (if (-> :quote closing-tag-starts?)
+  [result {:keys [cursor]} {:keys [tag-closes?]}]
+  (if (-> :quote tag-closes?)
       (-> result (update :quoted vector/update-last-item assoc :closed-at cursor))
       (-> result)))
 
-(defn check-if-quote-closing-tag-ends
+(defn check-if-quote-ends
   ; @ignore
   ;
   ; @description
@@ -210,11 +105,11 @@
   ; @param (map) state
   ; {:cursor (integer)}
   ; @param (map) metafunctions
-  ; {:closing-tag-ends? (function)}
+  ; {:tag-ends? (function)}
   ;
   ; @return (map)
-  [result {:keys [cursor]} {:keys [closing-tag-ends?]}]
-  (if (-> :quote closing-tag-ends?)
+  [result {:keys [cursor]} {:keys [tag-ends?]}]
+  (if (-> :quote tag-ends?)
       (-> result (update :quoted vector/update-last-item assoc :ended-at cursor))
       (-> result)))
 
@@ -231,7 +126,7 @@
   ; {:opening-tag-starts? (function)}
   ;
   ; @return (map)
-  [result {:keys [cursor]} {:keys [opening-tag-starts?]}]
-  (cond (opening-tag-starts? :comment) (update result :commented vector/conj-item {:started-at cursor})
-        (opening-tag-starts? :quote)   (update result :quoted    vector/conj-item {:started-at cursor})
+  [result {:keys [cursor]} {:keys [tag-starts?]}]
+  (cond (tag-starts? :comment) (update result :commented vector/conj-item {:started-at cursor})
+        (tag-starts? :quote)   (update result :quoted    vector/conj-item {:started-at cursor})
         :return result))
