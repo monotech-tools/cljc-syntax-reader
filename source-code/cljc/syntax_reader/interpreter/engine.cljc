@@ -12,25 +12,30 @@
   ; - Provides a state of the actual cursor position and a set of metafunctions for the applied function.
   ; - The provided state contains the 'actual-tags' vector that describes the opened tags at the actual cursor position.
   ; - Metafunctions that are available within the applied 'f' function:
-  ;   - 'no-tags-opened?'
-  ;   - 'tag-actual-depth'
   ;   - 'ancestor-tags'
-  ;   - 'parent-tag'
-  ;   - 'tag-ancestor?'
-  ;   - 'tag-parent?'
-  ;   - 'tag-opened?'
-  ;   - 'tag-not-opened?'
   ;   - 'interpreter-disabled-by'
   ;   - 'interpreter-disabled?'
   ;   - 'interpreter-enabled?'
-  ;   - 'reading-any-opening-match?'
+  ;   - 'no-tags-opened?'
+  ;   - 'parent-tag'
   ;   - 'reading-any-closing-match?'
-  ;   - 'stop'
+  ;   - 'reading-any-opening-match?'
   ;   - 'set-state'
-  ;   - 'tag-starts?'
-  ;   - 'tag-opens?'
+  ;   - 'stop'
+  ;   - 'tag-actual-depth'
+  ;   - 'tag-ancestor?'
+  ;   - 'tag-body'
+  ;   - 'tag-closed-at'
   ;   - 'tag-closes?'
+  ;   - 'tag-content'
   ;   - 'tag-ends?'
+  ;   - 'tag-opened-at'
+  ;   - 'tag-opened?'
+  ;   - 'tag-opens?'
+  ;   - 'tag-parent?'
+  ;   - 'tag-started-at'
+  ;   - 'tag-started?'
+  ;   - 'tag-starts?'
   ;
   ; @param (string) n
   ; @param (function) f
@@ -124,12 +129,17 @@
            ;  :stop (function)
            ;  :tag-actual-depth (function)
            ;  :tag-ancestor? (function)
+           ;  :tag-body (function)
+           ;  :tag-closed-at (function)
            ;  :tag-closes? (function)
+           ;  :tag-content (function)
            ;  :tag-ends? (function)
-           ;  :tag-not-opened? (function)
+           ;  :tag-opened-at (function)
            ;  :tag-opened? (function)
            ;  :tag-opens? (function)
            ;  :tag-parent? (function)
+           ;  :tag-started-at (function)
+           ;  :tag-started? (function)
            ;  :tag-starts? (function)}
            (f0 [state]
                {:ancestor-tags              (interpreter.metafunctions/ancestor-tags-f             n tags options state)
@@ -144,12 +154,17 @@
                 :stop                       (interpreter.metafunctions/stop-f                      n tags options state)
                 :tag-actual-depth           (interpreter.metafunctions/tag-actual-depth-f          n tags options state)
                 :tag-ancestor?              (interpreter.metafunctions/tag-ancestor-f              n tags options state)
+                :tag-body                   (interpreter.metafunctions/tag-body-f                  n tags options state)
+                :tag-closed-at              (interpreter.metafunctions/tag-closed-at-f             n tags options state)
                 :tag-closes?                (interpreter.metafunctions/tag-closes-f                n tags options state)
+                :tag-content                (interpreter.metafunctions/tag-content-f               n tags options state)
                 :tag-ends?                  (interpreter.metafunctions/tag-ends-f                  n tags options state)
-                :tag-not-opened?            (interpreter.metafunctions/tag-not-opened-f            n tags options state)
+                :tag-opened-at              (interpreter.metafunctions/tag-opened-at-f             n tags options state)
                 :tag-opened?                (interpreter.metafunctions/tag-opened-f                n tags options state)
                 :tag-opens?                 (interpreter.metafunctions/tag-opens-f                 n tags options state)
                 :tag-parent?                (interpreter.metafunctions/tag-parent-f                n tags options state)
+                :tag-started-at             (interpreter.metafunctions/tag-started-at-f            n tags options state)
+                :tag-started?               (interpreter.metafunctions/tag-started-f               n tags options state)
                 :tag-starts?                (interpreter.metafunctions/tag-starts-f                n tags options state)})]
           ; ...
           (let [initial-state {:actual-tags nil :cursor 0 :result initial}]

@@ -1,6 +1,7 @@
 
 (ns syntax-reader.interpreter.metafunctions
     (:require [syntax-reader.interpreter.utils :as interpreter.utils]
+              [string.api                      :as string]
               [vector.api                      :as vector]))
 
 ;; -- Ancestor / parent tag metafunctions -------------------------------------
@@ -128,48 +129,6 @@
   ;
   ; @return (boolean)
   (fn [tag-name] (interpreter.utils/tag-parent? n tags options state tag-name)))
-
-(defn tag-opened-f
-  ; @ignore
-  ;
-  ; @description
-  ; Returns the 'tag-opened?' metafunction.
-  ;
-  ; @param (string) n
-  ; @param (map) tags
-  ; @param (map) options
-  ; @param (map) state
-  ;
-  ; @return (function)
-  [n tags options state]
-  ; @description
-  ; Returns TRUE the given tag is an opened ancestor tag of the actual cursor position.
-  ;
-  ; @param (keyword) tag-name
-  ;
-  ; @return (boolean)
-  (fn [tag-name] (interpreter.utils/tag-ancestor? n tags options state tag-name)))
-
-(defn tag-not-opened-f
-  ; @ignore
-  ;
-  ; @description
-  ; Returns the 'tag-not-opened?' metafunction.
-  ;
-  ; @param (string) n
-  ; @param (map) tags
-  ; @param (map) options
-  ; @param (map) state
-  ;
-  ; @return (function)
-  [n tags options state]
-  ; @description
-  ; Returns TRUE the given tag is NOT an opened ancestor tag of the actual cursor position.
-  ;
-  ; @param (keyword) tag-name
-  ;
-  ; @return (boolean)
-  (fn [tag-name] (-> (interpreter.utils/tag-ancestor? n tags options state tag-name) not)))
 
 ;; -- Interpreter metafunctions -----------------------------------------------
 ;; ----------------------------------------------------------------------------
@@ -326,7 +285,7 @@
   ;  (map) extra]
   (fn [x] [:$set-state x]))
 
-;; -- Tag boundary functions --------------------------------------------------
+;; -- Tag boundary metafunctions ----------------------------------------------
 ;; ----------------------------------------------------------------------------
 
 (defn tag-starts-f
@@ -352,7 +311,58 @@
   ; @return (boolean)
   (fn [tag-name] (letfn [(f [%] (and (-> % :name      (= tag-name))
                                      (-> % :starts-at (= cursor))))]
-                        (-> (vector/last-match actual-tags f) some?))))
+                        (vector/any-item-matches? actual-tags f))))
+
+(defn tag-started-f
+  ; @ignore
+  ;
+  ; @description
+  ; Returns the 'tag-started?' metafunction.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; {:actual-tags (maps in vector)
+  ;  :cursor (integer)}
+  ;
+  ; @return (function)
+  [_ _ _ {:keys [actual-tags cursor]}]
+  ; @description
+  ; Returns TRUE if the given tag is started.
+  ;
+  ; @param (keyword) tag-name
+  ;
+  ; @return (boolean)
+  (fn [tag-name] (letfn [(f [%] (and (-> % :name (= tag-name))
+                                     (or (-> % :starts-at (= cursor))
+                                         (-> % :started-at integer?))))]
+                        (vector/any-item-matches? actual-tags f))))
+
+(defn tag-started-at-f
+  ; @ignore
+  ;
+  ; @description
+  ; Returns the 'tag-started-at' metafunction.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; {:actual-tags (maps in vector)}
+  ;
+  ; @return (function)
+  [_ _ _ {:keys [actual-tags]}]
+  ; @description
+  ; Returns the starting position of the given tag.
+  ;
+  ; @param (keyword) tag-name
+  ;
+  ; @return (integer)
+  (fn [tag-name] (letfn [(f [%] (and (-> % :name (= tag-name))
+                                     (or (-> % :starts-at)
+                                         (-> % :started-at))))]
+                        (some f actual-tags))))
 
 (defn tag-opens-f
   ; @ignore
@@ -377,7 +387,59 @@
   ; @return (boolean)
   (fn [tag-name] (letfn [(f [%] (and (-> % :name     (= tag-name))
                                      (-> % :opens-at (= cursor))))]
-                        (-> (vector/last-match actual-tags f) some?))))
+                        (vector/any-item-matches? actual-tags f))))
+
+(defn tag-opened-f
+  ; @ignore
+  ;
+  ; @description
+  ; Returns the 'tag-opened?' metafunction.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; {:actual-tags (maps in vector)
+  ;  :cursor (integer)}
+  ;
+  ; @return (function)
+  [_ _ _ {:keys [actual-tags cursor]}]
+  ; @description
+  ; Returns TRUE if the given tag is opened.
+  ;
+  ; @param (keyword) tag-name
+  ;
+  ; @return (boolean)
+  (fn [tag-name] (letfn [(f [%] (and (-> % :name (= tag-name))
+                                     (or (-> % :opens-at (= cursor))
+                                         (-> % :opened-at integer?))
+                                     (-> % :closed-at not)))]
+                        (vector/any-item-matches? actual-tags f))))
+
+(defn tag-opened-at-f
+  ; @ignore
+  ;
+  ; @description
+  ; Returns the 'tag-opened-at' metafunction.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; {:actual-tags (maps in vector)}
+  ;
+  ; @return (function)
+  [_ _ _ {:keys [actual-tags]}]
+  ; @description
+  ; Returns the opening position of the given tag.
+  ;
+  ; @param (keyword) tag-name
+  ;
+  ; @return (integer)
+  (fn [tag-name] (letfn [(f [%] (and (-> % :name (= tag-name))
+                                     (or (-> % :opens-at)
+                                         (-> % :opened-at))))]
+                        (some f actual-tags))))
 
 (defn tag-closes-f
   ; @ignore
@@ -402,7 +464,32 @@
   ; @return (boolean)
   (fn [tag-name] (letfn [(f [%] (and (-> % :name      (= tag-name))
                                      (-> % :closes-at (= cursor))))]
-                        (-> (vector/last-match actual-tags f) some?))))
+                        (vector/any-item-matches? actual-tags f))))
+
+(defn tag-closed-at-f
+  ; @ignore
+  ;
+  ; @description
+  ; Returns the 'tag-closed-at' metafunction.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; {:actual-tags (maps in vector)}
+  ;
+  ; @return (function)
+  [_ _ _ {:keys [actual-tags]}]
+  ; @description
+  ; Returns the closing position of the given tag.
+  ;
+  ; @param (keyword) tag-name
+  ;
+  ; @return (integer)
+  (fn [tag-name] (letfn [(f [%] (and (-> % :name (= tag-name))
+                                     (or (-> % :closes-at)
+                                         (-> % :closed-at))))]
+                        (some f actual-tags))))
 
 (defn tag-ends-f
   ; @ignore
@@ -427,4 +514,43 @@
   ; @return (boolean)
   (fn [tag-name] (letfn [(f [%] (and (-> % :name    (= tag-name))
                                      (-> % :ends-at (= cursor))))]
-                        (-> (vector/last-match actual-tags f) some?))))
+                        (vector/any-item-matches? actual-tags f))))
+
+;; -- Tag body / content metafunctions ----------------------------------------
+;; ----------------------------------------------------------------------------
+
+(defn tag-body-f
+  ; @ignore
+  ;
+  ; @description
+  ; Returns the 'tag-body' metafunction.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; {:cursor (integer)}
+  ;
+  ; @return (function)
+  [n tags options {:keys [cursor] :as state}]
+  (fn [tag-name] (if ((tag-started-f n tags options state) tag-name)
+                     (let [tag-started-at ((tag-started-at-f n tags options state) tag-name)]
+                          (string/keep-range n tag-started-at cursor)))))
+
+(defn tag-content-f
+  ; @ignore
+  ;
+  ; @description
+  ; Returns the 'tag-content' metafunction.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; {:cursor (integer)}
+  ;
+  ; @return (function)
+  [n tags options {:keys [cursor] :as state}]
+  (fn [tag-name] (if ((tag-opened-f n tags options state) tag-name)
+                     (let [tag-opened-at ((tag-opened-at-f n tags options state) tag-name)]
+                          (string/keep-range n tag-opened-at cursor)))))

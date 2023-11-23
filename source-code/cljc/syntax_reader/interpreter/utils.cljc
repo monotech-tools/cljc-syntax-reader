@@ -6,6 +6,76 @@
               [seqable.api :as seqable]
               [vector.api  :as vector]))
 
+;; -- Tag parameter functions -------------------------------------------------
+;; ----------------------------------------------------------------------------
+
+(defn tag-opening-pattern
+  ; @ignore
+  ;
+  ; @description
+  ; Returns the given tag's opening pattern.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; @param (keyword) tag-name
+  ;
+  ; @return (regex pattern)
+  [_ tags _ _ tag-name]
+  (if-let [opening-pattern (-> tags tag-name first)]
+          (if (regex/pattern? opening-pattern) opening-pattern)))
+
+(defn tag-closing-pattern
+  ; @ignore
+  ;
+  ; @description
+  ; Returns the given tag's closing pattern (if provided).
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; @param (keyword) tag-name
+  ;
+  ; @return (regex pattern)
+  [_ tags _ _ tag-name]
+  (if-let [closing-pattern (-> tags tag-name second)]
+          (if (regex/pattern? closing-pattern) closing-pattern)))
+
+(defn tag-options
+  ; @ignore
+  ;
+  ; @description
+  ; Returns the given tag's options map (if provided).
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; @param (keyword) tag-name
+  ;
+  ; @return (map)
+  [_ tags _ _ tag-name]
+  (if-let [tag-options (-> tags tag-name last)]
+          (if (map? tag-options) tag-options)))
+
+(defn tag-omittag?
+  ; @ignore
+  ;
+  ; @description
+  ; Returns TRUE if the given tag doesn't have a closing pattern (omittag).
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; @param (keyword) tag-name
+  ;
+  ; @return (map)
+  [n tags options state tag-name]
+  (-> (tag-closing-pattern n tags options state tag-name) nil?))
+
 ;; -- Ancestor / parent tag functions -----------------------------------------
 ;; ----------------------------------------------------------------------------
 
@@ -203,8 +273,9 @@
   ; @return (keyword)
   [n tags options {:keys [actual-tags] :as state}]
   (if-let [parent-tag (parent-tag n tags options state)]
-          (if (-> tags (get-in [(:name parent-tag) 2 :disable-interpreter?]))
-              (:name parent-tag))))
+          (if-let [tag-options (tag-options n tags options state (:name parent-tag))]
+                  (if (:disable-interpreter? tag-options)
+                      (:name parent-tag)))))
 
 (defn interpreter-disabled?
   ; @ignore
@@ -284,8 +355,9 @@
   ; @param (keyword) tag-name
   ;
   ; @return (boolean)
-  [_ tags _ _ tag-name]
-  (-> tags tag-name last :accepted-ancestors (= [])))
+  [n tags options state tag-name]
+  (if-let [tag-options (tag-options n tags options state tag-name)]
+          (-> tag-options :accepted-ancestors (= []))))
 
 (defn tag-requires-no-parents?
   ; @ignore
@@ -300,8 +372,9 @@
   ; @param (keyword) tag-name
   ;
   ; @return (boolean)
-  [_ tags _ _ tag-name]
-  (-> tags tag-name last :accepted-parents (= [])))
+  [n tags options state tag-name]
+  (if-let [tag-options (tag-options n tags options state tag-name)]
+          (-> tag-options :accepted-parents (= []))))
 
 (defn tag-requires-accepted-ancestor?
   ; @ignore
@@ -316,8 +389,9 @@
   ; @param (keyword) tag-name
   ;
   ; @return (boolean)
-  [_ tags _ _ tag-name]
-  (-> tags tag-name last :accepted-ancestors vector/nonempty?))
+  [n tags options state tag-name]
+  (if-let [tag-options (tag-options n tags options state tag-name)]
+          (-> tag-options :accepted-ancestors vector/nonempty?)))
 
 (defn tag-requires-accepted-parent?
   ; @ignore
@@ -332,8 +406,9 @@
   ; @param (keyword) tag-name
   ;
   ; @return (boolean)
-  [_ tags _ _ tag-name]
-  (-> tags tag-name last :accepted-parents vector/nonempty?))
+  [n tags options state tag-name]
+  (if-let [tag-options (tag-options n tags options state tag-name)]
+          (-> tag-options :accepted-parents vector/nonempty?)))
 
 (defn tag-any-accepted-ancestor-opened?
   ; @ignore
@@ -349,9 +424,10 @@
   ;
   ; @return (boolean)
   [n tags options state tag-name]
-  (if-let [accepted-ancestors (-> tags tag-name last :accepted-ancestors)]
-          (letfn [(f [accepted-ancestor] (tag-ancestor? n tags options state accepted-ancestor))]
-                 (some f accepted-ancestors))))
+  (if-let [tag-options (tag-options n tags options state tag-name)]
+          (if-let [accepted-ancestors (:accepted-ancestors tag-options)]
+                  (letfn [(f [accepted-ancestor] (tag-ancestor? n tags options state accepted-ancestor))]
+                         (some f accepted-ancestors)))))
 
 (defn tag-any-accepted-parent-opened?
   ; @ignore
@@ -367,9 +443,10 @@
   ;
   ; @return (boolean)
   [n tags options state tag-name]
-  (if-let [accepted-parents (-> tags tag-name last :accepted-parents)]
-          (letfn [(f [accepted-parent] (tag-parent? n tags options state accepted-parent))]
-                 (some f accepted-parents))))
+  (if-let [tag-options (tag-options n tags options state tag-name)]
+          (if-let [accepted-parents (:accepted-parents tag-options)]
+                  (letfn [(f [accepted-parent] (tag-parent? n tags options state accepted-parent))]
+                         (some f accepted-parents)))))
 
 (defn tag-ancestor-requirements-met?
   ; @ignore
@@ -426,9 +503,10 @@
   ; @param (keyword) tag-name
   ;
   ; @return (boolean)
-  [n tags _ {:keys [cursor]} tag-name]
-  (if-let [opening-pattern (-> tags tag-name first)]
-          (let [max-lookbehind-length (-> tags tag-name last :max-lookbehind-length)]
+  [n tags options {:keys [cursor] :as state} tag-name]
+  (if-let [opening-pattern (tag-opening-pattern n tags options state tag-name)]
+          (let [tag-options           (tag-options n tags options state tag-name)
+                max-lookbehind-length (:max-lookbehind-length tag-options)]
                (regex/starts-at? n opening-pattern cursor {:max-lookbehind-length max-lookbehind-length}))))
 
 (defn closing-match-starts?
@@ -445,12 +523,13 @@
   ; @param (keyword) tag-name
   ;
   ; @return (boolean)
-  [n tags _ {:keys [cursor]} tag-name]
-  (if-let [closing-pattern (-> tags tag-name second)]
-          (let [max-lookbehind-length (-> tags tag-name last :max-lookbehind-length)]
+  [n tags options {:keys [cursor] :as state} tag-name]
+  (if-let [closing-pattern (tag-closing-pattern n tags options state tag-name)]
+          (let [tag-options           (tag-options n tags options state tag-name)
+                max-lookbehind-length (:max-lookbehind-length tag-options)]
                (regex/starts-at? n closing-pattern cursor {:max-lookbehind-length max-lookbehind-length}))))
 
-(defn tag-will-open-at
+(defn opening-match-will-end-at
   ; @ignore
   ;
   ; @description
@@ -465,13 +544,14 @@
   ; @param (keyword) tag-name
   ;
   ; @return (integer)
-  [n tags _ {:keys [cursor]} tag-name]
-  (let [opening-pattern       (-> tags tag-name first)
-        max-lookbehind-length (-> tags tag-name last :max-lookbehind-length)]
-       (+ cursor (-> n (regex/re-from opening-pattern cursor {:max-lookbehind-length max-lookbehind-length})
-                       (count)))))
+  [n tags options {:keys [cursor] :as state} tag-name]
+  (if-let [opening-pattern (tag-opening-pattern n tags options state tag-name)]
+          (let [tag-options           (tag-options n tags options state tag-name)
+                max-lookbehind-length (:max-lookbehind-length tag-options)]
+               (+ cursor (-> n (regex/re-from opening-pattern cursor {:max-lookbehind-length max-lookbehind-length})
+                               (count))))))
 
-(defn tag-will-end-at
+(defn closing-match-will-end-at
   ; @ignore
   ;
   ; @description
@@ -486,11 +566,12 @@
   ; @param (keyword) tag-name
   ;
   ; @return (integer)
-  [n tags _ {:keys [cursor]} tag-name]
-  (let [closing-pattern       (-> tags tag-name first)
-        max-lookbehind-length (-> tags tag-name last :max-lookbehind-length)]
-       (+ cursor (-> n (regex/re-from closing-pattern cursor {:max-lookbehind-length max-lookbehind-length})
-                       (count)))))
+  [n tags options {:keys [cursor] :as state} tag-name]
+  (if-let [closing-pattern (tag-closing-pattern n tags options state tag-name)]
+          (let [tag-options           (tag-options n tags options state tag-name)
+                max-lookbehind-length (:max-lookbehind-length tag-options)]
+               (+ cursor (-> n (regex/re-from closing-pattern cursor {:max-lookbehind-length max-lookbehind-length})
+                               (count))))))
 
 ;; -- Update child / parent tag functions -------------------------------------
 ;; ----------------------------------------------------------------------------
@@ -520,8 +601,10 @@
   ;
   ; @return (map)
   [n tags options {:keys [cursor] :as state} tag-name]
-  (let [tag-will-open-at (tag-will-open-at n tags options state tag-name)]
-       (update state :actual-tags vector/conj-item {:name tag-name :starts-at cursor :will-open-at tag-will-open-at})))
+  (let [opening-match-will-end-at (opening-match-will-end-at n tags options state tag-name)]
+       (if (tag-omittag? n tags options state tag-name)
+           (update state :actual-tags vector/conj-item {:name tag-name :starts-at cursor :will-end-at  opening-match-will-end-at})
+           (update state :actual-tags vector/conj-item {:name tag-name :starts-at cursor :will-open-at opening-match-will-end-at}))))
 
 (defn close-parent-tag
   ; @ignore
@@ -549,10 +632,10 @@
   ;
   ; @return (map)
   [n tags options {:keys [actual-tags cursor] :as state} _]
-  (let [parent-tag      (parent-tag n tags options state)
-        parent-tag-dex  (vector/last-dex-of actual-tags parent-tag)
-        tag-will-end-at (tag-will-end-at n tags options state (:name parent-tag))]
-       (update state :actual-tags vector/update-nth-item parent-tag-dex merge {:closes-at cursor :will-end-at tag-will-end-at})))
+  (let [parent-tag                (parent-tag n tags options state)
+        parent-tag-dex            (vector/last-dex-of actual-tags parent-tag)
+        closing-match-will-end-at (closing-match-will-end-at n tags options state (:name parent-tag))]
+       (update state :actual-tags vector/update-nth-item parent-tag-dex merge {:closes-at cursor :will-end-at closing-match-will-end-at})))
 
 ;; -- State functions ---------------------------------------------------------
 ;; ----------------------------------------------------------------------------
