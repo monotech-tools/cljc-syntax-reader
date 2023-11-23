@@ -231,11 +231,11 @@
   ; @return (boolean)
   (fn [] (interpreter.utils/interpreter-enabled? n tags options state)))
 
-(defn reading-any-opening-tag-f
+(defn reading-any-opening-match-f
   ; @ignore
   ;
   ; @description
-  ; Returns the 'reading-any-opening-tag?' metafunction.
+  ; Returns the 'reading-any-opening-match?' metafunction.
   ;
   ; @param (string) n
   ; @param (map) tags
@@ -245,16 +245,16 @@
   ; @return (function)
   [n tags options state]
   ; @description
-  ; Returns TRUE if the last found opening tag is already started but not ended yet at the actual cursor position.
+  ; Returns TRUE if any opening pattern's last found match is already started but not ended yet at the actual cursor position.
   ;
   ; @return (boolean)
-  (fn [] (interpreter.utils/reading-any-opening-tag? n tags options state)))
+  (fn [] (interpreter.utils/reading-any-opening-match? n tags options state)))
 
-(defn reading-any-closing-tag-f
+(defn reading-any-closing-match-f
   ; @ignore
   ;
   ; @description
-  ; Returns the 'reading-any-closing-tag?' metafunction.
+  ; Returns the 'reading-any-closing-match?' metafunction.
   ;
   ; @param (string) n
   ; @param (map) tags
@@ -264,10 +264,10 @@
   ; @return (function)
   [n tags options state]
   ; @description
-  ; Returns TRUE if the last found closing tag is already started but not ended yet at the actual cursor position.
+  ; Returns TRUE if any closing pattern's last found match is already started but not ended yet at the actual cursor position.
   ;
   ; @return (boolean)
-  (fn [] (interpreter.utils/reading-any-closing-tag? n tags options state)))
+  (fn [] (interpreter.utils/reading-any-closing-match? n tags options state)))
 
 ;; -- Operator metafunctions --------------------------------------------------
 ;; ----------------------------------------------------------------------------
@@ -345,7 +345,7 @@
   ; @return (function)
   [_ _ _ {:keys [actual-tags cursor]}]
   ; @description
-  ; Returns TRUE if the given tag's opening tag starts at the actual cursor position.
+  ; Returns TRUE if the given tag's opening pattern's match starts at the actual cursor position.
   ;
   ; @param (keyword) tag-name
   ;
@@ -370,7 +370,7 @@
   ; @return (function)
   [_ _ _ {:keys [actual-tags cursor]}]
   ; @description
-  ; Returns TRUE if the given tag's opening tag ends at the actual cursor position.
+  ; Returns TRUE if the given tag's opening pattern's match ends at the actual cursor position.
   ;
   ; @param (keyword) tag-name
   ;
@@ -395,7 +395,7 @@
   ; @return (function)
   [_ _ _ {:keys [actual-tags cursor]}]
   ; @description
-  ; Returns TRUE if the given tag's closing tag starts at the actual cursor position.
+  ; Returns TRUE if the given tag's closing pattern's match starts at the actual cursor position.
   ;
   ; @param (keyword) tag-name
   ;
@@ -420,7 +420,7 @@
   ; @return (function)
   [_ _ _ {:keys [actual-tags cursor]}]
   ; @description
-  ; Returns TRUE if the given tag's closing tag ends at the actual cursor position.
+  ; Returns TRUE if the given tag's closing pattern's match ends at the actual cursor position.
   ;
   ; @param (keyword) tag-name
   ;

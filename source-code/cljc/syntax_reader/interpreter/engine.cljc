@@ -23,8 +23,8 @@
   ;   - 'interpreter-disabled-by'
   ;   - 'interpreter-disabled?'
   ;   - 'interpreter-enabled?'
-  ;   - 'reading-any-opening-tag?'
-  ;   - 'reading-any-closing-tag?'
+  ;   - 'reading-any-opening-match?'
+  ;   - 'reading-any-closing-match?'
   ;   - 'stop'
   ;   - 'set-state'
   ;   - 'tag-starts?'
@@ -41,8 +41,9 @@
   ; @param (*) initial
   ; @param (vectors in map)(opt) tags
   ; {:my-tag (vector)
-  ;   [(regex pattern) opening-tag
-  ;    (regex pattern) closing-tag
+  ;   [(regex pattern) opening-pattern
+  ;    (regex pattern)(opt) closing-pattern
+  ;     Empty / singular tags don't require closing patterns.
   ;    (map)(opt) options
   ;     {:accepted-ancestors (keywords in vector or empty vector)(opt)
   ;       Only processes the tag if at least one of the accepted ancestor tags is opened.
@@ -52,8 +53,11 @@
   ;       Leave this vector empty for tags that are processed only if they have no parent tags.
   ;      :disable-interpreter? (boolean)(opt)
   ;       Disables processing of other tags whithin the tag (e.g., comments, quotes).
+  ;      :max-lookbehind-length (integer)(opt)
+  ;       Must be provided if the given 'opening-pattern' or 'closing-pattern' contains lookbehind assertion. Use '-1' for unlimited lookbehind length.
+  ;       Default: 0
   ;      :priority (keyword)(opt)
-  ;       In case of more than one 'opening-tag' regex pattern starts at the same cursor position,
+  ;       In case of more than one opening pattern's match starts at the same cursor position,
   ;       the interpreter acknowledges the first one with the highest priority.
   ;       :low, :default, :high
   ;       Default: :default}]}
@@ -114,8 +118,8 @@
            ;  :interpreter-enabled? (function)
            ;  :no-tags-opened? (function)
            ;  :parent-tag (function)
-           ;  :reading-any-closing-tag? (function)
-           ;  :reading-any-opening-tag? (function)
+           ;  :reading-any-closing-match? (function)
+           ;  :reading-any-opening-match? (function)
            ;  :set-state (function)
            ;  :stop (function)
            ;  :tag-actual-depth (function)
@@ -128,26 +132,25 @@
            ;  :tag-parent? (function)
            ;  :tag-starts? (function)}
            (f0 [state]
-               {:ancestor-tags            (interpreter.metafunctions/ancestor-tags-f           n tags options state)
-                :interpreter-disabled-by  (interpreter.metafunctions/interpreter-disabled-by-f n tags options state)
-                :interpreter-disabled?    (interpreter.metafunctions/interpreter-disabled-f    n tags options state)
-                :interpreter-enabled?     (interpreter.metafunctions/interpreter-enabled-f     n tags options state)
-                :no-tags-opened?          (interpreter.metafunctions/no-tags-opened-f          n tags options state)
-                :parent-tag               (interpreter.metafunctions/parent-tag-f              n tags options state)
-                :reading-any-closing-tag? (interpreter.metafunctions/reading-any-closing-tag-f n tags options state)
-                :reading-any-opening-tag? (interpreter.metafunctions/reading-any-opening-tag-f n tags options state)
-                :set-state                (interpreter.metafunctions/set-state-f               n tags options state)
-                :stop                     (interpreter.metafunctions/stop-f                    n tags options state)
-                :tag-actual-depth         (interpreter.metafunctions/tag-actual-depth-f        n tags options state)
-                :tag-ancestor?            (interpreter.metafunctions/tag-ancestor-f            n tags options state)
-                :tag-closes?              (interpreter.metafunctions/tag-closes-f              n tags options state)
-                :tag-ends?                (interpreter.metafunctions/tag-ends-f                n tags options state)
-                :tag-not-opened?          (interpreter.metafunctions/tag-not-opened-f          n tags options state)
-                :tag-opened?              (interpreter.metafunctions/tag-opened-f              n tags options state)
-                :tag-opens?               (interpreter.metafunctions/tag-opens-f               n tags options state)
-                :tag-parent?              (interpreter.metafunctions/tag-parent-f              n tags options state)
-                :tag-starts?              (interpreter.metafunctions/tag-starts-f              n tags options state)})]
-
+               {:ancestor-tags              (interpreter.metafunctions/ancestor-tags-f             n tags options state)
+                :interpreter-disabled-by    (interpreter.metafunctions/interpreter-disabled-by-f   n tags options state)
+                :interpreter-disabled?      (interpreter.metafunctions/interpreter-disabled-f      n tags options state)
+                :interpreter-enabled?       (interpreter.metafunctions/interpreter-enabled-f       n tags options state)
+                :no-tags-opened?            (interpreter.metafunctions/no-tags-opened-f            n tags options state)
+                :parent-tag                 (interpreter.metafunctions/parent-tag-f                n tags options state)
+                :reading-any-closing-match? (interpreter.metafunctions/reading-any-closing-match-f n tags options state)
+                :reading-any-opening-match? (interpreter.metafunctions/reading-any-opening-match-f n tags options state)
+                :set-state                  (interpreter.metafunctions/set-state-f                 n tags options state)
+                :stop                       (interpreter.metafunctions/stop-f                      n tags options state)
+                :tag-actual-depth           (interpreter.metafunctions/tag-actual-depth-f          n tags options state)
+                :tag-ancestor?              (interpreter.metafunctions/tag-ancestor-f              n tags options state)
+                :tag-closes?                (interpreter.metafunctions/tag-closes-f                n tags options state)
+                :tag-ends?                  (interpreter.metafunctions/tag-ends-f                  n tags options state)
+                :tag-not-opened?            (interpreter.metafunctions/tag-not-opened-f            n tags options state)
+                :tag-opened?                (interpreter.metafunctions/tag-opened-f                n tags options state)
+                :tag-opens?                 (interpreter.metafunctions/tag-opens-f                 n tags options state)
+                :tag-parent?                (interpreter.metafunctions/tag-parent-f                n tags options state)
+                :tag-starts?                (interpreter.metafunctions/tag-starts-f                n tags options state)})]
           ; ...
           (let [initial-state {:actual-tags nil :cursor 0 :result initial}]
                (loop [{:keys [result] :as state} initial-state]

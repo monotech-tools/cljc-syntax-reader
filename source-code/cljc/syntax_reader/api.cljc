@@ -39,5 +39,5 @@
 (def closing-paren-position   tags.defaults/closing-paren-position)
 
 ; syntax-reader.tags.engine
-(def opening-tag-position tags.engine/opening-tag-position)
-(def closing-tag-position tags.engine/closing-tag-position)
+(def opening-match-position tags.engine/opening-match-position)
+(def closing-match-position tags.engine/closing-match-position)

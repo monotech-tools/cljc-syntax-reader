@@ -19,10 +19,9 @@
   ; @param (map) tags
   ; @param (map) options
   ; @param (map) state
-  ; @param (keyword) tag-name
   ;
   ; @return (boolean)
-  [_ _ _ {:keys [actual-tags]} _]
+  [_ _ _ {:keys [actual-tags]}]
   (letfn [(f [{:keys [closed-at opened-at opens-at]}]
              (or closed-at (not (or opens-at opened-at))))]
          (vector/all-items-match? actual-tags f)))
@@ -237,11 +236,11 @@
   [n tags options state]
   (-> (interpreter-disabled-by n tags options state) not))
 
-(defn reading-any-opening-tag?
+(defn reading-any-opening-match?
   ; @ignore
   ;
   ; @description
-  ; Returns TRUE if the last found opening tag is already started but not ended yet at the actual cursor position.
+  ; Returns TRUE if any opening pattern's last found match is already started but not ended yet at the actual cursor position.
   ;
   ; @param (string) n
   ; @param (map) tags
@@ -253,11 +252,11 @@
   [_ _ _ {:keys [actual-tags]}]
   (-> actual-tags last :will-open-at some?))
 
-(defn reading-any-closing-tag?
+(defn reading-any-closing-match?
   ; @ignore
   ;
   ; @description
-  ; Returns TRUE if the last found closing tag is already started but not ended yet at the actual cursor position.
+  ; Returns TRUE if any closing pattern's last found match is already started but not ended yet at the actual cursor position.
   ;
   ; @param (string) n
   ; @param (map) tags
@@ -413,11 +412,11 @@
 ;; -- Regex functions ---------------------------------------------------------
 ;; ----------------------------------------------------------------------------
 
-(defn opening-tag-starts?
+(defn opening-match-starts?
   ; @ignore
   ;
   ; @description
-  ; Returns TRUE if the given tag's opening tag starts at the actual cursor position.
+  ; Returns TRUE if the given tag's opening pattern's match starts at the actual cursor position.
   ;
   ; @param (string) n
   ; @param (map) tags
@@ -428,14 +427,15 @@
   ;
   ; @return (boolean)
   [n tags _ {:keys [cursor]} tag-name]
-  (if-let [opening-tag (-> tags tag-name first)]
-          (regex/starts-at? n opening-tag cursor)))
+  (if-let [opening-pattern (-> tags tag-name first)]
+          (let [max-lookbehind-length (-> tags tag-name last :max-lookbehind-length)]
+               (regex/starts-at? n opening-pattern cursor {:max-lookbehind-length max-lookbehind-length}))))
 
-(defn opening-tag-ends?
+(defn closing-match-starts?
   ; @ignore
   ;
   ; @description
-  ; Returns TRUE if the given tag's opening tag ends at the actual cursor position.
+  ; Returns TRUE if the given tag's closing pattern's match starts at the actual cursor position.
   ;
   ; @param (string) n
   ; @param (map) tags
@@ -446,51 +446,16 @@
   ;
   ; @return (boolean)
   [n tags _ {:keys [cursor]} tag-name]
-  (if-let [opening-tag (-> tags tag-name first)]
-          (regex/ends-at? n opening-tag cursor)))
-
-(defn closing-tag-starts?
-  ; @ignore
-  ;
-  ; @description
-  ; Returns TRUE if the given tag's closing tag starts at the actual cursor position.
-  ;
-  ; @param (string) n
-  ; @param (map) tags
-  ; @param (map) options
-  ; @param (map) state
-  ; {:cursor (integer)}
-  ; @param (keyword) tag-name
-  ;
-  ; @return (boolean)
-  [n tags _ {:keys [cursor]} tag-name]
-  (if-let [closing-tag (-> tags tag-name second)]
-          (regex/starts-at? n closing-tag cursor)))
-
-(defn closing-tag-ends?
-  ; @ignore
-  ;
-  ; @description
-  ; Returns TRUE if the given tag's closing tag ends at the actual cursor position.
-  ;
-  ; @param (string) n
-  ; @param (map) tags
-  ; @param (map) options
-  ; @param (map) state
-  ; {:cursor (integer)}
-  ; @param (keyword) tag-name
-  ;
-  ; @return (boolean)
-  [n tags _ {:keys [cursor]} tag-name]
-  (if-let [closing-tag (-> tags tag-name second)]
-          (regex/ends-at? n closing-tag cursor)))
+  (if-let [closing-pattern (-> tags tag-name second)]
+          (let [max-lookbehind-length (-> tags tag-name last :max-lookbehind-length)]
+               (regex/starts-at? n closing-pattern cursor {:max-lookbehind-length max-lookbehind-length}))))
 
 (defn tag-will-open-at
   ; @ignore
   ;
   ; @description
-  ; Returns the cursor position where the given tag's opening tag will end if it started
-  ; at the actual cursor position (actual cursor position + tag's opening tag length).
+  ; Returns the cursor position where the given tag's opening pattern's match will end if it started
+  ; at the actual cursor position (actual cursor position + opening pattern's match length).
   ;
   ; @param (string) n
   ; @param (map) tags
@@ -501,16 +466,17 @@
   ;
   ; @return (integer)
   [n tags _ {:keys [cursor]} tag-name]
-  (+ cursor (-> n (string/keep-range cursor)
-                  (regex/re-first (-> tags tag-name first))
-                  (count))))
+  (let [opening-pattern       (-> tags tag-name first)
+        max-lookbehind-length (-> tags tag-name last :max-lookbehind-length)]
+       (+ cursor (-> n (regex/re-from opening-pattern cursor {:max-lookbehind-length max-lookbehind-length})
+                       (count)))))
 
 (defn tag-will-end-at
   ; @ignore
   ;
   ; @description
-  ; Returns the cursor position where the given tag's closing tag will end if it started
-  ; at the actual cursor position (actual cursor position + tag's closing tag length).
+  ; Returns the cursor position where the given tag's closing pattern's match will end if it started
+  ; at the actual cursor position (actual cursor position + closing pattern's match length).
   ;
   ; @param (string) n
   ; @param (map) tags
@@ -521,9 +487,10 @@
   ;
   ; @return (integer)
   [n tags _ {:keys [cursor]} tag-name]
-  (+ cursor (-> n (string/keep-range cursor)
-                  (regex/re-first (-> tags tag-name second))
-                  (count))))
+  (let [closing-pattern       (-> tags tag-name first)
+        max-lookbehind-length (-> tags tag-name last :max-lookbehind-length)]
+       (+ cursor (-> n (regex/re-from closing-pattern cursor {:max-lookbehind-length max-lookbehind-length})
+                       (count)))))
 
 ;; -- Update child / parent tag functions -------------------------------------
 ;; ----------------------------------------------------------------------------
@@ -644,7 +611,7 @@
   [_ _ _ state]
   (update state :actual-tags vector/remove-items-by :ends-at))
 
-(defn check-for-opening-tag
+(defn check-for-opening-match
   ; @ignore
   ;
   ; @description
@@ -657,18 +624,18 @@
   ;
   ; @return (keyword)
   [n tags options state]
-  (letfn [(f [tag-name] (and (opening-tag-starts?            n tags options state tag-name)
+  (letfn [(f [tag-name] (and (opening-match-starts?          n tags options state tag-name)
                              (tag-ancestor-requirements-met? n tags options state tag-name)
                              (tag-parent-requirements-met?   n tags options state tag-name)
                              (-> tag-name)))]
-         (and (-> (interpreter-enabled?     n tags options state))
-              (-> (reading-any-opening-tag? n tags options state) not)
-              (-> (reading-any-closing-tag? n tags options state) not)
+         (and (-> (interpreter-enabled?       n tags options state))
+              (-> (reading-any-opening-match? n tags options state) not)
+              (-> (reading-any-closing-match? n tags options state) not)
               (or (some (fn [[tag-name _]] (f tag-name)) (map/filter-values tags (fn [[_ _ {:keys [priority] :or {priority :default}}]] (= priority :high))))
                   (some (fn [[tag-name _]] (f tag-name)) (map/filter-values tags (fn [[_ _ {:keys [priority] :or {priority :default}}]] (= priority :default))))
                   (some (fn [[tag-name _]] (f tag-name)) (map/filter-values tags (fn [[_ _ {:keys [priority] :or {priority :default}}]] (= priority :low))))))))
 
-(defn check-for-closing-tag
+(defn check-for-closing-match
   ; @ignore
   ;
   ; @description
@@ -681,19 +648,17 @@
   ;
   ; @return (keyword)
   [n tags options state]
-  (and (-> (reading-any-opening-tag? n tags options state) not)
-       (-> (reading-any-closing-tag? n tags options state) not)
+  (and (-> (reading-any-opening-match? n tags options state) not)
+       (-> (reading-any-closing-match? n tags options state) not)
        (if-let [parent-tag (parent-tag n tags options state)]
-               (and (closing-tag-starts? n tags options state (:name parent-tag))
+               (and (closing-match-starts? n tags options state (:name parent-tag))
                     (:name parent-tag)))))
 
 (defn update-previous-state
   ; @ignore
   ;
   ; @description
-  ; - Actualizes the innermost tag in 'actual-tags' vector if it opens or ends at the actual cursor position.
-  ; - If no opened tag disables the interpreter (checked after the actualization) ...
-  ;   ... it searches for any opening tag that starts at the actual cursor position.
+  ; ...
   ;
   ; @param (string) n
   ; @param (map) tags
@@ -703,10 +668,10 @@
   ; @return (map)
   [n tags options state]
   (let [state (actualize-previous-tags n tags options state)]
-       (or (if-let [found-opening-tag (check-for-opening-tag n tags options state)]
-                   (start-child-tag n tags options state found-opening-tag))
-           (if-let [found-closing-tag (check-for-closing-tag n tags options state)]
-                   (close-parent-tag n tags options state found-closing-tag))
+       (or (if-let [found-opening-match (check-for-opening-match n tags options state)]
+                   (start-child-tag n tags options state found-opening-match))
+           (if-let [found-closing-match (check-for-closing-match n tags options state)]
+                   (close-parent-tag n tags options state found-closing-match))
            (-> state))))
 
 (defn update-actual-state

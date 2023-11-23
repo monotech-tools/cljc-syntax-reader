@@ -9,8 +9,8 @@
   ; @ignore
   ;
   ; @param (vector) comment-tag
-  ; [(regex pattern) opening-tag
-  ;  (regex pattern) closing-tag
+  ; [(regex pattern) opening-pattern
+  ;  (regex pattern) closing-pattern
   ;  (map)(opt) options]
   ;
   ; @example
@@ -24,20 +24,20 @@
   ; [#";" #"\n" {:disable-interpreter? true}]
   ;
   ; @return (vector)
-  ; [(regex-pattern) opening-tag
-  ;  (regex-pattern) closing-tag
+  ; [(regex-pattern) opening-pattern
+  ;  (regex-pattern) closing-pattern
   ;  (map) options]
-  [[opening-tag closing-tag options]]
-  [(or opening-tag (-> core.config/DEFAULT-TAGS :comment first))
-   (or closing-tag (-> core.config/DEFAULT-TAGS :comment second))
+  [[opening-pattern closing-pattern options]]
+  [(or opening-pattern (-> core.config/DEFAULT-TAGS :comment first))
+   (or closing-pattern (-> core.config/DEFAULT-TAGS :comment second))
    (merge options {:disable-interpreter? true})])
 
 (defn quote-tag-prototype
   ; @ignore
   ;
   ; @param (vector) quote-tag
-  ; [(regex pattern) opening-tag
-  ;  (regex pattern) closing-tag
+  ; [(regex pattern) opening-pattern
+  ;  (regex pattern) closing-pattern
   ;  (map)(opt) options]
   ;
   ; @example
@@ -51,12 +51,12 @@
   ; [#"\"" #"\"" {:disable-interpreter? true}]
   ;
   ; @return (vector)
-  ; [(regex-pattern) opening-tag
-  ;  (regex-pattern) closing-tag
+  ; [(regex-pattern) opening-pattern
+  ;  (regex-pattern) closing-pattern
   ;  (map) options]
-  [[opening-tag closing-tag options]]
-  [(or opening-tag (-> core.config/DEFAULT-TAGS :quote first))
-   (or closing-tag (-> core.config/DEFAULT-TAGS :quote second))
+  [[opening-pattern closing-pattern options]]
+  [(or opening-pattern (-> core.config/DEFAULT-TAGS :quote first))
+   (or closing-pattern (-> core.config/DEFAULT-TAGS :quote second))
    (merge options {:disable-interpreter? true})])
 
 ;; ----------------------------------------------------------------------------

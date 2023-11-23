@@ -9,7 +9,7 @@
   ; @ignore
   ;
   ; @description
-  ; If a comment opening tag ends at the actual cursor position, it adds the actual cursor position (as ':opened-at' position) to the last commented zone in the result vector.
+  ; If a comment opening pattern's match ends at the actual cursor position, it adds the actual cursor position (as ':opened-at' position) to the last commented zone in the result vector.
   ;
   ; @param (map) result
   ; @param (map) state
@@ -27,7 +27,7 @@
   ; @ignore
   ;
   ; @description
-  ; If a comment closing tag starts at the actual cursor position, it adds the actual cursor position (as ':closed-at' position) to the last commented zone in the result vector.
+  ; If a comment closing pattern's match starts at the actual cursor position, it adds the actual cursor position (as ':closed-at' position) to the last commented zone in the result vector.
   ;
   ; @param (map) result
   ; @param (map) state
@@ -45,7 +45,7 @@
   ; @ignore
   ;
   ; @description
-  ; If a comment closing tag ends at the actual cursor position, it adds the actual cursor position (as ':ended-at' position) to the last commented zone in the result vector.
+  ; If a comment closing pattern's match ends at the actual cursor position, it adds the actual cursor position (as ':ended-at' position) to the last commented zone in the result vector.
   ;
   ; @param (map) result
   ; @param (map) state
@@ -63,7 +63,7 @@
   ; @ignore
   ;
   ; @description
-  ; If a quote opening tag ends at the actual cursor position, it adds the actual cursor position (as ':opened-at' position) to the last quoted zone in the result vector.
+  ; If a quote opening pattern's match ends at the actual cursor position, it adds the actual cursor position (as ':opened-at' position) to the last quoted zone in the result vector.
   ;
   ; @param (map) result
   ; @param (map) state
@@ -81,7 +81,7 @@
   ; @ignore
   ;
   ; @description
-  ; If a quote closing tag starts at the actual cursor position, it adds the actual cursor position (as ':closed-at' position) to the last quoted zone in the result vector.
+  ; If a quote closing pattern's match starts at the actual cursor position, it adds the actual cursor position (as ':closed-at' position) to the last quoted zone in the result vector.
   ;
   ; @param (map) result
   ; @param (map) state
@@ -99,7 +99,7 @@
   ; @ignore
   ;
   ; @description
-  ; If a quote closing tag ends at the actual cursor position, it adds the actual cursor position (as ':ended-at' position) to the last quoted zone in the result vector.
+  ; If a quote closing pattern's match ends at the actual cursor position, it adds the actual cursor position (as ':ended-at' position) to the last quoted zone in the result vector.
   ;
   ; @param (map) result
   ; @param (map) state
@@ -117,13 +117,13 @@
   ; @ignore
   ;
   ; @description
-  ; If a comment / quote opening tag starts at the actual cursor position, it adds the actual cursor position (as ':started-at' position) in a new commented / quoted zone to the result vector.
+  ; If a comment / quote opening pattern's match starts at the actual cursor position, it adds the actual cursor position (as ':started-at' position) in a new commented / quoted zone to the result vector.
   ;
   ; @param (map) result
   ; @param (map) state
   ; {:cursor (integer)}
   ; @param (map) metafunctions
-  ; {:opening-tag-starts? (function)}
+  ; {:tag-starts? (function)}
   ;
   ; @return (map)
   [result {:keys [cursor]} {:keys [tag-starts?]}]
