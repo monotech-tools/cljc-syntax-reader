@@ -505,9 +505,8 @@
   ; @return (boolean)
   [n tags options {:keys [cursor] :as state} tag-name]
   (if-let [opening-pattern (tag-opening-pattern n tags options state tag-name)]
-          (let [tag-options           (tag-options n tags options state tag-name)
-                max-lookbehind-length (:max-lookbehind-length tag-options)]
-               (regex/starts-at? n opening-pattern cursor {:max-lookbehind-length max-lookbehind-length}))))
+          (let [tag-options (tag-options n tags options state tag-name)]
+               (regex/starts-at? n opening-pattern cursor))))
 
 (defn closing-match-starts?
   ; @ignore
@@ -525,9 +524,8 @@
   ; @return (boolean)
   [n tags options {:keys [cursor] :as state} tag-name]
   (if-let [closing-pattern (tag-closing-pattern n tags options state tag-name)]
-          (let [tag-options           (tag-options n tags options state tag-name)
-                max-lookbehind-length (:max-lookbehind-length tag-options)]
-               (regex/starts-at? n closing-pattern cursor {:max-lookbehind-length max-lookbehind-length}))))
+          (let [tag-options (tag-options n tags options state tag-name)]
+               (regex/starts-at? n closing-pattern cursor))))
 
 (defn opening-match-will-end-at
   ; @ignore
@@ -546,9 +544,8 @@
   ; @return (integer)
   [n tags options {:keys [cursor] :as state} tag-name]
   (if-let [opening-pattern (tag-opening-pattern n tags options state tag-name)]
-          (let [tag-options           (tag-options n tags options state tag-name)
-                max-lookbehind-length (:max-lookbehind-length tag-options)]
-               (+ cursor (-> n (regex/re-from opening-pattern cursor {:max-lookbehind-length max-lookbehind-length})
+          (let [tag-options (tag-options n tags options state tag-name)]
+               (+ cursor (-> n (regex/re-from opening-pattern cursor)
                                (count))))))
 
 (defn closing-match-will-end-at
@@ -568,9 +565,8 @@
   ; @return (integer)
   [n tags options {:keys [cursor] :as state} tag-name]
   (if-let [closing-pattern (tag-closing-pattern n tags options state tag-name)]
-          (let [tag-options           (tag-options n tags options state tag-name)
-                max-lookbehind-length (:max-lookbehind-length tag-options)]
-               (+ cursor (-> n (regex/re-from closing-pattern cursor {:max-lookbehind-length max-lookbehind-length})
+          (let [tag-options (tag-options n tags options state tag-name)]
+               (+ cursor (-> n (regex/re-from closing-pattern cursor)
                                (count))))))
 
 ;; -- Update child / parent tag functions -------------------------------------

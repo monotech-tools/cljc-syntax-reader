@@ -58,9 +58,6 @@
   ;       Leave this vector empty for tags that are processed only if they have no parent tags.
   ;      :disable-interpreter? (boolean)(opt)
   ;       Disables processing of other tags whithin the tag (e.g., comments, quotes).
-  ;      :max-lookbehind-length (integer)(opt)
-  ;       Must be provided if the given 'opening-pattern' or 'closing-pattern' contains lookbehind assertion. Use '-1' for unlimited lookbehind length.
-  ;       Default: 0
   ;      :priority (keyword)(opt)
   ;       In case of more than one opening pattern's match starts at the same cursor position,
   ;       the interpreter acknowledges the first one with the highest priority.
