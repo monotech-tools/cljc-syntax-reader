@@ -96,7 +96,25 @@
              (or closed-at (not (or opens-at opened-at))))]
          (vector/all-items-match? actual-tags f)))
 
-(defn tag-actual-depth
+(defn depth
+  ; @ignore
+  ;
+  ; @description
+  ; Returns the depth of the actual cursor position.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; {:actual-tags (maps in vector)}
+  ;
+  ; @return (integer)
+  [_ _ _ {:keys [actual-tags]}]
+  (letfn [(f [{:keys [closed-at opened-at opens-at]}]
+             (and (or opens-at opened-at) (not closed-at)))]
+         (vector/match-count actual-tags f)))
+
+(defn tag-depth
   ; @ignore
   ;
   ; @description
@@ -111,10 +129,8 @@
   ;
   ; @return (integer)
   [_ _ _ {:keys [actual-tags]} tag-name]
-  (letfn [(f [actual-tag] (and (-> actual-tag :name (= tag-name))
-                               (-> actual-tag :closed-at nil?)
-                               (or (-> actual-tag :opens-at  integer?)
-                                   (-> actual-tag :opened-at integer?))))]
+  (letfn [(f [{:keys [closed-at name opened-at opens-at]}]
+             (and (= name tag-name) (or opens-at opened-at) (not closed-at)))]
          (vector/match-count actual-tags f)))
 
 (defn ancestor-tags
@@ -131,7 +147,8 @@
   ;
   ; @return (maps in vector)
   [_ _ _ {:keys [actual-tags]}]
-  (letfn [(f [{:keys [opened-at opens-at closed-at]}] (and (or opens-at opened-at) (not closed-at)))]
+  (letfn [(f [{:keys [opened-at opens-at closed-at]}]
+             (and (or opens-at opened-at) (not closed-at)))]
          (vector/keep-items-by actual-tags f)))
 
 (defn parent-tag
@@ -148,7 +165,8 @@
   ;
   ; @return (map)
   [_ _ _ {:keys [actual-tags]}]
-  (letfn [(f [{:keys [opened-at opens-at closed-at]}] (and (or opens-at opened-at) (not closed-at)))]
+  (letfn [(f [{:keys [opened-at opens-at closed-at]}]
+             (and (or opens-at opened-at) (not closed-at)))]
          (vector/last-match actual-tags f)))
 
 (defn tag-ancestor?
@@ -165,7 +183,7 @@
   ;
   ; @return (integer)
   [n tags options state tag-name]
-  (< 0 (tag-actual-depth n tags options state tag-name)))
+  (< 0 (tag-depth n tags options state tag-name)))
 
 (defn tag-parent?
   ; @ignore
@@ -183,6 +201,25 @@
   [n tags options state tag-name]
   (if-let [parent-tag (parent-tag n tags options state)]
           (-> parent-tag :name (= tag-name))))
+
+(defn left-sibling-count
+  ; @ignore
+  ;
+  ; @description
+  ; Returns how many siblings have been already left behind by the interpreter within the actual parent tag.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ;
+  ; @return (integer)
+  [n tags options state]
+  (if-let [parent-tag (parent-tag n tags options state)]
+          (letfn [(f [{:keys [ends-at] :as %}]
+                     (and (not ends-at) (not= % parent-tag)))]
+                 (let [not-ended-children-count (-> state :actual-tags (vector/match-count f))]
+                      (-> parent-tag :child-met (- not-ended-children-count))))))
 
 ;; -- Iteration functions -----------------------------------------------------
 ;; ----------------------------------------------------------------------------
@@ -576,7 +613,8 @@
   ; @ignore
   ;
   ; @description
-  ; Updates the given 'state' by adding a new depth for the given tag to the 'actual-tags' vector.
+  ; Updates the given 'state' by adding a new depth for the given tag to the 'actual-tags' vector
+  ; and increasing the ':child-met' (how many children have been already reached by the cursor) value in the actual parent tag (if any).
   ;
   ; @param (string) n
   ; @param (map) tags
@@ -587,20 +625,24 @@
   ;
   ; @example
   ; (start-child-tag "..." {...} {...}
-  ;                  {:cursor 7 :actual-tags [{:name :paren :started-at 1 :opened-at 2}
-  ;                                           {:name :paren :started-at 4 :opened-at 5}]}
+  ;                  {:cursor 7 :actual-tags [{:name :paren :started-at 1 :opened-at 2 :child-met 1}
+  ;                                           {:name :paren :started-at 4 :opened-at 5 :child-met 0}]}
   ;                  :paren)
   ; =>
-  ; {:cursor 7 :actual-tags [{:name :paren :started-at 1 :opened-at 2}
-  ;                          {:name :paren :started-at 4 :opened-at 5}
+  ; {:cursor 7 :actual-tags [{:name :paren :started-at 1 :opened-at 2 :child-met 1}
+  ;                          {:name :paren :started-at 4 :opened-at 5 :child-met 1}
   ;                          {:name :paren :starts-at  7 :will-open-at 8}]}
   ;
   ; @return (map)
   [n tags options {:keys [cursor] :as state} tag-name]
   (let [opening-match-will-end-at (opening-match-will-end-at n tags options state tag-name)]
-       (if (tag-omittag? n tags options state tag-name)
-           (update state :actual-tags vector/conj-item {:name tag-name :starts-at cursor :will-end-at  opening-match-will-end-at})
-           (update state :actual-tags vector/conj-item {:name tag-name :starts-at cursor :will-open-at opening-match-will-end-at}))))
+       (letfn [(f [{:keys [closed-at opened-at opens-at]}]
+                  (and (or opens-at opened-at) (not closed-at)))]
+              (if (tag-omittag? n tags options state tag-name)
+                  (-> state (update :actual-tags vector/conj-item {:name tag-name :starts-at cursor :will-end-at  opening-match-will-end-at})
+                            (update :actual-tags vector/update-last-item-by f update :child-met inc))
+                  (-> state (update :actual-tags vector/conj-item {:name tag-name :starts-at cursor :will-open-at opening-match-will-end-at})
+                            (update :actual-tags vector/update-last-item-by f update :child-met inc))))))
 
 (defn close-parent-tag
   ; @ignore
@@ -668,7 +710,8 @@
   ;
   ; @return (map)
   [_ _ _ {:keys [cursor] :as state}]
-  (letfn [(f [%] (cond-> % (-> % :will-open-at (=      cursor))  (map/rekey-item :will-open-at :opens-at)
+  (letfn [(f [%] (cond-> % (-> % :will-open-at (=      cursor))  (assoc :child-met 0)
+                           (-> % :will-open-at (=      cursor))  (map/rekey-item :will-open-at :opens-at)
                            (-> % :will-end-at  (=      cursor))  (map/rekey-item :will-end-at  :ends-at)
                            (-> % :starts-at    (= (dec cursor))) (map/rekey-item :starts-at    :started-at)
                            (-> % :opens-at     (= (dec cursor))) (map/rekey-item :opens-at     :opened-at)

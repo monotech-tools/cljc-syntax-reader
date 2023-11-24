@@ -21,11 +21,11 @@
   ; @param (map) state
   ; {:tag-initial-depth (integer)(opt)}
   ; @param (map) metafunctions
-  ; {:tag-actual-depth (function)
+  ; {:tag-depth (function)
   ;  :tag-closes? (function)}
   ;
   ; @return (boolean)
-  [{:keys [tag-initial-depth]} {:keys [tag-actual-depth tag-closes?]}]
+  [{:keys [tag-initial-depth]} {:keys [tag-depth tag-closes?]}]
   ; If the 'tag-initial-depth' value ...
   ; A) ... is NIL (only in the first iteration), it only acknowledges the closing pattern's found match at the actual cursor position
   ;        if it is closing the tag in depth of greater than 0. This condition ensures that the 'closing-match-position' function
@@ -41,11 +41,11 @@
   ;       (closing-match-position "abc(def(ghi))" #"\(" #"\)" {} {:offset  5}) => 12 (C, first iteration started within the tag at depth 1)
   ;       (closing-match-position "abc(def(ghi))" #"\(" #"\)" {} {:offset  9}) => 11 (C, first iteration started within the tag at depth 2)
   (cond (-> tag-initial-depth nil?)  (and (-> :$searched-tag tag-closes?)
-                                          (-> :$searched-tag tag-actual-depth (> 0)))
+                                          (-> :$searched-tag tag-depth (> 0)))
         (-> tag-initial-depth zero?) (and (-> :$searched-tag tag-closes?)
-                                          (-> :$searched-tag tag-actual-depth (= 1)))
+                                          (-> :$searched-tag tag-depth (= 1)))
         :tag-initial-depth>0         (and (-> :$searched-tag tag-closes?)
-                                          (-> :$searched-tag tag-actual-depth (= tag-initial-depth)))))
+                                          (-> :$searched-tag tag-depth (= tag-initial-depth)))))
 
 (defn first-iteration?
   ; @ignore
@@ -64,9 +64,9 @@
   ; @param (map) state
   ; @param (map) metafunctions
   ; {:set-state (function)
-  ;  :tag-actual-depth (function)}
+  ;  :tag-depth (function)}
   ;
   ; @return (boolean)
-  [_ {:keys [set-state tag-actual-depth]}]
-  (let [tag-initial-depth (tag-actual-depth :$searched-tag)]
+  [_ {:keys [set-state tag-depth]}]
+  (let [tag-initial-depth (tag-depth :$searched-tag)]
        (set-state {:tag-initial-depth tag-initial-depth})))

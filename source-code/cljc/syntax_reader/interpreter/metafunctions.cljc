@@ -26,17 +26,35 @@
   ; @return (boolean)
   (fn [] (interpreter.utils/no-tags-opened? n tags options state)))
 
-(defn tag-actual-depth-f
+(defn depth-f
   ; @ignore
   ;
   ; @description
-  ; Returns the 'tag-actual-depth' metafunction.
+  ; Returns the 'depth' metafunction.
   ;
   ; @param (string) n
   ; @param (map) tags
   ; @param (map) options
   ; @param (map) state
-  ; @param (keyword) tag-name
+  ;
+  ; @return (function)
+  [n tags options state]
+  ; @description
+  ; Returns the depth of the actual cursor position.
+  ;
+  ; @return (integer)
+  (fn [] (interpreter.utils/depth n tags options state)))
+
+(defn tag-depth-f
+  ; @ignore
+  ;
+  ; @description
+  ; Returns the 'tag-depth' metafunction.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
   ;
   ; @return (function)
   [n tags options state]
@@ -46,7 +64,7 @@
   ; @param (keyword) tag-name
   ;
   ; @return (integer)
-  (fn [tag-name] (interpreter.utils/tag-actual-depth n tags options state tag-name)))
+  (fn [tag-name] (interpreter.utils/tag-depth n tags options state tag-name)))
 
 (defn ancestor-tags-f
   ; @ignore
@@ -129,6 +147,25 @@
   ;
   ; @return (boolean)
   (fn [tag-name] (interpreter.utils/tag-parent? n tags options state tag-name)))
+
+(defn left-sibling-count-f
+  ; @ignore
+  ;
+  ; @description
+  ; Returns the 'left-sibling-count' metafunction.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ;
+  ; @return (function)
+  [n tags options state]
+  ; @description
+  ; Returns how many siblings have been already left behind by the interpreter within the actual parent tag.
+  ;
+  ; @return (integer)
+  (fn [] (interpreter.utils/left-sibling-count n tags options state)))
 
 ;; -- Interpreter metafunctions -----------------------------------------------
 ;; ----------------------------------------------------------------------------
@@ -287,6 +324,94 @@
 
 ;; -- Tag boundary metafunctions ----------------------------------------------
 ;; ----------------------------------------------------------------------------
+
+(defn starting-tag-f
+  ; @ignore
+  ;
+  ; @description
+  ; Returns the 'starting-tag' metafunction.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; {:actual-tags (maps in vector)
+  ;  :cursor (integer)}
+  ;
+  ; @return (function)
+  [_ _ _ {:keys [actual-tags cursor]}]
+  ; @description
+  ; Returns the tag's name that starts at the actual cursor position (if any).
+  ;
+  ; @return (keyword)
+  (fn [] (letfn [(f [%] (-> % :starts-at (= cursor)))]
+                (-> (vector/last-match actual-tags f) :name))))
+
+(defn opening-tag-f
+  ; @ignore
+  ;
+  ; @description
+  ; Returns the 'opening-tag' metafunction.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; {:actual-tags (maps in vector)
+  ;  :cursor (integer)}
+  ;
+  ; @return (function)
+  [_ _ _ {:keys [actual-tags cursor]}]
+  ; @description
+  ; Returns the tag's name that opens at the actual cursor position (if any).
+  ;
+  ; @return (keyword)
+  (fn [] (letfn [(f [%] (-> % :opens-at (= cursor)))]
+                (-> (vector/last-match actual-tags f) :name))))
+
+(defn closing-tag-f
+  ; @ignore
+  ;
+  ; @description
+  ; Returns the 'closing-tag' metafunction.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; {:actual-tags (maps in vector)
+  ;  :cursor (integer)}
+  ;
+  ; @return (function)
+  [_ _ _ {:keys [actual-tags cursor]}]
+  ; @description
+  ; Returns the tag's name that closes at the actual cursor position (if any).
+  ;
+  ; @return (keyword)
+  (fn [] (letfn [(f [%] (-> % :closes-at (= cursor)))]
+                (-> (vector/last-match actual-tags f) :name))))
+
+(defn ending-tag-f
+  ; @ignore
+  ;
+  ; @description
+  ; Returns the 'ending-tag' metafunction.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; {:actual-tags (maps in vector)
+  ;  :cursor (integer)}
+  ;
+  ; @return (function)
+  [_ _ _ {:keys [actual-tags cursor]}]
+  ; @description
+  ; Returns the tag's name that ends at the actual cursor position (if any).
+  ;
+  ; @return (keyword)
+  (fn [] (letfn [(f [%] (-> % :ends-at (= cursor)))]
+                (-> (vector/last-match actual-tags f) :name))))
 
 (defn tag-starts-f
   ; @ignore
@@ -464,6 +589,32 @@
   ; @return (boolean)
   (fn [tag-name] (letfn [(f [%] (and (-> % :name      (= tag-name))
                                      (-> % :closes-at (= cursor))))]
+                        (vector/any-item-matches? actual-tags f))))
+
+(defn tag-closed-f
+  ; @ignore
+  ;
+  ; @description
+  ; Returns the 'tag-closed?' metafunction.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; {:actual-tags (maps in vector)
+  ;  :cursor (integer)}
+  ;
+  ; @return (function)
+  [_ _ _ {:keys [actual-tags cursor]}]
+  ; @description
+  ; Returns TRUE if the given tag is closed.
+  ;
+  ; @param (keyword) tag-name
+  ;
+  ; @return (boolean)
+  (fn [tag-name] (letfn [(f [%] (and (-> % :name (= tag-name))
+                                     (or (-> % :closes-at (= cursor))
+                                         (-> % :closed-at integer?))))]
                         (vector/any-item-matches? actual-tags f))))
 
 (defn tag-closed-at-f
