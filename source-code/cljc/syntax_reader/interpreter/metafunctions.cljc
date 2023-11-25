@@ -294,11 +294,11 @@
   ;  (*) result]
   (fn [result] [:$stop result]))
 
-(defn set-state-f
+(defn set-metadata-f
   ; @ignore
   ;
   ; @description
-  ; Returns the 'set-state' metafunction.
+  ; Returns the 'set-metadata' metafunction.
   ;
   ; @param (string) n
   ; @param (map) tags
@@ -308,19 +308,20 @@
   ; @return (function)
   [_ _ _ _]
   ; @description
-  ; Merges the given 'x' map onto the 'state' map before the next iteration.
+  ; Associates the given 'metadata' value into the 'state' map before the next iteration.
   ;
-  ; @param (map) x
-  ; {:result (*)(opt)}
+  ; @param (*) metadata
+  ; @param (*) result
   ;
   ; @usage
-  ; (set-state {:my-value "This will be available in the state from the next iteration."
-  ;             :result "My output"})
+  ; (set-metadata "This metadata will be available in the actual state from the next iteration."
+  ;               "This is the result of the current iteration")
   ;
   ; @return (vector)
-  ; [(keyword) set-state-marker
-  ;  (map) extra]
-  (fn [x] [:$set-state x]))
+  ; [(keyword) set-metadata-marker
+  ;  (*) metadata
+  ;  (*) result]
+  (fn [metadata result] [:$set-metadata metadata result]))
 
 ;; -- Tag boundary metafunctions ----------------------------------------------
 ;; ----------------------------------------------------------------------------

@@ -143,7 +143,7 @@
            ; @return (nil or vector)
            (f0 [_ {:keys [cursor] :as state} {:keys [stop] :as metafunctions}]
                (cond (tags.utils/closing-match-found? state metafunctions) (stop cursor)
-                     (tags.utils/first-iteration?   state metafunctions) (tags.utils/init-state state metafunctions)))]
+                     (tags.utils/first-iteration?     state metafunctions) (tags.utils/init-metadata state metafunctions)))]
 
           ; ...
           (let [tags (assoc tags :$searched-tag [opening-pattern closing-pattern])

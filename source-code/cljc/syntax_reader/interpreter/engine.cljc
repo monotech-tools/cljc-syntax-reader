@@ -28,7 +28,7 @@
   ;   - 'reading-any-closing-match?'
   ;   - 'reading-any-opening-match?'
   ;   Operator metafunctions:
-  ;   - 'set-state'
+  ;   - 'set-metadata'
   ;   - 'stop'
   ;   Tag boundary metafunctions:
   ;   - 'closing-tag'
@@ -139,7 +139,7 @@
            ;  :parent-tag (function)
            ;  :reading-any-closing-match? (function)
            ;  :reading-any-opening-match? (function)
-           ;  :set-state (function)
+           ;  :set-metadata (function)
            ;  :starting-tag (function)
            ;  :stop (function)
            ;  :tag-ancestor? (function)
@@ -171,7 +171,7 @@
                 :parent-tag                 (interpreter.metafunctions/parent-tag-f                n tags options state)
                 :reading-any-closing-match? (interpreter.metafunctions/reading-any-closing-match-f n tags options state)
                 :reading-any-opening-match? (interpreter.metafunctions/reading-any-opening-match-f n tags options state)
-                :set-state                  (interpreter.metafunctions/set-state-f                 n tags options state)
+                :set-metadata               (interpreter.metafunctions/set-metadata-f              n tags options state)
                 :starting-tag               (interpreter.metafunctions/starting-tag-f              n tags options state)
                 :stop                       (interpreter.metafunctions/stop-f                      n tags options state)
                 :tag-ancestor?              (interpreter.metafunctions/tag-ancestor-f              n tags options state)

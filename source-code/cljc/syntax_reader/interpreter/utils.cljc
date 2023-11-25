@@ -93,6 +93,7 @@
   ; @return (boolean)
   [_ _ _ {:keys [actual-tags]}]
   (letfn [(f [{:keys [closed-at opened-at opens-at]}]
+             ; Tags that are either already closed or not opened yet:
              (or closed-at (not (or opens-at opened-at))))]
          (vector/all-items-match? actual-tags f)))
 
@@ -111,6 +112,7 @@
   ; @return (integer)
   [_ _ _ {:keys [actual-tags]}]
   (letfn [(f [{:keys [closed-at opened-at opens-at]}]
+             ; Tags that are already opened and aren't closed yet:
              (and (or opens-at opened-at) (not closed-at)))]
          (vector/match-count actual-tags f)))
 
@@ -130,6 +132,7 @@
   ; @return (integer)
   [_ _ _ {:keys [actual-tags]} tag-name]
   (letfn [(f [{:keys [closed-at name opened-at opens-at]}]
+             ; Tags with a specific tag name that are already opened and aren't closed yet:
              (and (= name tag-name) (or opens-at opened-at) (not closed-at)))]
          (vector/match-count actual-tags f)))
 
@@ -148,6 +151,7 @@
   ; @return (maps in vector)
   [_ _ _ {:keys [actual-tags]}]
   (letfn [(f [{:keys [opened-at opens-at closed-at]}]
+             ; Tags that are already opened and aren't closed yet:
              (and (or opens-at opened-at) (not closed-at)))]
          (vector/keep-items-by actual-tags f)))
 
@@ -166,6 +170,7 @@
   ; @return (map)
   [_ _ _ {:keys [actual-tags]}]
   (letfn [(f [{:keys [opened-at opens-at closed-at]}]
+             ; Tags that are already opened and aren't closed yet:
              (and (or opens-at opened-at) (not closed-at)))]
          (vector/last-match actual-tags f)))
 
@@ -216,8 +221,9 @@
   ; @return (integer)
   [n tags options state]
   (if-let [parent-tag (parent-tag n tags options state)]
-          (letfn [(f [{:keys [ends-at] :as %}]
-                     (and (not ends-at) (not= % parent-tag)))]
+          (letfn [(f [{:keys [ends-at started-at starts-at] :as %}]
+                     ; Descendants of the parent tag that aren't ended yet:
+                     (and (not ends-at) (> (or starts-at started-at) (:started-at parent-tag))))]
                  (let [not-ended-children-count (-> state :actual-tags (vector/match-count f))]
                       (-> parent-tag :child-met (- not-ended-children-count))))))
 
@@ -637,6 +643,7 @@
   [n tags options {:keys [cursor] :as state} tag-name]
   (let [opening-match-will-end-at (opening-match-will-end-at n tags options state tag-name)]
        (letfn [(f [{:keys [closed-at opened-at opens-at]}]
+                  ; Tags that are already opened and aren't closed yet:
                   (and (or opens-at opened-at) (not closed-at)))]
               (if (tag-omittag? n tags options state tag-name)
                   (-> state (update :actual-tags vector/conj-item {:name tag-name :starts-at cursor :will-end-at  opening-match-will-end-at})
@@ -812,10 +819,11 @@
   ; {:cursor (integer or keyword)
   ;  :result (*)}
   [n tags options state updated-result]
-  (cond (-> updated-result vector? not)           (-> state (assoc :result (-> updated-result)))
-        (-> updated-result first (= :$stop))      (-> state (assoc :result (-> updated-result last) :cursor :iteration-stopped))
-        (-> updated-result first (= :$set-state)) (-> state (merge (-> updated-result second)))
-        :else                                     (-> state (assoc :result (-> updated-result)))))
+  (cond (-> updated-result vector? not)              (-> state (assoc :result   (-> updated-result)))
+        (-> updated-result first (= :$stop))         (-> state (assoc :result   (-> updated-result last) :cursor :iteration-stopped))
+        (-> updated-result first (= :$set-metadata)) (-> state (assoc :metadata (-> updated-result second))
+                                                               (assoc :result   (-> updated-result last)))
+        :else                                        (-> state (assoc :result   (-> updated-result)))))
 
 (defn prepare-next-state
   ; @ignore

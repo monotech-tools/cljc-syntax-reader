@@ -19,13 +19,14 @@
   ; @ignore
   ;
   ; @param (map) state
-  ; {:tag-initial-depth (integer)(opt)}
+  ; {:metadata (map)
+  ;   {:tag-initial-depth (integer)(opt)}}
   ; @param (map) metafunctions
   ; {:tag-depth (function)
   ;  :tag-closes? (function)}
   ;
   ; @return (boolean)
-  [{:keys [tag-initial-depth]} {:keys [tag-depth tag-closes?]}]
+  [{{:keys [tag-initial-depth]} :metadata} {:keys [tag-depth tag-closes?]}]
   ; If the 'tag-initial-depth' value ...
   ; A) ... is NIL (only in the first iteration), it only acknowledges the closing pattern's found match at the actual cursor position
   ;        if it is closing the tag in depth of greater than 0. This condition ensures that the 'closing-match-position' function
@@ -51,22 +52,23 @@
   ; @ignore
   ;
   ; @param (map) state
-  ; {:tag-initial-depth (integer)(opt)}
+  ; {:metadata (map)
+  ;   {:tag-initial-depth (integer)(opt)}}
   ; @param (map) metafunctions
   ;
   ; @return (boolean)
-  [{:keys [tag-initial-depth]} _]
+  [{{:keys [tag-initial-depth]} :metadata} _]
   (-> tag-initial-depth nil?))
 
-(defn init-state
+(defn init-metadata
   ; @ignore
   ;
   ; @param (map) state
   ; @param (map) metafunctions
-  ; {:set-state (function)
+  ; {:set-metadata (function)
   ;  :tag-depth (function)}
   ;
   ; @return (boolean)
-  [_ {:keys [set-state tag-depth]}]
+  [_ {:keys [set-metadata tag-depth]}]
   (let [tag-initial-depth (tag-depth :$searched-tag)]
-       (set-state {:tag-initial-depth tag-initial-depth})))
+       (set-metadata {:tag-initial-depth tag-initial-depth})))
