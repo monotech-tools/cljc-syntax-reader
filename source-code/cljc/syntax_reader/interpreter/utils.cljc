@@ -221,9 +221,9 @@
   ; @return (integer)
   [n tags options state]
   (if-let [parent-tag (parent-tag n tags options state)]
-          (letfn [(f [{:keys [ends-at started-at starts-at] :as %}]
-                     ; Descendants of the parent tag that aren't ended yet:
-                     (and (not ends-at) (> (or starts-at started-at) (:started-at parent-tag))))]
+          (letfn [(f [{:keys [started-at starts-at] :as %}]
+                     ; Children of the parent tag:
+                     (> (or starts-at started-at) (:started-at parent-tag)))]
                  (let [not-ended-children-count (-> state :actual-tags (vector/match-count f))]
                       (-> parent-tag :child-met (- not-ended-children-count))))))
 
