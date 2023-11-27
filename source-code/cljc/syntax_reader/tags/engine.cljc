@@ -16,17 +16,17 @@
   ; @param (regex pattern) closing-pattern
   ; @param (map)(opt) tags
   ; {:comment (vector)(opt)
-  ;   [(regex pattern) opening-pattern
-  ;    (regex pattern) closing-pattern
+  ;   [(regex pattern) pattern / opening-pattern
+  ;    (regex pattern)(opt) closing-pattern
   ;    (map)(opt) options
   ;     For available tag options, check out the 'interpreter' function's documentation.]
-  ;  Default: [#";" #"\n"]
+  ;  Default: [#";.*\n"]
   ;  :quote (vector)(opt)
-  ;   [(regex pattern) opening-pattern
-  ;    (regex pattern) closing-pattern
+  ;   [(regex pattern) pattern / opening-pattern
+  ;    (regex pattern)(opt) closing-pattern
   ;    (map)(opt) options
   ;     For available tag options, check out the 'interpreter' function's documentation.]
-  ;  Default: [#"\"" #"\""]}
+  ;  Default: [#"\".*\""]}
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
@@ -87,26 +87,26 @@
   ; @param (regex pattern) closing-pattern
   ; @param (map)(opt) tags
   ; {:comment (vector)(opt)
-  ;   [(regex pattern) opening-pattern
-  ;    (regex pattern) closing-pattern
+  ;   [(regex pattern) pattern / opening-pattern
+  ;    (regex pattern)(opt) closing-pattern
   ;    (map)(opt) options
   ;     For available tag options, check out the 'interpreter' function's documentation.]
-  ;  Default: [#";" #"\n"]
+  ;  Default: [#";.*\n"]
   ;  :quote (vector)(opt)
-  ;   [(regex pattern) opening-pattern
-  ;    (regex pattern) closing-pattern
+  ;   [(regex pattern) pattern / opening-pattern
+  ;    (regex pattern)(opt) closing-pattern
   ;    (map)(opt) options
   ;     For available tag options, check out the 'interpreter' function's documentation.]
-  ;  Default: [#"\"" #"\""]}
+  ;  Default: [#"\".*\""]}
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :ignore-commented? (boolean)(opt)
-  ;   Default: false
+  ;   Default: true
   ;  :ignore-escaped? (boolean)(opt)
   ;   Default: true
   ;  :ignore-quoted? (boolean)(opt)
-  ;   Default: false
+  ;   Default: true
   ;  :offset (integer)(opt)
   ;   Starts searching at the given 'offset' position in the given 'n' string.
   ;   The returned position is an offset independent absolute value.}

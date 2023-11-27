@@ -37,7 +37,7 @@
       :unresolved [#"(?<=[\n\r\s\t\[\]\(\)\{\}\"])\'[a-zA-Z\d\+\-\*\/\=\<\>\!\?\_\%\&\.\~\^][a-zA-Z\d\+\-\*\/\=\<\>\!\?\_\%\&\.\~\^\#\'\:]{0,}(?=[\n\r\s\t\[\]\(\)\{\}\"\@])"]
       :var        [#"(?<=[\n\r\s\t\[\]\(\)\{\}\"])\#\'[a-zA-Z\d\+\-\*\/\=\<\>\!\?\_\%\&\.\~\^][a-zA-Z\d\+\-\*\/\=\<\>\!\?\_\%\&\.\~\^\#\'\:]{0,}(?=[\n\r\s\t\[\]\(\)\{\}\"\@])"]
       :comment    [#";.*\n"   {:priority :high}]
-      :regex      [#"#\"*.\"" {:priority :high}]
+      :regex      [#"#\".*\"" {:priority :high}]
       :string     [#"\".*\""  {:priority :high}]
       :list       [#"\(" #"\)"]
       :map        [#"\{" #"\}"]
@@ -48,7 +48,7 @@
 ;   Except the first character that cannot be a digit or a hyphen.
 ; - Identifiers can contain letters, digits, hyphens and underscores.
 ;   Except the first character that cannot be a digit or a hyphen.
-; - Tag names can contain letters.
+; - Tag names can contain only letters.
 ;
 ; @constant (map)
 ; {:my-tag (vector)

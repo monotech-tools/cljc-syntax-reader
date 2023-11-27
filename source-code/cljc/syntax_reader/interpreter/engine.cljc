@@ -58,7 +58,7 @@
   ; @param (*) initial
   ; @param (vectors in map)(opt) tags
   ; {:my-tag (vector)
-  ;   [(regex pattern) opening-pattern
+  ;   [(regex pattern) pattern / opening-pattern
   ;    (regex pattern)(opt) closing-pattern
   ;     Empty / singular tags don't require closing patterns.
   ;    (map)(opt) options
@@ -191,7 +191,7 @@
                 :tag-starts?                (interpreter.metafunctions/tag-starts-f                n tags options state)})
 
            ; @description
-           ; Returns the function that could be applied by the interpreter in the actual iteration.
+           ; Returns the function that is applied by the interpreter in the actual iteration.
            ; If the actual cursor didn't reach the given 'offset' value, it returns a noop function.
            ;
            ; @param (map) state

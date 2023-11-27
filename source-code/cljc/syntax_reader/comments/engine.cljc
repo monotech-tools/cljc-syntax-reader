@@ -15,17 +15,17 @@
   ; @param (string) n
   ; @param (vectors in map)(opt) tags
   ; {:comment (vector)(opt)
-  ;   [(regex pattern) opening-pattern
-  ;    (regex pattern) closing-pattern
+  ;   [(regex pattern) pattern / opening-pattern
+  ;    (regex pattern)(opt) closing-pattern
   ;    (map)(opt) options
   ;     For available tag options, check out the 'interpreter' function's documentation.]
-  ;  Default: [#";" #"\n"]
+  ;  Default: [#";.*\n"]
   ;  :quote (vector)(opt)
-  ;   [(regex pattern) opening-pattern
-  ;    (regex pattern) closing-pattern
+  ;   [(regex pattern) pattern / opening-pattern
+  ;    (regex pattern)(opt) closing-pattern
   ;    (map)(opt) options
   ;     For available tag options, check out the 'interpreter' function's documentation.]
-  ;  Default: [#"\"" #"\""]}
+  ;  Default: [#"\".*\""]}
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits removing commented parts at the given 'endpoint' position in the given 'n' string.
@@ -51,7 +51,7 @@
   ;
   ; @example
   ; (remove-commented-parts "body { /* My comment */ color: blue; }"
-  ;                         {:comment [#"/\*" #"\*/"})
+  ;                         {:comment [#"/\*.*\*"})
   ; =>
   ; "body {  color: blue; }"
   ;

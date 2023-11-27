@@ -1,6 +1,8 @@
 
 (ns syntax-reader.grey-zones.utils
-    (:require [vector.api :as vector]))
+    (:require [map.api     :refer [assoc-by]]
+              [seqable.api :refer [last-dex]]
+              [vector.api  :as vector]))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
@@ -9,7 +11,7 @@
   ; @ignore
   ;
   ; @description
-  ; If a comment opening pattern's match ends at the actual cursor position, it adds the actual cursor position (as ':opened-at' position) to the last commented zone in the result vector.
+  ; If a comment ends at the actual cursor position, it adds the actual cursor position (as ':opened-at' position) to the last commented zone in the result vector.
   ;
   ; @param (map) result
   ; @param (map) state
@@ -20,14 +22,14 @@
   ; @return (map)
   [result {:keys [cursor]} {:keys [tag-opens?]}]
   (if (-> :comment tag-opens?)
-      (-> result (update :commented vector/update-last-item assoc :opened-at cursor))
+      (-> result (assoc-by [:commented last-dex :opened-at] cursor))
       (-> result)))
 
 (defn check-if-comment-closes
   ; @ignore
   ;
   ; @description
-  ; If a comment closing pattern's match starts at the actual cursor position, it adds the actual cursor position (as ':closed-at' position) to the last commented zone in the result vector.
+  ; If a comment starts at the actual cursor position, it adds the actual cursor position (as ':closed-at' position) to the last commented zone in the result vector.
   ;
   ; @param (map) result
   ; @param (map) state
@@ -38,14 +40,14 @@
   ; @return (map)
   [result {:keys [cursor]} {:keys [tag-closes?]}]
   (if (-> :comment tag-closes?)
-      (-> result (update :commented vector/update-last-item assoc :closed-at cursor))
+      (-> result (assoc-by [:commented last-dex :closed-at] cursor))
       (-> result)))
 
 (defn check-if-comment-ends
   ; @ignore
   ;
   ; @description
-  ; If a comment closing pattern's match ends at the actual cursor position, it adds the actual cursor position (as ':ended-at' position) to the last commented zone in the result vector.
+  ; If a comment ends at the actual cursor position, it adds the actual cursor position (as ':ended-at' position) to the last commented zone in the result vector.
   ;
   ; @param (map) result
   ; @param (map) state
@@ -56,14 +58,14 @@
   ; @return (map)
   [result {:keys [cursor]} {:keys [tag-ends?]}]
   (if (-> :comment tag-ends?)
-      (-> result (update :commented vector/update-last-item assoc :ended-at cursor))
+      (-> result (assoc-by [:commented last-dex :ended-at] cursor))
       (-> result)))
 
 (defn check-if-quote-opens
   ; @ignore
   ;
   ; @description
-  ; If a quote opening pattern's match ends at the actual cursor position, it adds the actual cursor position (as ':opened-at' position) to the last quoted zone in the result vector.
+  ; If a quote ends at the actual cursor position, it adds the actual cursor position (as ':opened-at' position) to the last quoted zone in the result vector.
   ;
   ; @param (map) result
   ; @param (map) state
@@ -74,14 +76,14 @@
   ; @return (map)
   [result {:keys [cursor]} {:keys [tag-opens?]}]
   (if (-> :quote tag-opens?)
-      (-> result (update :quoted vector/update-last-item assoc :opened-at cursor))
+      (-> result (assoc-by [:quoted last-dex :opened-at] cursor))
       (-> result)))
 
 (defn check-if-quote-closes
   ; @ignore
   ;
   ; @description
-  ; If a quote closing pattern's match starts at the actual cursor position, it adds the actual cursor position (as ':closed-at' position) to the last quoted zone in the result vector.
+  ; If a quote starts at the actual cursor position, it adds the actual cursor position (as ':closed-at' position) to the last quoted zone in the result vector.
   ;
   ; @param (map) result
   ; @param (map) state
@@ -92,14 +94,14 @@
   ; @return (map)
   [result {:keys [cursor]} {:keys [tag-closes?]}]
   (if (-> :quote tag-closes?)
-      (-> result (update :quoted vector/update-last-item assoc :closed-at cursor))
+      (-> result (assoc-by [:quoted last-dex :closed-at] cursor))
       (-> result)))
 
 (defn check-if-quote-ends
   ; @ignore
   ;
   ; @description
-  ; If a quote closing pattern's match ends at the actual cursor position, it adds the actual cursor position (as ':ended-at' position) to the last quoted zone in the result vector.
+  ; If a quote ends at the actual cursor position, it adds the actual cursor position (as ':ended-at' position) to the last quoted zone in the result vector.
   ;
   ; @param (map) result
   ; @param (map) state
@@ -110,14 +112,14 @@
   ; @return (map)
   [result {:keys [cursor]} {:keys [tag-ends?]}]
   (if (-> :quote tag-ends?)
-      (-> result (update :quoted vector/update-last-item assoc :ended-at cursor))
+      (-> result (assoc-by [:quoted last-dex :ended-at] cursor))
       (-> result)))
 
 (defn check-if-grey-zone-starts
   ; @ignore
   ;
   ; @description
-  ; If a comment / quote opening pattern's match starts at the actual cursor position, it adds the actual cursor position (as ':started-at' position) in a new commented / quoted zone to the result vector.
+  ; If a comment / quote starts at the actual cursor position, it adds the actual cursor position (as ':started-at' position) in a new commented / quoted zone to the result vector.
   ;
   ; @param (map) result
   ; @param (map) state

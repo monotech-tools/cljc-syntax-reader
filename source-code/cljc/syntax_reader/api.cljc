@@ -2,7 +2,6 @@
 (ns syntax-reader.api
     (:require [syntax-reader.comments.engine    :as comments.engine]
               [syntax-reader.core.check         :as core.check]
-              [syntax-reader.core.config        :as core.config]
               [syntax-reader.default-patterns   :as default-patterns]
               [syntax-reader.grey-zones.engine  :as grey-zones.engine]
               [syntax-reader.interpreter.engine :as interpreter.engine]
@@ -19,12 +18,9 @@
 ; syntax-reader.core.check
 (def position-escaped? core.check/position-escaped?)
 
-; syntax-reader.core.config
-(def DEFAULT-TAGS core.config/DEFAULT-TAGS)
-
 ; syntax-reader.default-patterns
-(def CLJ-PATTERN default-patterns/CLJ-PATTERNS)
-(def CSS-PATTERN default-patterns/CSS-PATTERNS)
+(def CLJ-PATTERNS default-patterns/CLJ-PATTERNS)
+(def CSS-PATTERNS default-patterns/CSS-PATTERNS)
 
 ; syntax-reader.grey-zones.engine
 (def grey-zones grey-zones.engine/grey-zones)
