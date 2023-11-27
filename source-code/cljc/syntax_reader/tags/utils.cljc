@@ -30,7 +30,7 @@
   ; If the 'tag-initial-depth' value ...
   ; A) ... is NIL (only in the first iteration), it only acknowledges the closing pattern's found match at the actual cursor position
   ;        if it is closing the tag in depth of greater than 0. This condition ensures that the 'closing-match-position' function
-  ;        doesn't return the position of a closing pattern's match that doesn't have a preceeding opening pattern's match in the given 'n' string.
+  ;        doesn't return the position of a closing pattern's match that doesn't have a preceding opening pattern's match in the given 'n' string.
   ; B) ... is 0 (only in later iterations), it only acknowledges the closing pattern's found match at the actual cursor position if it is closing
   ;        the tag in depth of 1. This condition ensures that if the searching started outside of the tag, the 'closing-match-position'
   ;        function returns the position of a closing pattern's match that closes the first opened tag proceeded where the search started.

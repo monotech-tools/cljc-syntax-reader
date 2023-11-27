@@ -9,7 +9,8 @@
 
 (defn first-position
   ; @description
-  ; Returns the position of the first occurence of the given 'x' regex pattern in the given 'n' string.
+  ; - Returns the position of the first occurence of the given 'x' regex pattern in the given 'n' string.
+  ; - By default, it ignores commented and quoted parts of the string.
   ;
   ; @param (string) n
   ; @param (regex pattern) x
@@ -38,7 +39,6 @@
   ;  :offset (integer)(opt)
   ;   Starts searching at the given 'offset' position in the given 'n' string.
   ;   The returned position is an offset independent absolute value.}
-
   ;
   ; @example
   ; (first-position ".my-class { width: auto; }" #"width")

@@ -6,7 +6,7 @@
 
 (defn position-escaped?
   ; @description
-  ; Returns whether a specific cursor position in the given 'n' string is preceeded by an escape character.
+  ; Returns whether a specific cursor position in the given 'n' string is preceded by an escape character.
   ;
   ; @param (string) n
   ; @param (integer) cursor
