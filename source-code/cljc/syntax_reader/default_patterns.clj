@@ -36,12 +36,12 @@
       :symbol     [#"(?<=[\n\r\s\t\[\]\(\)\{\}\"])[a-zA-Z\d\+\-\*\/\=\<\>\!\?\_\%\&\.\~\^][a-zA-Z\d\+\-\*\/\=\<\>\!\?\_\%\&\.\~\^\#\'\:]{0,}(?=[\n\r\s\t\[\]\(\)\{\}\"\@])"]
       :unresolved [#"(?<=[\n\r\s\t\[\]\(\)\{\}\"])\'[a-zA-Z\d\+\-\*\/\=\<\>\!\?\_\%\&\.\~\^][a-zA-Z\d\+\-\*\/\=\<\>\!\?\_\%\&\.\~\^\#\'\:]{0,}(?=[\n\r\s\t\[\]\(\)\{\}\"\@])"]
       :var        [#"(?<=[\n\r\s\t\[\]\(\)\{\}\"])\#\'[a-zA-Z\d\+\-\*\/\=\<\>\!\?\_\%\&\.\~\^][a-zA-Z\d\+\-\*\/\=\<\>\!\?\_\%\&\.\~\^\#\'\:]{0,}(?=[\n\r\s\t\[\]\(\)\{\}\"\@])"]
-      :comment    [#";.*\n"   {:priority :high}]
-      :regex      [#"#\".*\"" {:priority :high}]
-      :string     [#"\".*\""  {:priority :high}]
       :list       [#"\(" #"\)"]
       :map        [#"\{" #"\}"]
-      :vector     [#"\[" #"\]"]})
+      :vector     [#"\[" #"\]"]
+      :comment    [#";.*\n"   {:priority :high}]
+      :regex      [#"#\".*\"" {:priority :high}]
+      :string     [#"\".*\""  {:priority :high}]})
 
 ; @description
 ; - Class names can contain letters, digits, hyphens and underscores.
