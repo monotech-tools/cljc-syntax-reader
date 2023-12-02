@@ -70,6 +70,12 @@
   ;       Leave this vector empty for tags that are processed only if they have no parent tags.
   ;      :disable-interpreter? (boolean)(opt)
   ;       Disables processing of other tags whithin the tag (e.g., comments, quotes).
+  ;      :max-lookbehind-length (integer)(opt)
+  ;       Limited opening / closing pattern lookbehind length helps increase the processing speed.
+  ;       Default: 8
+  ;      :max-match-length (integer)(opt)
+  ;       Limited opening / closing pattern match length helps increase the processing speed.
+  ;       Default: 64
   ;      :priority (keyword)(opt)
   ;       In case of more than one opening pattern's match starts at the same cursor position,
   ;       the interpreter acknowledges the first one with the highest priority.

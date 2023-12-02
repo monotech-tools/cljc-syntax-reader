@@ -76,6 +76,33 @@
   [n tags options state tag-name]
   (-> (tag-closing-pattern n tags options state tag-name) nil?))
 
+(defn max-match-length
+  ; @ignore
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (keyword) tag-name
+  ;
+  ; @return (integer)
+  [n tags options {:keys [cursor] :as state} tag-name]
+  (let [tag-options (tag-options n tags options state tag-name)
+        max-shift   (-> n count (- cursor))]
+       (-> tag-options :max-match-length (or 64) (min max-shift))))
+
+(defn max-lookbehind-length
+  ; @ignore
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (keyword) tag-name
+  ;
+  ; @return (integer)
+  [n tags options {:keys [cursor] :as state} tag-name]
+  (let [tag-options (tag-options n tags options state tag-name)]
+       (-> tag-options :max-lookbehind-length (or  8) (min cursor))))
+
 ;; -- Ancestor / parent tag functions -----------------------------------------
 ;; ----------------------------------------------------------------------------
 
@@ -548,8 +575,11 @@
   ; @return (boolean)
   [n tags options {:keys [cursor] :as state} tag-name]
   (if-let [opening-pattern (tag-opening-pattern n tags options state tag-name)]
-          (let [tag-options (tag-options n tags options state tag-name)]
-               (regex/starts-at? n opening-pattern cursor))))
+          (let [max-match-length      (max-match-length      n tags options state tag-name)
+                max-lookbehind-length (max-lookbehind-length n tags options state tag-name)
+                observed-part         (subs n (- cursor max-lookbehind-length)
+                                              (+ cursor max-match-length))]
+               (regex/starts-at? observed-part opening-pattern max-lookbehind-length))))
 
 (defn closing-match-starts?
   ; @ignore
@@ -567,8 +597,11 @@
   ; @return (boolean)
   [n tags options {:keys [cursor] :as state} tag-name]
   (if-let [closing-pattern (tag-closing-pattern n tags options state tag-name)]
-          (let [tag-options (tag-options n tags options state tag-name)]
-               (regex/starts-at? n closing-pattern cursor))))
+          (let [max-match-length      (max-match-length      n tags options state tag-name)
+                max-lookbehind-length (max-lookbehind-length n tags options state tag-name)
+                observed-part         (subs n (- cursor max-lookbehind-length)
+                                              (+ cursor max-match-length))]
+               (regex/starts-at? observed-part closing-pattern max-lookbehind-length))))
 
 (defn opening-match-will-end-at
   ; @ignore
@@ -587,9 +620,12 @@
   ; @return (integer)
   [n tags options {:keys [cursor] :as state} tag-name]
   (if-let [opening-pattern (tag-opening-pattern n tags options state tag-name)]
-          (let [tag-options (tag-options n tags options state tag-name)]
-               (+ cursor (-> n (regex/re-from opening-pattern cursor)
-                               (count))))))
+          (let [max-match-length      (max-match-length      n tags options state tag-name)
+                max-lookbehind-length (max-lookbehind-length n tags options state tag-name)
+                observed-part         (subs n (- cursor max-lookbehind-length)
+                                              (+ cursor max-match-length))]
+               (+ cursor (-> observed-part (regex/re-from opening-pattern max-lookbehind-length)
+                                           (count))))))
 
 (defn closing-match-will-end-at
   ; @ignore
@@ -608,9 +644,12 @@
   ; @return (integer)
   [n tags options {:keys [cursor] :as state} tag-name]
   (if-let [closing-pattern (tag-closing-pattern n tags options state tag-name)]
-          (let [tag-options (tag-options n tags options state tag-name)]
-               (+ cursor (-> n (regex/re-from closing-pattern cursor)
-                               (count))))))
+          (let [max-match-length      (max-match-length      n tags options state tag-name)
+                max-lookbehind-length (max-lookbehind-length n tags options state tag-name)
+                observed-part         (subs n (- cursor max-lookbehind-length)
+                                              (+ cursor max-match-length))]
+               (+ cursor (-> observed-part (regex/re-from closing-pattern max-lookbehind-length)
+                                           (count))))))
 
 ;; -- Update child / parent tag functions -------------------------------------
 ;; ----------------------------------------------------------------------------

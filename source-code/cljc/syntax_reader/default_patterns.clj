@@ -20,7 +20,7 @@
 ;   Except the first character that cannot be: # : '
 ; - Keywords are the same as symbols except their first character is a colon:
 ;   E.g., :keyword
-; - Unresolved symbols are the same as symbols except their first character is single quote:
+; - Unresolved symbols are the same as symbols except their first character is a single quote:
 ;   E.g., 'unresolved-symbol
 ; - Vars are the same as symbols except their first characters are a hashtag and a single quote:
 ;   E.g., #'var
@@ -36,12 +36,12 @@
       :symbol     [#"(?<=[\n\r\s\t\[\]\(\)\{\}\"])[a-zA-Z\d\+\-\*\/\=\<\>\!\?\_\%\&\.\~\^][a-zA-Z\d\+\-\*\/\=\<\>\!\?\_\%\&\.\~\^\#\'\:]{0,}(?=[\n\r\s\t\[\]\(\)\{\}\"\@])"]
       :unresolved [#"(?<=[\n\r\s\t\[\]\(\)\{\}\"])\'[a-zA-Z\d\+\-\*\/\=\<\>\!\?\_\%\&\.\~\^][a-zA-Z\d\+\-\*\/\=\<\>\!\?\_\%\&\.\~\^\#\'\:]{0,}(?=[\n\r\s\t\[\]\(\)\{\}\"\@])"]
       :var        [#"(?<=[\n\r\s\t\[\]\(\)\{\}\"])\#\'[a-zA-Z\d\+\-\*\/\=\<\>\!\?\_\%\&\.\~\^][a-zA-Z\d\+\-\*\/\=\<\>\!\?\_\%\&\.\~\^\#\'\:]{0,}(?=[\n\r\s\t\[\]\(\)\{\}\"\@])"]
-      :list       [#"\(" #"\)"]
-      :map        [#"\{" #"\}"]
-      :vector     [#"\[" #"\]"]
-      :comment    [#";.*\n"   {:priority :high}]
-      :regex      [#"#\".*\"" {:priority :high}]
-      :string     [#"\".*\""  {:priority :high}]})
+      :list       [#"\("  #"\)"]
+      :map        [#"\{"  #"\}"]
+      :vector     [#"\["  #"\]"]
+      :comment    [#";"   #"\n" {:priority :high :disable-interpreter? true}]
+      :regex      [#"#\"" #"\"" {:priority :high :disable-interpreter? true}]
+      :string     [#"\""  #"\"" {:priority :high :disable-interpreter? true}]})
 
 ; @description
 ; - Class names can contain letters, digits, hyphens and underscores.
