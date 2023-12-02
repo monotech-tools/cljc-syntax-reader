@@ -5,9 +5,11 @@
 ;; ----------------------------------------------------------------------------
 
 ; @important
-; In the following type patterns the positive lookarounds contain the double quote character as an optional
-; preceding or following character to allow strings to precede or follow other types without whitespaces between them.
-; To prevent other types from being accindentally misread as a string, the string pattern has higher priority than other type patterns.
+; - In the following type patterns the positive lookarounds contain the double quote character as an optional
+;   preceding or following character to allow strings to precede or follow other types without whitespaces between them.
+;   To prevent other types from being accindentally misread as a string, the string pattern has higher priority than other type patterns.
+; - Comment, regex and string patterns disable the interpreter while opened to prevent reading commented / quoted matches.
+; - Providing lookbehind, lookahead and match length limits helps increase the processing speed.
 ;
 ; @description
 ; - Strings can precede or follow any other type without whitespaces between them:
@@ -31,18 +33,21 @@
 ;    (regex-pattern)(opt) closing-pattern
 ;    (map)(opt) options]}
 (def CLJ-PATTERNS
-     {:boolean    [#"(?<=[\n\r\s\t\[\]\(\)\{\}\"])true|false(?=[\n\r\s\t\[\]\(\)\{\}\"\@])"]
-      :keyword    [#"(?<=[\n\r\s\t\[\]\(\)\{\}\"])\:[a-zA-Z\d\+\-\*\/\=\<\>\!\?\_\%\&\.\~\^\#\'\:]{1,}(?=[\n\r\s\t\[\]\(\)\{\}\"\@])"]
-      :symbol     [#"(?<=[\n\r\s\t\[\]\(\)\{\}\"])[a-zA-Z\d\+\-\*\/\=\<\>\!\?\_\%\&\.\~\^][a-zA-Z\d\+\-\*\/\=\<\>\!\?\_\%\&\.\~\^\#\'\:]{0,}(?=[\n\r\s\t\[\]\(\)\{\}\"\@])"]
-      :unresolved [#"(?<=[\n\r\s\t\[\]\(\)\{\}\"])\'[a-zA-Z\d\+\-\*\/\=\<\>\!\?\_\%\&\.\~\^][a-zA-Z\d\+\-\*\/\=\<\>\!\?\_\%\&\.\~\^\#\'\:]{0,}(?=[\n\r\s\t\[\]\(\)\{\}\"\@])"]
-      :var        [#"(?<=[\n\r\s\t\[\]\(\)\{\}\"])\#\'[a-zA-Z\d\+\-\*\/\=\<\>\!\?\_\%\&\.\~\^][a-zA-Z\d\+\-\*\/\=\<\>\!\?\_\%\&\.\~\^\#\'\:]{0,}(?=[\n\r\s\t\[\]\(\)\{\}\"\@])"]
-      :list       [#"\("  #"\)"]
-      :map        [#"\{"  #"\}"]
-      :vector     [#"\["  #"\]"]
-      :comment    [#";"   #"\n" {:priority :high :disable-interpreter? true}]
-      :regex      [#"#\"" #"\"" {:priority :high :disable-interpreter? true}]
-      :string     [#"\""  #"\"" {:priority :high :disable-interpreter? true}]})
+     {:boolean    [#"(?<=[\n\r\s\t\[\]\(\)\{\}\"])true|false(?=[\n\r\s\t\[\]\(\)\{\}\"\@])"                                                                                     {:max-lookbehind-length 1 :max-match-length 5 :max-lookahead-length 1}]
+      :keyword    [#"(?<=[\n\r\s\t\[\]\(\)\{\}\"])\:[a-zA-Z\d\+\-\*\/\=\<\>\!\?\_\%\&\.\~\^\#\'\:]{1,}(?=[\n\r\s\t\[\]\(\)\{\}\"\@])"                                           {:max-lookbehind-length 1                     :max-lookahead-length 1}]
+      :symbol     [#"(?<=[\n\r\s\t\[\]\(\)\{\}\"])[a-zA-Z\d\+\-\*\/\=\<\>\!\?\_\%\&\.\~\^][a-zA-Z\d\+\-\*\/\=\<\>\!\?\_\%\&\.\~\^\#\'\:]{0,}(?=[\n\r\s\t\[\]\(\)\{\}\"\@])"     {:max-lookbehind-length 1                     :max-lookahead-length 1}]
+      :unresolved [#"(?<=[\n\r\s\t\[\]\(\)\{\}\"])\'[a-zA-Z\d\+\-\*\/\=\<\>\!\?\_\%\&\.\~\^][a-zA-Z\d\+\-\*\/\=\<\>\!\?\_\%\&\.\~\^\#\'\:]{0,}(?=[\n\r\s\t\[\]\(\)\{\}\"\@])"   {:max-lookbehind-length 1                     :max-lookahead-length 1}]
+      :var        [#"(?<=[\n\r\s\t\[\]\(\)\{\}\"])\#\'[a-zA-Z\d\+\-\*\/\=\<\>\!\?\_\%\&\.\~\^][a-zA-Z\d\+\-\*\/\=\<\>\!\?\_\%\&\.\~\^\#\'\:]{0,}(?=[\n\r\s\t\[\]\(\)\{\}\"\@])" {:max-lookbehind-length 1                     :max-lookahead-length 1}]
+      :list       [#"\(" #"\)" {:max-lookbehind-length 0 :max-match-length 1 :max-lookahead-length 0}]
+      :map        [#"\{" #"\}" {:max-lookbehind-length 0 :max-match-length 1 :max-lookahead-length 0}]
+      :vector     [#"\[" #"\]" {:max-lookbehind-length 0 :max-match-length 1 :max-lookahead-length 0}]
+      :comment    [#";"  #"\n" {:priority :high :disable-interpreter? true :max-lookbehind-length 0 :max-match-length 1 :max-lookahead-length 0}]
+      :regex      [#"\"" #"\"" {:priority :high :disable-interpreter? true :max-lookbehind-length 0 :max-match-length 1 :max-lookahead-length 0}]
+      :string     [#"\"" #"\"" {:priority :high :disable-interpreter? true :max-lookbehind-length 0 :max-match-length 1 :max-lookahead-length 0}]})
 
+; @important
+; Providing lookbehind, lookahead and match length limits helps increase the processing speed.
+;
 ; @description
 ; - Class names can contain letters, digits, hyphens and underscores.
 ;   Except the first character that cannot be a digit or a hyphen.
@@ -56,6 +61,6 @@
 ;    (regex-pattern)(opt) closing-pattern
 ;    (map)(opt) options]}
 (def CSS-PATTERNS
-     {:class [#"(?<=[\n\r\s\t\}\]\)\*\~\>\+a-zA-Z\d\_\-])\.[a-zA-Z\d\_][a-zA-Z\d\_\-]{0,}(?<=[\n\r\s\t\{\[\*\~\>\:\.\#])"]
-      :id    [#"(?<=[\n\r\s\t\}\]\)\*\~\>\+a-zA-Z\d\_\-])\#[a-zA-Z\d\_][a-zA-Z\d\_\-]{0,}(?<=[\n\r\s\t\{\[\*\~\>\:\.\#])"]
-      :name  [#"(?<=[\n\r\s\t\}\]\)\*\~\>\+a-zA-Z\d\_\-])[a-zA-Z]{1,}(?<=[\n\r\s\t\{\[\*\~\>\:\.\#])"]})
+     {:class [#"(?<=[\n\r\s\t\}\]\)\*\~\>\+a-zA-Z\d\_\-])\.[a-zA-Z\d\_][a-zA-Z\d\_\-]{0,}(?<=[\n\r\s\t\{\[\*\~\>\:\.\#])" {:max-lookbehind-length 1 :max-lookahead-length 1}]
+      :id    [#"(?<=[\n\r\s\t\}\]\)\*\~\>\+a-zA-Z\d\_\-])\#[a-zA-Z\d\_][a-zA-Z\d\_\-]{0,}(?<=[\n\r\s\t\{\[\*\~\>\:\.\#])" {:max-lookbehind-length 1 :max-lookahead-length 1}]
+      :name  [#"(?<=[\n\r\s\t\}\]\)\*\~\>\+a-zA-Z\d\_\-])[a-zA-Z]{1,}(?<=[\n\r\s\t\{\[\*\~\>\:\.\#])"                     {:max-lookbehind-length 1 :max-lookahead-length 1}]})

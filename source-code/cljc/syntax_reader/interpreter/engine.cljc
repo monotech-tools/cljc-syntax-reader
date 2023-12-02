@@ -70,6 +70,9 @@
   ;       Leave this vector empty for tags that are processed only if they have no parent tags.
   ;      :disable-interpreter? (boolean)(opt)
   ;       Disables processing of other tags whithin the tag (e.g., comments, quotes).
+  ;      :max-lookahead-length (integer)(opt)
+  ;       Limited opening / closing pattern lookahead length helps increase the processing speed.
+  ;       Default: 8
   ;      :max-lookbehind-length (integer)(opt)
   ;       Limited opening / closing pattern lookbehind length helps increase the processing speed.
   ;       Default: 8
