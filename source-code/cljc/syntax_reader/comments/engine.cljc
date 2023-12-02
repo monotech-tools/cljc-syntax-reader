@@ -1,6 +1,7 @@
 
 (ns syntax-reader.comments.engine
     (:require [seqable.api                     :as seqable]
+              [string.api                      :as string]
               [syntax-reader.comments.utils    :as comments.utils]
               [syntax-reader.grey-zones.engine :as grey-zones.engine]
               [vector.api                      :as vector]))
@@ -77,3 +78,58 @@
                                        (-> result)))]
                ; ...
                (f1 n 0 (:commented grey-zones))))))
+
+;; ----------------------------------------------------------------------------
+;; ----------------------------------------------------------------------------
+
+(defn get-commented-parts
+  ; @description
+  ; Returns the commented parts of the given 'n' string.
+  ;
+  ; @param (string) n
+  ; @param (vectors in map)(opt) tags
+  ; {:comment (vector)(opt)
+  ;   [(regex pattern) pattern / opening-pattern
+  ;    (regex pattern)(opt) closing-pattern
+  ;    (map)(opt) options
+  ;     For available tag options, check out the 'interpreter' function's documentation.]
+  ;  Default: [#";.*\n"]
+  ;  :quote (vector)(opt)
+  ;   [(regex pattern) pattern / opening-pattern
+  ;    (regex pattern)(opt) closing-pattern
+  ;    (map)(opt) options
+  ;     For available tag options, check out the 'interpreter' function's documentation.]
+  ;  Default: [#"\".*\""]}
+  ; @param (map)(opt) options
+  ; {:endpoint (integer)(opt)
+  ;   Quits collecting commented parts at the given 'endpoint' position in the given 'n' string.
+  ;  :ignore-escaped? (boolean)(opt)
+  ;   Default: true
+  ;  :offset (integer)(opt)
+  ;   Starts collecting commented parts from the given 'offset' position in the given 'n' string.}
+  ;
+  ; @usage
+  ; (get-commented-parts "(defn my-function [])\n ; My comment\n")
+  ;
+  ; @example
+  ; (get-commented-parts "(defn my-function [])\n ; My comment\n")
+  ; =>
+  ; ["; My comment\n"]
+  ;
+  ; @example
+  ; (get-commented-parts "body { /* My comment */ color: blue; }"
+  ;                      {:comment [#"/\*.*\*"})
+  ; =>
+  ; ["/* My comment */"]
+  ;
+  ; @return (strings in vector)
+  ([n]
+   (get-commented-parts n {} {}))
+
+  ([n tags]
+   (get-commented-parts n tags {}))
+
+  ([n tags options]
+   (let [grey-zones (grey-zones.engine/grey-zones n tags options)]
+        (letfn [(f0 [{:keys [started-at ended-at]}] (string/keep-range n started-at ended-at))]
+               (-> grey-zones :commented (vector/->items f0))))))

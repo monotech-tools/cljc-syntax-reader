@@ -14,6 +14,7 @@
 
 ; syntax-reader.comments.engine
 (def remove-commented-parts comments.engine/remove-commented-parts)
+(def get-commented-parts    comments.engine/get-commented-parts)
 
 ; syntax-reader.core.check
 (def position-escaped? core.check/position-escaped?)

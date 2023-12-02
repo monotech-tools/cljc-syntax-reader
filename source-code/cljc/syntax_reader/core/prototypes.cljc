@@ -21,5 +21,6 @@
   ; {:comment (vector)
   ;  :quote (vector)}
   [{:keys [comment quote] :as tags} {:keys [ignore-commented? ignore-quoted?] :or {ignore-commented? true ignore-quoted? true}}]
-  (merge tags (if ignore-commented? {:comment (:comment default-patterns/CLJ-PATTERNS)})
-              (if ignore-quoted?    {:quote   (:string  default-patterns/CLJ-PATTERNS)})))
+  (merge (if ignore-commented? {:comment (:comment default-patterns/CLJ-PATTERNS)})
+         (if ignore-quoted?    {:quote   (:string  default-patterns/CLJ-PATTERNS)})
+         (-> tags)))
