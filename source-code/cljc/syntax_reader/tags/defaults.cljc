@@ -15,13 +15,13 @@
   ;   [(regex pattern) pattern / opening-pattern
   ;    (regex pattern)(opt) closing-pattern
   ;    (map)(opt) options
-  ;     For available tag options, check out the 'interpreter' function's documentation.]
+  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
   ;  Default: [#";.*\n"]
   ;  :quote (vector)(opt)
   ;   [(regex pattern) pattern / opening-pattern
   ;    (regex pattern)(opt) closing-pattern
   ;    (map)(opt) options
-  ;     For available tag options, check out the 'interpreter' function's documentation.]
+  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
   ;  Default: [#"\".*\""]}
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
@@ -66,13 +66,13 @@
   ;   [(regex pattern) pattern / opening-pattern
   ;    (regex pattern)(opt) closing-pattern
   ;    (map)(opt) options
-  ;     For available tag options, check out the 'interpreter' function's documentation.]
+  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
   ;  Default: [#";.*\n"]
   ;  :quote (vector)(opt)
   ;   [(regex pattern) pattern / opening-pattern
   ;    (regex pattern)(opt) closing-pattern
   ;    (map)(opt) options
-  ;     For available tag options, check out the 'interpreter' function's documentation.]
+  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
   ;  Default: [#"\".*\""]}
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
@@ -120,13 +120,13 @@
   ;   [(regex pattern) pattern / opening-pattern
   ;    (regex pattern)(opt) closing-pattern
   ;    (map)(opt) options
-  ;     For available tag options, check out the 'interpreter' function's documentation.]
+  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
   ;  Default: [#";.*\n"]
   ;  :quote (vector)(opt)
   ;   [(regex pattern) pattern / opening-pattern
   ;    (regex pattern)(opt) closing-pattern
   ;    (map)(opt) options
-  ;     For available tag options, check out the 'interpreter' function's documentation.]
+  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
   ;  Default: [#"\".*\""]}
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
@@ -171,13 +171,13 @@
   ;   [(regex pattern) pattern / opening-pattern
   ;    (regex pattern)(opt) closing-pattern
   ;    (map)(opt) options
-  ;     For available tag options, check out the 'interpreter' function's documentation.]
+  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
   ;  Default: [#";.*\n"]
   ;  :quote (vector)(opt)
   ;   [(regex pattern) pattern / opening-pattern
   ;    (regex pattern)(opt) closing-pattern
   ;    (map)(opt) options
-  ;     For available tag options, check out the 'interpreter' function's documentation.]
+  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
   ;  Default: [#"\".*\""]}
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
@@ -225,13 +225,13 @@
   ;   [(regex pattern) pattern / opening-pattern
   ;    (regex pattern)(opt) closing-pattern
   ;    (map)(opt) options
-  ;     For available tag options, check out the 'interpreter' function's documentation.]
+  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
   ;  Default: [#";.*\n"]
   ;  :quote (vector)(opt)
   ;   [(regex pattern) pattern / opening-pattern
   ;    (regex pattern)(opt) closing-pattern
   ;    (map)(opt) options
-  ;     For available tag options, check out the 'interpreter' function's documentation.]
+  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
   ;  Default: [#"\".*\""]}
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
@@ -276,13 +276,13 @@
   ;   [(regex pattern) pattern / opening-pattern
   ;    (regex pattern)(opt) closing-pattern
   ;    (map)(opt) options
-  ;     For available tag options, check out the 'interpreter' function's documentation.]
+  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
   ;  Default: [#";.*\n"]
   ;  :quote (vector)(opt)
   ;   [(regex pattern) pattern / opening-pattern
   ;    (regex pattern)(opt) closing-pattern
   ;    (map)(opt) options
-  ;     For available tag options, check out the 'interpreter' function's documentation.]
+  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
   ;  Default: [#"\".*\""]}
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)

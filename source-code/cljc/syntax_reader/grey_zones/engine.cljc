@@ -2,7 +2,7 @@
 (ns syntax-reader.grey-zones.engine
     (:require [syntax-reader.core.prototypes    :as core.prototypes]
               [syntax-reader.grey-zones.utils   :as grey-zones.utils]
-              [syntax-reader.interpreter.engine :as interpreter.engine]))
+              [syntax-interpreter.api :as syntax-interpreter]))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
@@ -17,13 +17,13 @@
   ;   [(regex pattern) pattern / opening-pattern
   ;    (regex pattern)(opt) closing-pattern
   ;    (map)(opt) options
-  ;     For available tag options, check out the 'interpreter' function's documentation.]
+  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
   ;  Default: [#";.*\n"]
   ;  :quote (vector)(opt)
   ;   [(regex pattern) pattern / opening-pattern
   ;    (regex pattern)(opt) closing-pattern
   ;    (map)(opt) options
-  ;     For available tag options, check out the 'interpreter' function's documentation.]
+  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
   ;  Default: [#"\".*\""]}
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
@@ -91,4 +91,4 @@
           ; ...
           (let [initial {:commented [] :escaped? [] :quoted []}
                 tags    (core.prototypes/tags-prototype tags options)]
-               (interpreter.engine/interpreter n f0 initial tags options)))))
+               (syntax-interpreter/interpreter n f0 initial tags options)))))

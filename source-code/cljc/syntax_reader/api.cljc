@@ -1,10 +1,7 @@
 
 (ns syntax-reader.api
     (:require [syntax-reader.comments.engine    :as comments.engine]
-              [syntax-reader.core.check         :as core.check]
-              [syntax-reader.default-patterns   :as default-patterns]
               [syntax-reader.grey-zones.engine  :as grey-zones.engine]
-              [syntax-reader.interpreter.engine :as interpreter.engine]
               [syntax-reader.search.engine      :as search.engine]
               [syntax-reader.tags.defaults      :as tags.defaults]
               [syntax-reader.tags.engine        :as tags.engine]))
@@ -16,18 +13,8 @@
 (def remove-commented-parts comments.engine/remove-commented-parts)
 (def get-commented-parts    comments.engine/get-commented-parts)
 
-; syntax-reader.core.check
-(def position-escaped? core.check/position-escaped?)
-
-; syntax-reader.default-patterns
-(def CLJ-PATTERNS default-patterns/CLJ-PATTERNS)
-(def CSS-PATTERNS default-patterns/CSS-PATTERNS)
-
 ; syntax-reader.grey-zones.engine
 (def grey-zones grey-zones.engine/grey-zones)
-
-; syntax-reader.interpreter.engine
-(def interpreter interpreter.engine/interpreter)
 
 ; syntax-reader.search.engine
 (def first-position search.engine/first-position)

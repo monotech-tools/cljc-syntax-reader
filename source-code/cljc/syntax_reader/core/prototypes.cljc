@@ -1,6 +1,6 @@
 
 (ns syntax-reader.core.prototypes
-    (:require [syntax-reader.default-patterns :as default-patterns]))
+    (:require [syntax-interpreter.api :as syntax-interpreter]))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
@@ -21,6 +21,6 @@
   ; {:comment (vector)
   ;  :quote (vector)}
   [{:keys [comment quote] :as tags} {:keys [ignore-commented? ignore-quoted?] :or {ignore-commented? true ignore-quoted? true}}]
-  (merge (if ignore-commented? {:comment (:comment default-patterns/CLJ-PATTERNS)})
-         (if ignore-quoted?    {:quote   (:string  default-patterns/CLJ-PATTERNS)})
+  (merge (if ignore-commented? {:comment (:comment syntax-interpreter/CLJ-PATTERNS)})
+         (if ignore-quoted?    {:quote   (:string  syntax-interpreter/CLJ-PATTERNS)})
          (-> tags)))

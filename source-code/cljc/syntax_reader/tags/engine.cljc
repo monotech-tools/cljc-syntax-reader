@@ -1,7 +1,7 @@
 
 (ns syntax-reader.tags.engine
     (:require [syntax-reader.core.prototypes    :as core.prototypes]
-              [syntax-reader.interpreter.engine :as interpreter.engine]
+              [syntax-interpreter.api :as syntax-interpreter]
               [syntax-reader.tags.utils         :as tags.utils]))
 
 ;; ----------------------------------------------------------------------------
@@ -19,13 +19,13 @@
   ;   [(regex pattern) pattern / opening-pattern
   ;    (regex pattern)(opt) closing-pattern
   ;    (map)(opt) options
-  ;     For available tag options, check out the 'interpreter' function's documentation.]
+  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
   ;  Default: [#";.*\n"]
   ;  :quote (vector)(opt)
   ;   [(regex pattern) pattern / opening-pattern
   ;    (regex pattern)(opt) closing-pattern
   ;    (map)(opt) options
-  ;     For available tag options, check out the 'interpreter' function's documentation.]
+  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
   ;  Default: [#"\".*\""]}
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
@@ -76,7 +76,7 @@
           ; ...
           (let [tags (assoc tags :$searched-tag [opening-pattern closing-pattern])
                 tags (core.prototypes/tags-prototype tags options)]
-               (interpreter.engine/interpreter n f0 nil tags options)))))
+               (syntax-interpreter/interpreter n f0 nil tags options)))))
 
 (defn closing-match-position
   ; @description
@@ -90,13 +90,13 @@
   ;   [(regex pattern) pattern / opening-pattern
   ;    (regex pattern)(opt) closing-pattern
   ;    (map)(opt) options
-  ;     For available tag options, check out the 'interpreter' function's documentation.]
+  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
   ;  Default: [#";.*\n"]
   ;  :quote (vector)(opt)
   ;   [(regex pattern) pattern / opening-pattern
   ;    (regex pattern)(opt) closing-pattern
   ;    (map)(opt) options
-  ;     For available tag options, check out the 'interpreter' function's documentation.]
+  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
   ;  Default: [#"\".*\""]}
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
@@ -148,4 +148,4 @@
           ; ...
           (let [tags (assoc tags :$searched-tag [opening-pattern closing-pattern])
                 tags (core.prototypes/tags-prototype tags options)]
-               (interpreter.engine/interpreter n f0 nil tags options)))))
+               (syntax-interpreter/interpreter n f0 nil tags options)))))
