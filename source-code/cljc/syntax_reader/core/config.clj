@@ -6,15 +6,5 @@
 
 ; @ignore
 ;
-; @constant (integer)
-(def DEFAULT-MAX-LOOKBEHIND-LENGTH 8)
-
-; @ignore
-;
-; @constant (integer)
-(def DEFAULT-MAX-LOOKAHEAD-LENGTH 8)
-
-; @ignore
-;
-; @constant (integer)
-(def DEFAULT-MAX-MATCH-LENGTH 64)
+; @constant (map)
+(def DEFAULT-TAG-OPTIONS {:pattern-limits {:lookahead 8 :lookbehind 8 :match 64}})

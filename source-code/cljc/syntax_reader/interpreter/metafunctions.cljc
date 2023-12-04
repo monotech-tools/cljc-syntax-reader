@@ -685,6 +685,12 @@
   ;
   ; @return (function)
   [n tags options {:keys [cursor] :as state}]
+  ; @description
+  ; Returns a specific part of the 'n' string from the starting position of the given tag to the actual cursor position.
+  ;
+  ; @param (keyword) tag-name
+  ;
+  ; @return (string)
   (fn [tag-name] (if ((tag-started-f n tags options state) tag-name)
                      (let [tag-started-at ((tag-started-at-f n tags options state) tag-name)]
                           (string/keep-range n tag-started-at cursor)))))
@@ -703,6 +709,37 @@
   ;
   ; @return (function)
   [n tags options {:keys [cursor] :as state}]
+  ; @description
+  ; Returns a specific part of the 'n' string from the opening position of the given tag to the actual cursor position.
+  ;
+  ; @param (keyword) tag-name
+  ;
+  ; @return (string)
   (fn [tag-name] (if ((tag-opened-f n tags options state) tag-name)
                      (let [tag-opened-at ((tag-opened-at-f n tags options state) tag-name)]
                           (string/keep-range n tag-opened-at cursor)))))
+
+;; -- Tag history metafunctions -----------------------------------------------
+;; ----------------------------------------------------------------------------
+
+(defn tag-left-count-f
+  ; @ignore
+  ;
+  ; @description
+  ; Returns the 'tag-left-count' metafunction.
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; {:left-tags (maps in vector)}
+  ;
+  ; @return (function)
+  [n tags options {:keys [left-tags] :as state}]
+  ; @description
+  ; Returns how many occurences of a specific tag has been ended and left behind by the interpreter at the actual cursor position.
+  ;
+  ; @param (keyword) tag-name
+  ;
+  ; @return (integer)
+  (fn [tag-name] (vector/match-count left-tags (fn [%] (-> % :name (= tag-name))))))

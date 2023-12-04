@@ -1,9 +1,9 @@
 
 (ns syntax-reader.interpreter.utils
-    (:require [map.api     :as map]
+    (:require [map.api     :as map :refer [update-by]]
               [string.api  :as string]
               [regex.api   :as regex]
-              [seqable.api :as seqable]
+              [seqable.api :as seqable :refer [last-dex]]
               [syntax-reader.core.config :as core.config]
               [vector.api  :as vector]))
 
@@ -220,13 +220,27 @@
   ; @param (map) state
   ;
   ; @return (integer)
-  [n tags options state]
-  (if-let [parent-tag (parent-tag n tags options state)]
-          (letfn [(f [{:keys [started-at starts-at] :as %}]
-                     ; Children of the parent tag:
-                     (> (or starts-at started-at) (:started-at parent-tag)))]
-                 (let [not-ended-children-count (-> state :actual-tags (vector/match-count f))]
-                      (-> parent-tag :child-met (- not-ended-children-count))))))
+  [n tags options {:keys [actual-tags left-tags] :as state}]
+  (letfn [(f0 [a b] (< (:started-at a) (or (:opened-at b) (:opens-at b))))     ; <- The parent tag (as 'b') can be actually opening at the actual cursor position!
+          (f1 [a b] (and (:opened-at b) (>= (:started-at a) (:opened-at b))))] ; <- The potential ascendant tag (as 'b') can be an omittag without an opening position!
+         (if-let [parent-tag (parent-tag n tags options state)]
+                 (loop [dex 0 left-siblings []]
+                       (if ; - Iterates over the 'left-tags' vector, and counts how many left tags are direct children (not descendants) of the actual parent tag.
+                           ; - When the iteration is over it returns the count of the already left children within the actual parent tag.
+                           (seqable/dex-out-of-bounds? left-tags dex) (count left-siblings)
+                           ; - If the observed 'left-tag' started before the parent tag opened, it means that the observed tag is not a child or even a descendant of the parent tag.
+                           ; - If any other tag has been already collected into the 'left-siblings' vector during the previous iterations, it can be a potential ascendant of the observed 'left-tag'.
+                           ; - If the observed 'left-tag' has ascendant(s) within the parent tag, it means that it is a descendant but not a child of the parent tag.
+                           ; - If the last collected tag in the 'left-siblings' vector is an omittag, it means it cannot be an ascendant of the observed 'left-tag'.
+                           ; - If a tag is currently ending at the actual cursor position, it can be a potential ascendant of any tags in the 'left-tags' vector
+                           ;   and because it is not moved into the 'left-tags' vector from the 'actual-tags' vector yet, it has to be checked separatelly.
+                           (let [left-tag   (nth left-tags dex)
+                                 ending-tag (vector/last-match actual-tags :ends-at)]
+                                (cond (f0 left-tag parent-tag)           (recur (inc dex) (->   left-siblings))
+                                      (f1 left-tag ending-tag)           (recur (inc dex) (->   left-siblings))
+                                      (-> left-siblings last nil?)       (recur (inc dex) (conj left-siblings left-tag))
+                                      (f1 left-tag (last left-siblings)) (recur (inc dex) (->   left-siblings))
+                                      :else                              (recur (inc dex) (conj left-siblings left-tag)))))))))
 
 ;; -- Iteration functions -----------------------------------------------------
 ;; ----------------------------------------------------------------------------
@@ -550,12 +564,18 @@
   ; {:match (integer)
   ;  :name (keyword)}
   [n tags options {:keys [cursor] :as state} tag-name]
-  ; Merging regex actions into one function increases the interpreter processing speed.
+  ; Merging regex actions into one function decreases the interpreter processing time.
   (if-let [opening-pattern (tag-opening-pattern n tags options state tag-name)]
           (let [tag-options           (tag-options n tags options state tag-name)
-                max-lookbehind-length (get tag-options :max-lookbehind-length core.config/DEFAULT-MAX-LOOKBEHIND-LENGTH)
-                max-lookahead-length  (get tag-options :max-lookahead-length  core.config/DEFAULT-MAX-LOOKAHEAD-LENGTH)
-                max-match-length      (get tag-options :max-match-length      core.config/DEFAULT-MAX-MATCH-LENGTH)
+                max-lookbehind-length (or (get-in tag-options                     [:pattern-limits :opening/lookbehind])
+                                          (get-in tag-options                     [:pattern-limits :lookbehind])
+                                          (get-in core.config/DEFAULT-TAG-OPTIONS [:pattern-limits :lookbehind]))
+                max-lookahead-length  (or (get-in tag-options                     [:pattern-limits :opening/lookahead])
+                                          (get-in tag-options                     [:pattern-limits :lookahead])
+                                          (get-in core.config/DEFAULT-TAG-OPTIONS [:pattern-limits :lookahead]))
+                max-match-length      (or (get-in tag-options                     [:pattern-limits :opening/match])
+                                          (get-in tag-options                     [:pattern-limits :match])
+                                          (get-in core.config/DEFAULT-TAG-OPTIONS [:pattern-limits :match]))
                 corrected-cursor      (min cursor max-lookbehind-length)
                 observed-from         (max (->    0) (- cursor max-lookbehind-length))
                 observed-to           (min (count n) (+ cursor max-match-length max-lookahead-length))
@@ -580,12 +600,18 @@
   ; {:match (integer)
   ;  :name (keyword)}
   [n tags options {:keys [cursor] :as state} tag-name]
-  ; Merging regex actions into one function increases the interpreter processing speed.
+  ; Merging regex actions into one function decreases the interpreter processing time.
   (if-let [closing-pattern (tag-closing-pattern n tags options state tag-name)]
           (let [tag-options           (tag-options n tags options state tag-name)
-                max-lookbehind-length (get tag-options :max-lookbehind-length core.config/DEFAULT-MAX-LOOKBEHIND-LENGTH)
-                max-lookahead-length  (get tag-options :max-lookahead-length  core.config/DEFAULT-MAX-LOOKAHEAD-LENGTH)
-                max-match-length      (get tag-options :max-match-length      core.config/DEFAULT-MAX-MATCH-LENGTH)
+                max-lookbehind-length (or (get-in tag-options                     [:pattern-limits :closing/lookbehind])
+                                          (get-in tag-options                     [:pattern-limits :lookbehind])
+                                          (get-in core.config/DEFAULT-TAG-OPTIONS [:pattern-limits :lookbehind]))
+                max-lookahead-length  (or (get-in tag-options                     [:pattern-limits :closing/lookahead])
+                                          (get-in tag-options                     [:pattern-limits :lookahead])
+                                          (get-in core.config/DEFAULT-TAG-OPTIONS [:pattern-limits :lookahead]))
+                max-match-length      (or (get-in tag-options                     [:pattern-limits :closing/match])
+                                          (get-in tag-options                     [:pattern-limits :match])
+                                          (get-in core.config/DEFAULT-TAG-OPTIONS [:pattern-limits :match]))
                 corrected-cursor      (min cursor max-lookbehind-length)
                 observed-from         (max (->    0) (- cursor max-lookbehind-length))
                 observed-to           (min (count n) (+ cursor max-match-length max-lookahead-length))
@@ -600,8 +626,7 @@
   ; @ignore
   ;
   ; @description
-  ; Updates the given 'state' by adding a new depth for the given tag to the 'actual-tags' vector
-  ; and increasing the ':child-met' (how many children have been already reached by the cursor) value in the actual parent tag (if any).
+  ; Updates the given 'state' by adding a new depth for the given tag to the 'actual-tags' vector.
   ;
   ; @param (string) n
   ; @param (map) tags
@@ -614,12 +639,12 @@
   ;
   ; @example
   ; (start-child-tag "..." {...} {...}
-  ;                  {:cursor 7 :actual-tags [{:name :paren :started-at 1 :opened-at 2 :child-met 1}
-  ;                                           {:name :paren :started-at 4 :opened-at 5 :child-met 0}]}
+  ;                  {:cursor 7 :actual-tags [{:name :paren :started-at 1 :opened-at 2}
+  ;                                           {:name :paren :started-at 4 :opened-at 5}]}
   ;                  {:name :paren :match "("})
   ; =>
-  ; {:cursor 7 :actual-tags [{:name :paren :started-at 1 :opened-at 2 :child-met 1}
-  ;                          {:name :paren :started-at 4 :opened-at 5 :child-met 1}
+  ; {:cursor 7 :actual-tags [{:name :paren :started-at 1 :opened-at 2}
+  ;                          {:name :paren :started-at 4 :opened-at 5}
   ;                          {:name :paren :starts-at  7 :will-open-at 8}]}
   ;
   ; @return (map)
@@ -628,10 +653,8 @@
              ; Tags that are already opened and aren't closed yet:
              (and (or opens-at opened-at) (not closed-at)))]
          (if (tag-omittag? n tags options state name)
-             (-> state (update :actual-tags vector/conj-item {:name name :starts-at cursor :will-end-at  (+ cursor (count match))})
-                       (update :actual-tags vector/update-last-item-by f update :child-met inc))
-             (-> state (update :actual-tags vector/conj-item {:name name :starts-at cursor :will-open-at (+ cursor (count match))})
-                       (update :actual-tags vector/update-last-item-by f update :child-met inc)))))
+             (update state :actual-tags vector/conj-item {:name name :starts-at cursor :will-end-at  (+ cursor (count match))})
+             (update state :actual-tags vector/conj-item {:name name :starts-at cursor :will-open-at (+ cursor (count match))}))))
 
 (defn close-parent-tag
   ; @ignore
@@ -687,6 +710,23 @@
 ;; -- Actual state functions --------------------------------------------------
 ;; ----------------------------------------------------------------------------
 
+(defn archive-left-tag
+  ; @ignore
+  ;
+  ; @description
+  ; ...
+  ;
+  ; @param (string) n
+  ; @param (map) tags
+  ; @param (map) options
+  ; @param (map) state
+  ; @param (map) left-tag
+  ;
+  ; @return (map)
+  [_ _ _ state left-tag]
+  (let [left-tag (map/move left-tag :ends-at :ended-at)]
+       (update state :left-tags vector/conj-item left-tag)))
+
 (defn actualize-previous-tags
   ; @ignore
   ;
@@ -701,19 +741,20 @@
   ;
   ; @return (map)
   [_ _ _ {:keys [cursor] :as state}]
-  (letfn [(f [%] (cond-> % (-> % :will-open-at (=      cursor))  (assoc :child-met 0)
-                           (-> % :will-open-at (=      cursor))  (map/rekey-item :will-open-at :opens-at)
-                           (-> % :will-end-at  (=      cursor))  (map/rekey-item :will-end-at  :ends-at)
-                           (-> % :starts-at    (= (dec cursor))) (map/rekey-item :starts-at    :started-at)
-                           (-> % :opens-at     (= (dec cursor))) (map/rekey-item :opens-at     :opened-at)
-                           (-> % :closes-at    (= (dec cursor))) (map/rekey-item :closes-at    :closed-at)))]
-         (update state :actual-tags vector/->items f)))
+  (letfn [(f0 [%] (cond-> % (-> % :will-open-at (=      cursor))  (map/move :will-open-at :opens-at)
+                            (-> % :will-end-at  (=      cursor))  (map/move :will-end-at  :ends-at)
+                            (-> % :starts-at    (= (dec cursor))) (map/move :starts-at    :started-at)
+                            (-> % :opens-at     (= (dec cursor))) (map/move :opens-at     :opened-at)
+                            (-> % :closes-at    (= (dec cursor))) (map/move :closes-at    :closed-at)))]
+         (update state :actual-tags vector/->items f0)))
 
 (defn actualize-updated-tags
   ; @ignore
   ;
   ; @description
-  ; ...
+  ; - Moves the currently ending tag (if any) from the 'actual-tags' tags vector into the 'left-tags' vector.
+  ; - Ensures that the 'left-tags' vector is sorted by the starting positions of the left tags.
+  ;   By default, it would be sorted by the ending positions if the ended tags were simply appended to the end of the vector.
   ;
   ; @param (string) n
   ; @param (map) tags
@@ -721,8 +762,16 @@
   ; @param (map) state
   ;
   ; @return (map)
-  [_ _ _ state]
-  (update state :actual-tags vector/remove-items-by :ends-at))
+  [_ _ _ {:keys [actual-tags left-tags] :as state}]
+  (letfn [(f0 [a b] (> (:started-at a) (:started-at b)))]
+         (if-let [ending-tag-dex (vector/last-dex-by actual-tags :ends-at)]
+                 (let [ended-tag (-> actual-tags (nth ending-tag-dex) (map/move :ends-at :ended-at))]
+                      (if-let [insert-dex (vector/first-dex-by left-tags #(f0 % ended-tag))]
+                              (-> state (update :actual-tags vector/remove-nth-item ending-tag-dex)
+                                        (update :left-tags   vector/insert-item insert-dex ended-tag))
+                              (-> state (update :actual-tags vector/remove-nth-item ending-tag-dex)
+                                        (update :left-tags   vector/conj-item ended-tag))))
+                 (-> state))))
 
 (defn check-for-opening-match
   ; @ignore

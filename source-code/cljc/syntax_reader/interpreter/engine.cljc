@@ -10,44 +10,47 @@
   ; @description
   ; - Applies the given 'f' function at each cursor position of the given 'n' string.
   ; - Provides a state of the actual cursor position and a set of metafunctions for the applied function.
-  ; - The provided state contains the 'actual-tags' vector that describes the opened tags at the actual cursor position.
+  ; - The provided state contains the 'actual-tags' vector that describes the opened tags at the actual cursor position
+  ;   and contains the 'left-tags' vector that contains every tag that have been already ended and removed from the 'actual-tags' vector.
   ; - Metafunctions that are available within the applied 'f' function:
   ;   Ancestor / parent tag metafunctions:
-  ;   - 'ancestor-tags'
-  ;   - 'depth'
-  ;   - 'left-sibling-count'
-  ;   - 'no-tags-opened?'
-  ;   - 'parent-tag'
-  ;   - 'tag-ancestor?'
-  ;   - 'tag-depth'
-  ;   - 'tag-parent?'
+  ;   - (ancestor-tags)
+  ;   - (depth)
+  ;   - (left-sibling-count)
+  ;   - (no-tags-opened?)
+  ;   - (parent-tag)
+  ;   - (tag-ancestor? :my-tag)
+  ;   - (tag-depth     :my-tag)
+  ;   - (tag-parent?   :my-tag)
   ;   Interpreter metafunctions:
-  ;   - 'interpreter-disabled-by'
-  ;   - 'interpreter-disabled?'
-  ;   - 'interpreter-enabled?'
-  ;   - 'reading-any-closing-match?'
-  ;   - 'reading-any-opening-match?'
+  ;   - (interpreter-disabled-by)
+  ;   - (interpreter-disabled?)
+  ;   - (interpreter-enabled?)
+  ;   - (reading-any-closing-match?)
+  ;   - (reading-any-opening-match?)
   ;   Operator metafunctions:
-  ;   - 'set-metadata'
-  ;   - 'stop'
+  ;   - (set-metadata "My metadata" "My result")
+  ;   - (stop "My result")
   ;   Tag boundary metafunctions:
-  ;   - 'closing-tag'
-  ;   - 'ending-tag'
-  ;   - 'opening-tag'
-  ;   - 'starting-tag'
-  ;   - 'tag-closed-at'
-  ;   - 'tag-closed?'
-  ;   - 'tag-closes?'
-  ;   - 'tag-ends?'
-  ;   - 'tag-opened-at'
-  ;   - 'tag-opened?'
-  ;   - 'tag-opens?'
-  ;   - 'tag-started-at'
-  ;   - 'tag-started?'
-  ;   - 'tag-starts?'
+  ;   - (closing-tag)
+  ;   - (ending-tag)
+  ;   - (opening-tag)
+  ;   - (starting-tag)
+  ;   - (tag-closed-at  :my-tag)
+  ;   - (tag-closed?    :my-tag)
+  ;   - (tag-closes?    :my-tag)
+  ;   - (tag-ends?      :my-tag)
+  ;   - (tag-opened-at  :my-tag)
+  ;   - (tag-opened?    :my-tag)
+  ;   - (tag-opens?     :my-tag)
+  ;   - (tag-started-at :my-tag)
+  ;   - (tag-started?   :my-tag)
+  ;   - (tag-starts?    :my-tag)
   ;   Tag body / content metafunctions:
-  ;   - 'tag-body'
-  ;   - 'tag-content'
+  ;   - (tag-body    :my-tag)
+  ;   - (tag-content :my-tag)
+  ;   Tag history metafunctions:
+  ;   - (tag-left-count :my-tag)
   ;
   ; @param (string) n
   ; @param (function) f
@@ -69,16 +72,27 @@
   ;       Only processes the tag if at least one of the accepted parent tags is opened.
   ;       Leave this vector empty for tags that are processed only if they have no parent tags.
   ;      :disable-interpreter? (boolean)(opt)
-  ;       Disables processing of other tags whithin the tag (e.g., comments, quotes).
-  ;      :max-lookahead-length (integer)(opt)
-  ;       Limited opening / closing pattern lookahead length helps increase the processing speed.
-  ;       Default: 8
-  ;      :max-lookbehind-length (integer)(opt)
-  ;       Limited opening / closing pattern lookbehind length helps increase the processing speed.
-  ;       Default: 8
-  ;      :max-match-length (integer)(opt)
-  ;       Limited opening / closing pattern match length helps increase the processing speed.
-  ;       Default: 64
+  ;       Disables processing of other tags whithin the tag (e.g., for comments, quotes, etc).
+  ;      :pattern-limits (map)(opt)
+  ;       Limited pattern lookaround and match lengths help decrease the processing time.
+  ;       {:lookahead (integer)(opt)
+  ;         Default: 8
+  ;        :lookbehind (integer)(opt)
+  ;         Default: 8
+  ;        :match (integer)(opt)
+  ;         Default: 64
+  ;        :closing/lookahead (integer)(opt)
+  ;         Default: 8
+  ;        :closing/lookbehind (integer)(opt)
+  ;         Default: 8
+  ;        :closing/match (integer)(opt)
+  ;         Default: 64
+  ;        :opening/lookahead (integer)(opt)
+  ;         Default: 8
+  ;        :opening/lookbehind (integer)(opt)
+  ;         Default: 8
+  ;        :opening/match (integer)(opt)
+  ;         Default: 64}
   ;      :priority (keyword)(opt)
   ;       In case of more than one opening pattern's match starts at the same cursor position,
   ;       the interpreter acknowledges the first one with the highest priority.
@@ -159,6 +173,7 @@
            ;  :tag-content (function)
            ;  :tag-depth (function)
            ;  :tag-ends? (function)
+           ;  :tag-left-count (function)
            ;  :tag-opened-at (function)
            ;  :tag-opened? (function)
            ;  :tag-opens? (function)
@@ -191,6 +206,7 @@
                 :tag-content                (interpreter.metafunctions/tag-content-f               n tags options state)
                 :tag-depth                  (interpreter.metafunctions/tag-depth-f                 n tags options state)
                 :tag-ends?                  (interpreter.metafunctions/tag-ends-f                  n tags options state)
+                :tag-left-count             (interpreter.metafunctions/tag-left-count-f            n tags options state)
                 :tag-opened-at              (interpreter.metafunctions/tag-opened-at-f             n tags options state)
                 :tag-opened?                (interpreter.metafunctions/tag-opened-f                n tags options state)
                 :tag-opens?                 (interpreter.metafunctions/tag-opens-f                 n tags options state)
@@ -213,7 +229,7 @@
                    (fn [result _ _] (-> result))))]
 
           ; ...
-          (let [initial-state {:actual-tags nil :cursor 0 :result initial}]
+          (let [initial-state {:actual-tags [] :left-tags [] :cursor 0 :result initial}]
                (loop [{:keys [result] :as state} initial-state]
                      (let [actual-state           (interpreter.utils/update-previous-state n tags options state)
                            provided-state         (interpreter.utils/filter-provided-state n tags options actual-state)
