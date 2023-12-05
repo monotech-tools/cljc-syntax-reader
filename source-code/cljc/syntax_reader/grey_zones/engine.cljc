@@ -1,8 +1,8 @@
 
 (ns syntax-reader.grey-zones.engine
-    (:require [syntax-reader.core.prototypes    :as core.prototypes]
-              [syntax-reader.grey-zones.utils   :as grey-zones.utils]
-              [syntax-interpreter.api :as syntax-interpreter]))
+    (:require [syntax-interpreter.api         :as syntax-interpreter]
+              [syntax-reader.core.prototypes  :as core.prototypes]
+              [syntax-reader.grey-zones.utils :as grey-zones.utils]))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------

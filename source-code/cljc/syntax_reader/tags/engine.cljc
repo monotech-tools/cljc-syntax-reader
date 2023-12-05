@@ -1,8 +1,8 @@
 
 (ns syntax-reader.tags.engine
-    (:require [syntax-reader.core.prototypes    :as core.prototypes]
-              [syntax-interpreter.api :as syntax-interpreter]
-              [syntax-reader.tags.utils         :as tags.utils]))
+    (:require [syntax-interpreter.api        :as syntax-interpreter]
+              [syntax-reader.core.prototypes :as core.prototypes]
+              [syntax-reader.tags.utils      :as tags.utils]))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------

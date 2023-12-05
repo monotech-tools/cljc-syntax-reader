@@ -1,10 +1,10 @@
 
 (ns syntax-reader.api
-    (:require [syntax-reader.comments.engine    :as comments.engine]
-              [syntax-reader.grey-zones.engine  :as grey-zones.engine]
-              [syntax-reader.search.engine      :as search.engine]
-              [syntax-reader.tags.defaults      :as tags.defaults]
-              [syntax-reader.tags.engine        :as tags.engine]))
+    (:require [syntax-reader.comments.engine   :as comments.engine]
+              [syntax-reader.grey-zones.engine :as grey-zones.engine]
+              [syntax-reader.search.engine     :as search.engine]
+              [syntax-reader.tags.defaults     :as tags.defaults]
+              [syntax-reader.tags.engine       :as tags.engine]))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------

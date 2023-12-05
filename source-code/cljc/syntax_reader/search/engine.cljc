@@ -1,8 +1,8 @@
 
 (ns syntax-reader.search.engine
-    (:require [syntax-reader.core.prototypes    :as core.prototypes]
-              [syntax-interpreter.api :as syntax-interpreter]
-              [syntax-reader.search.utils       :as search.utils]))
+    (:require [syntax-interpreter.api        :as syntax-interpreter]
+              [syntax-reader.core.prototypes :as core.prototypes]
+              [syntax-reader.search.utils    :as search.utils]))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
