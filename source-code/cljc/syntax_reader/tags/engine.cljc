@@ -14,28 +14,13 @@
   ; @param (string) n
   ; @param (regex pattern) opening-pattern
   ; @param (regex pattern) closing-pattern
-  ; @param (map)(opt) tags
-  ; {:comment (vector)(opt)
-  ;   [(regex pattern) pattern / opening-pattern
-  ;    (regex pattern)(opt) closing-pattern
-  ;    (map)(opt) options
-  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
-  ;  Default: [#";.*\n"]
-  ;  :quote (vector)(opt)
-  ;   [(regex pattern) pattern / opening-pattern
-  ;    (regex pattern)(opt) closing-pattern
-  ;    (map)(opt) options
-  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
-  ;  Default: [#"\".*\""]}
+  ; @param (vectors in vector)(opt) tags
+  ; Default:
+  ; [[:comment #"\;" #"\n" {:disable-interpreter? true}]
+  ;  [:quote   #"\"" #"\"" {:disable-interpreter? true}]]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
-  ;  :ignore-commented? (boolean)(opt)
-  ;   Default: true
-  ;  :ignore-escaped? (boolean)(opt)
-  ;   Default: true
-  ;  :ignore-quoted? (boolean)(opt)
-  ;   Default: true
   ;  :offset (integer)(opt)
   ;   Starts searching at the given 'offset' position in the given 'n' string.
   ;   The returned position is an offset independent absolute value.}
@@ -74,8 +59,8 @@
                (if (tags.utils/opening-match-found? state metafunctions)
                    (stop cursor)))]
           ; ...
-          (let [tags (assoc tags :$searched-tag [opening-pattern closing-pattern])
-                tags (core.prototypes/tags-prototype tags options)]
+          (let [tags (core.prototypes/tags-prototype tags)
+                tags (conj tags [:$searched-tag opening-pattern closing-pattern])]
                (syntax-interpreter/interpreter n f0 nil tags options)))))
 
 (defn closing-match-position
@@ -85,28 +70,13 @@
   ; @param (string) n
   ; @param (regex pattern) opening-pattern
   ; @param (regex pattern) closing-pattern
-  ; @param (map)(opt) tags
-  ; {:comment (vector)(opt)
-  ;   [(regex pattern) pattern / opening-pattern
-  ;    (regex pattern)(opt) closing-pattern
-  ;    (map)(opt) options
-  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
-  ;  Default: [#";.*\n"]
-  ;  :quote (vector)(opt)
-  ;   [(regex pattern) pattern / opening-pattern
-  ;    (regex pattern)(opt) closing-pattern
-  ;    (map)(opt) options
-  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
-  ;  Default: [#"\".*\""]}
+  ; @param (vectors in vector)(opt) tags
+  ; Default:
+  ; [[:comment #"\;" #"\n" {:disable-interpreter? true}]
+  ;  [:quote   #"\"" #"\"" {:disable-interpreter? true}]]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
-  ;  :ignore-commented? (boolean)(opt)
-  ;   Default: true
-  ;  :ignore-escaped? (boolean)(opt)
-  ;   Default: true
-  ;  :ignore-quoted? (boolean)(opt)
-  ;   Default: true
   ;  :offset (integer)(opt)
   ;   Starts searching at the given 'offset' position in the given 'n' string.
   ;   The returned position is an offset independent absolute value.}
@@ -146,6 +116,6 @@
                      (tags.utils/first-iteration?     state metafunctions) (tags.utils/init-metadata state metafunctions)))]
 
           ; ...
-          (let [tags (assoc tags :$searched-tag [opening-pattern closing-pattern])
-                tags (core.prototypes/tags-prototype tags options)]
+          (let [tags (core.prototypes/tags-prototype tags)
+                tags (conj tags [:$searched-tag opening-pattern closing-pattern])]
                (syntax-interpreter/interpreter n f0 nil tags options)))))

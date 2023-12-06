@@ -12,24 +12,13 @@
   ; Returns the ranges (zone boundaries) in the given 'n' string that are commented / quoted and the cursor positions that are escaped.
   ;
   ; @param (string) n
-  ; @param (vectors in map)(opt) tags
-  ; {:comment (vector)(opt)
-  ;   [(regex pattern) pattern / opening-pattern
-  ;    (regex pattern)(opt) closing-pattern
-  ;    (map)(opt) options
-  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
-  ;  Default: [#";.*\n"]
-  ;  :quote (vector)(opt)
-  ;   [(regex pattern) pattern / opening-pattern
-  ;    (regex pattern)(opt) closing-pattern
-  ;    (map)(opt) options
-  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
-  ;  Default: [#"\".*\""]}
+  ; @param (vectors in vector)(opt) tags
+  ; Default:
+  ; [[:comment #"\;" #"\n" {:disable-interpreter? true}]
+  ;  [:quote   #"\"" #"\"" {:disable-interpreter? true}]]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits collecting grey zones at the given 'endpoint' position in the given 'n' string.
-  ;  :ignore-escaped? (boolean)(opt)
-  ;   Default: true
   ;  :offset (integer)(opt)
   ;   Starts collecting grey zones from the given 'offset' position in the given 'n' string.
   ;   The returned positions are offset independent absolute values.}
@@ -90,5 +79,5 @@
                           (grey-zones.utils/check-if-grey-zone-starts state metafunctions)))]
           ; ...
           (let [initial {:commented [] :escaped? [] :quoted []}
-                tags    (core.prototypes/tags-prototype tags options)]
+                tags    (core.prototypes/tags-prototype tags)]
                (syntax-interpreter/interpreter n f0 initial tags options)))))

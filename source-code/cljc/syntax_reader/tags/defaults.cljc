@@ -10,28 +10,13 @@
   ; Returns the position of the first opening brace character in the given 'n' string.
   ;
   ; @param (string) n
-  ; @param (map)(opt) tags
-  ; {:comment (vector)(opt)
-  ;   [(regex pattern) pattern / opening-pattern
-  ;    (regex pattern)(opt) closing-pattern
-  ;    (map)(opt) options
-  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
-  ;  Default: [#";.*\n"]
-  ;  :quote (vector)(opt)
-  ;   [(regex pattern) pattern / opening-pattern
-  ;    (regex pattern)(opt) closing-pattern
-  ;    (map)(opt) options
-  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
-  ;  Default: [#"\".*\""]}
+  ; @param (vectors in vector)(opt) tags
+  ; Default:
+  ; [[:comment #"\;" #"\n" {:disable-interpreter? true}]
+  ;  [:quote   #"\"" #"\"" {:disable-interpreter? true}]]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
-  ;  :ignore-commented? (boolean)(opt)
-  ;   Default: true
-  ;  :ignore-escaped? (boolean)(opt)
-  ;   Default: true
-  ;  :ignore-quoted? (boolean)(opt)
-  ;   Default: true
   ;  :offset (integer)(opt)
   ;   Starts searching at the given 'offset' position in the given 'n' string.
   ;   The returned position is an offset independent absolute value.}
@@ -61,28 +46,13 @@
   ; Returns the position of the closing brace character that corresponds to the first opening brace character in the 'n' string.
   ;
   ; @param (string) n
-  ; @param (map)(opt) tags
-  ; {:comment (vector)(opt)
-  ;   [(regex pattern) pattern / opening-pattern
-  ;    (regex pattern)(opt) closing-pattern
-  ;    (map)(opt) options
-  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
-  ;  Default: [#";.*\n"]
-  ;  :quote (vector)(opt)
-  ;   [(regex pattern) pattern / opening-pattern
-  ;    (regex pattern)(opt) closing-pattern
-  ;    (map)(opt) options
-  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
-  ;  Default: [#"\".*\""]}
+  ; @param (vectors in vector)(opt) tags
+  ; Default:
+  ; [[:comment #"\;" #"\n" {:disable-interpreter? true}]
+  ;  [:quote   #"\"" #"\"" {:disable-interpreter? true}]]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
-  ;  :ignore-commented? (boolean)(opt)
-  ;   Default: true
-  ;  :ignore-escaped? (boolean)(opt)
-  ;   Default: true
-  ;  :ignore-quoted? (boolean)(opt)
-  ;   Default: true
   ;  :offset (integer)(opt)
   ;   Starts searching at the given 'offset' position in the given 'n' string.
   ;   The returned position is an offset independent absolute value.}
@@ -115,28 +85,13 @@
   ; Returns the position of the first opening bracket character in the given 'n' string.
   ;
   ; @param (string) n
-  ; @param (map)(opt) tags
-  ; {:comment (vector)(opt)
-  ;   [(regex pattern) pattern / opening-pattern
-  ;    (regex pattern)(opt) closing-pattern
-  ;    (map)(opt) options
-  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
-  ;  Default: [#";.*\n"]
-  ;  :quote (vector)(opt)
-  ;   [(regex pattern) pattern / opening-pattern
-  ;    (regex pattern)(opt) closing-pattern
-  ;    (map)(opt) options
-  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
-  ;  Default: [#"\".*\""]}
+  ; @param (vectors in vector)(opt) tags
+  ; Default:
+  ; [[:comment #"\;" #"\n" {:disable-interpreter? true}]
+  ;  [:quote   #"\"" #"\"" {:disable-interpreter? true}]]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
-  ;  :ignore-commented? (boolean)(opt)
-  ;   Default: true
-  ;  :ignore-escaped? (boolean)(opt)
-  ;   Default: true
-  ;  :ignore-quoted? (boolean)(opt)
-  ;   Default: true
   ;  :offset (integer)(opt)
   ;   Starts searching at the given 'offset' position in the given 'n' string.
   ;   The returned position is an offset independent absolute value.}
@@ -166,28 +121,13 @@
   ; Returns the position of the closing bracket character that corresponds to the first opening bracket character in the 'n' string.
   ;
   ; @param (string) n
-  ; @param (map)(opt) tags
-  ; {:comment (vector)(opt)
-  ;   [(regex pattern) pattern / opening-pattern
-  ;    (regex pattern)(opt) closing-pattern
-  ;    (map)(opt) options
-  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
-  ;  Default: [#";.*\n"]
-  ;  :quote (vector)(opt)
-  ;   [(regex pattern) pattern / opening-pattern
-  ;    (regex pattern)(opt) closing-pattern
-  ;    (map)(opt) options
-  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
-  ;  Default: [#"\".*\""]}
+  ; @param (vectors in vector)(opt) tags
+  ; Default:
+  ; [[:comment #"\;" #"\n" {:disable-interpreter? true}]
+  ;  [:quote   #"\"" #"\"" {:disable-interpreter? true}]]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
-  ;  :ignore-commented? (boolean)(opt)
-  ;   Default: true
-  ;  :ignore-escaped? (boolean)(opt)
-  ;   Default: true
-  ;  :ignore-quoted? (boolean)(opt)
-  ;   Default: true
   ;  :offset (integer)(opt)
   ;   Starts searching at the given 'offset' position in the given 'n' string.
   ;   The returned position is an offset independent absolute value.}
@@ -220,28 +160,13 @@
   ; Returns the position of the first opening parenthesis character in the given 'n' string.
   ;
   ; @param (string) n
-  ; @param (map)(opt) tags
-  ; {:comment (vector)(opt)
-  ;   [(regex pattern) pattern / opening-pattern
-  ;    (regex pattern)(opt) closing-pattern
-  ;    (map)(opt) options
-  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
-  ;  Default: [#";.*\n"]
-  ;  :quote (vector)(opt)
-  ;   [(regex pattern) pattern / opening-pattern
-  ;    (regex pattern)(opt) closing-pattern
-  ;    (map)(opt) options
-  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
-  ;  Default: [#"\".*\""]}
+  ; @param (vectors in vector)(opt) tags
+  ; Default:
+  ; [[:comment #"\;" #"\n" {:disable-interpreter? true}]
+  ;  [:quote   #"\"" #"\"" {:disable-interpreter? true}]]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
-  ;  :ignore-commented? (boolean)(opt)
-  ;   Default: true
-  ;  :ignore-escaped? (boolean)(opt)
-  ;   Default: true
-  ;  :ignore-quoted? (boolean)(opt)
-  ;   Default: true
   ;  :offset (integer)(opt)
   ;   Starts searching at the given 'offset' position in the given 'n' string.
   ;   The returned position is an offset independent absolute value.}
@@ -271,28 +196,13 @@
   ; Returns the position of the closing parenthesis character that corresponds to the first opening parenthesis character in the 'n' string.
   ;
   ; @param (string) n
-  ; @param (map)(opt) tags
-  ; {:comment (vector)(opt)
-  ;   [(regex pattern) pattern / opening-pattern
-  ;    (regex pattern)(opt) closing-pattern
-  ;    (map)(opt) options
-  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
-  ;  Default: [#";.*\n"]
-  ;  :quote (vector)(opt)
-  ;   [(regex pattern) pattern / opening-pattern
-  ;    (regex pattern)(opt) closing-pattern
-  ;    (map)(opt) options
-  ;     For available tag options, check out the 'syntax-interpreter.api/interpreter' function's documentation.]
-  ;  Default: [#"\".*\""]}
+  ; @param (vectors in vector)(opt) tags
+  ; Default:
+  ; [[:comment #"\;" #"\n" {:disable-interpreter? true}]
+  ;  [:quote   #"\"" #"\"" {:disable-interpreter? true}]]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
-  ;  :ignore-commented? (boolean)(opt)
-  ;   Default: true
-  ;  :ignore-escaped? (boolean)(opt)
-  ;   Default: true
-  ;  :ignore-quoted? (boolean)(opt)
-  ;   Default: true
   ;  :offset (integer)(opt)
   ;   Starts searching at the given 'offset' position in the given 'n' string.
   ;   The returned position is an offset independent absolute value.}

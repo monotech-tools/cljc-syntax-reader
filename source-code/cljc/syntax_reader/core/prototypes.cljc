@@ -8,19 +8,9 @@
 (defn tags-prototype
   ; @ignore
   ;
-  ; @param (map) tags
-  ; {:comment (vector)(opt)
-  ;  :quote (vector)(opt)}
-  ; @param (map) options
-  ; {:ignore-commented? (boolean)(opt)
-  ;   Default: true
-  ;  :ignore-quoted? (boolean)(opt)
-  ;   Default: true}
+  ; @param (vectors in vector) tags
   ;
-  ; @return (map)
-  ; {:comment (vector)
-  ;  :quote (vector)}
-  [{:keys [comment quote] :as tags} {:keys [ignore-commented? ignore-quoted?] :or {ignore-commented? true ignore-quoted? true}}]
-  (merge (if ignore-commented? {:comment (:comment syntax-interpreter/CLJ-PATTERNS)})
-         (if ignore-quoted?    {:quote   (:string  syntax-interpreter/CLJ-PATTERNS)})
-         (-> tags)))
+  ; @return (vectors in vector)
+  [tags]
+  (or tags [(:comment syntax-interpreter/CLJ-PATTERNS)
+            (:quote   syntax-interpreter/CLJ-PATTERNS)]))

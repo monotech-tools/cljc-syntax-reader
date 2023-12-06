@@ -14,24 +14,13 @@
   ; Removes the commented parts from the given 'n' string.
   ;
   ; @param (string) n
-  ; @param (vectors in map)(opt) tags
-  ; {:comment (vector)(opt)
-  ;   [(regex pattern) pattern / opening-pattern
-  ;    (regex pattern)(opt) closing-pattern
-  ;    (map)(opt) options
-  ;     For available tag options, check out the 'interpreter' function's documentation.]
-  ;  Default: [#";.*\n"]
-  ;  :quote (vector)(opt)
-  ;   [(regex pattern) pattern / opening-pattern
-  ;    (regex pattern)(opt) closing-pattern
-  ;    (map)(opt) options
-  ;     For available tag options, check out the 'interpreter' function's documentation.]
-  ;  Default: [#"\".*\""]}
+  ; @param (vectors in vector)(opt) tags
+  ; Default:
+  ; [[:comment #"\;" #"\n" {:disable-interpreter? true}]
+  ;  [:quote   #"\"" #"\"" {:disable-interpreter? true}]]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits removing commented parts at the given 'endpoint' position in the given 'n' string.
-  ;  :ignore-escaped? (boolean)(opt)
-  ;   Default: true
   ;  :keep-indents? (boolean)(opt)
   ;   Default: false
   ;  :offset (integer)(opt)
@@ -87,24 +76,13 @@
   ; Returns the commented parts of the given 'n' string.
   ;
   ; @param (string) n
-  ; @param (vectors in map)(opt) tags
-  ; {:comment (vector)(opt)
-  ;   [(regex pattern) pattern / opening-pattern
-  ;    (regex pattern)(opt) closing-pattern
-  ;    (map)(opt) options
-  ;     For available tag options, check out the 'interpreter' function's documentation.]
-  ;  Default: [#";.*\n"]
-  ;  :quote (vector)(opt)
-  ;   [(regex pattern) pattern / opening-pattern
-  ;    (regex pattern)(opt) closing-pattern
-  ;    (map)(opt) options
-  ;     For available tag options, check out the 'interpreter' function's documentation.]
-  ;  Default: [#"\".*\""]}
+  ; @param (vectors in vector)(opt) tags
+  ; Default:
+  ; [[:comment #"\;" #"\n" {:disable-interpreter? true}]
+  ;  [:quote   #"\"" #"\"" {:disable-interpreter? true}]]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits collecting commented parts at the given 'endpoint' position in the given 'n' string.
-  ;  :ignore-escaped? (boolean)(opt)
-  ;   Default: true
   ;  :offset (integer)(opt)
   ;   Starts collecting commented parts from the given 'offset' position in the given 'n' string.}
   ;
@@ -118,7 +96,7 @@
   ;
   ; @example
   ; (get-commented-parts "body { /* My comment */ color: blue; }"
-  ;                      {:comment [#"/\*.*\*"})
+  ;                      [[:comment #"/\*.*\*"]])
   ; =>
   ; ["/* My comment */"]
   ;
