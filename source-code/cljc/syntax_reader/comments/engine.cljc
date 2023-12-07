@@ -1,10 +1,10 @@
 
 (ns syntax-reader.comments.engine
-    (:require [seqable.api                     :as seqable]
-              [string.api                      :as string]
+    (:require [fruits.seqable.api              :as seqable]
+              [fruits.string.api               :as string]
+              [fruits.vector.api               :as vector]
               [syntax-reader.comments.utils    :as comments.utils]
-              [syntax-reader.grey-zones.engine :as grey-zones.engine]
-              [vector.api                      :as vector]))
+              [syntax-reader.grey-zones.engine :as grey-zones.engine]))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
