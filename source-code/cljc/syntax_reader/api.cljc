@@ -9,17 +9,17 @@
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
 
-; syntax-reader.comments.engine
+; @redirect (syntax-reader.comments.engine)
 (def remove-commented-parts comments.engine/remove-commented-parts)
 (def get-commented-parts    comments.engine/get-commented-parts)
 
-; syntax-reader.grey-zones.engine
+; @redirect (syntax-reader.grey-zones.engine)
 (def grey-zones grey-zones.engine/grey-zones)
 
-; syntax-reader.search.engine
+; @redirect (syntax-reader.search.engine)
 (def first-position search.engine/first-position)
 
-; syntax-reader.tags.defaults
+; @redirect (syntax-reader.tags.defaults)
 (def opening-brace-position   tags.defaults/opening-brace-position)
 (def closing-brace-position   tags.defaults/closing-brace-position)
 (def opening-bracket-position tags.defaults/opening-bracket-position)
@@ -27,6 +27,6 @@
 (def opening-paren-position   tags.defaults/opening-paren-position)
 (def closing-paren-position   tags.defaults/closing-paren-position)
 
-; syntax-reader.tags.engine
+; @redirect (syntax-reader.tags.engine)
 (def opening-match-position tags.engine/opening-match-position)
 (def closing-match-position tags.engine/closing-match-position)
