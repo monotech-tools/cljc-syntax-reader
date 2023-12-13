@@ -34,7 +34,6 @@
 
   ([n tags options]
    (letfn [(f0 [result state {:keys [ending-tag use-metadata] :as metafunctions}]
-               (println (dissoc state :left-tags))
                (or (if-let [ending-tag (ending-tag)]
                            (if (remove.utils/remove-found-tag? result state metafunctions ending-tag)
                                (use-metadata (remove.utils/update-metadata  result state metafunctions ending-tag)
