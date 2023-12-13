@@ -10,10 +10,17 @@
   ; Returns the position of the first opening brace character in the given 'n' string.
   ;
   ; @param (string) n
-  ; @param (vectors in vector)(opt) tags
+  ; @param (vectors in vector)(opt)(in decreasing priority order) tags
+  ; For more information, check out the documentation of the 'syntax-interpreter.api/interpreter' function.
+  ; [[(keyword) tag-name
+  ;   (regex pattern) pattern / opening-pattern
+  ;   (regex pattern)(opt) closing-pattern
+  ;   (map)(opt) tag-options]]
   ; Default:
-  ; [[:comment #"\;" #"\n" {:disable-interpreter? true}]
-  ;  [:quote   #"\"" #"\"" {:disable-interpreter? true}]]
+  ; [[:comment       #"\;"   #"\n" {:disable-interpreter? true}]
+  ;  [:meta-string   #"\^\"" #"\"" {:disable-interpreter? true}]
+  ;  [:regex-pattern #"\#\"" #"\"" {:disable-interpreter? true}]
+  ;  [:string        #"\""   #"\"" {:disable-interpreter? true}]]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
@@ -46,10 +53,17 @@
   ; Returns the position of the closing brace character that corresponds to the first opening brace character in the 'n' string.
   ;
   ; @param (string) n
-  ; @param (vectors in vector)(opt) tags
+  ; @param (vectors in vector)(opt)(in decreasing priority order) tags
+  ; For more information, check out the documentation of the 'syntax-interpreter.api/interpreter' function.
+  ; [[(keyword) tag-name
+  ;   (regex pattern) pattern / opening-pattern
+  ;   (regex pattern)(opt) closing-pattern
+  ;   (map)(opt) tag-options]]
   ; Default:
-  ; [[:comment #"\;" #"\n" {:disable-interpreter? true}]
-  ;  [:quote   #"\"" #"\"" {:disable-interpreter? true}]]
+  ; [[:comment       #"\;"   #"\n" {:disable-interpreter? true}]
+  ;  [:meta-string   #"\^\"" #"\"" {:disable-interpreter? true}]
+  ;  [:regex-pattern #"\#\"" #"\"" {:disable-interpreter? true}]
+  ;  [:string        #"\""   #"\"" {:disable-interpreter? true}]]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
@@ -85,10 +99,17 @@
   ; Returns the position of the first opening bracket character in the given 'n' string.
   ;
   ; @param (string) n
-  ; @param (vectors in vector)(opt) tags
+  ; @param (vectors in vector)(opt)(in decreasing priority order) tags
+  ; For more information, check out the documentation of the 'syntax-interpreter.api/interpreter' function.
+  ; [[(keyword) tag-name
+  ;   (regex pattern) pattern / opening-pattern
+  ;   (regex pattern)(opt) closing-pattern
+  ;   (map)(opt) tag-options]]
   ; Default:
-  ; [[:comment #"\;" #"\n" {:disable-interpreter? true}]
-  ;  [:quote   #"\"" #"\"" {:disable-interpreter? true}]]
+  ; [[:comment       #"\;"   #"\n" {:disable-interpreter? true}]
+  ;  [:meta-string   #"\^\"" #"\"" {:disable-interpreter? true}]
+  ;  [:regex-pattern #"\#\"" #"\"" {:disable-interpreter? true}]
+  ;  [:string        #"\""   #"\"" {:disable-interpreter? true}]]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
@@ -121,10 +142,17 @@
   ; Returns the position of the closing bracket character that corresponds to the first opening bracket character in the 'n' string.
   ;
   ; @param (string) n
-  ; @param (vectors in vector)(opt) tags
+  ; @param (vectors in vector)(opt)(in decreasing priority order) tags
+  ; For more information, check out the documentation of the 'syntax-interpreter.api/interpreter' function.
+  ; [[(keyword) tag-name
+  ;   (regex pattern) pattern / opening-pattern
+  ;   (regex pattern)(opt) closing-pattern
+  ;   (map)(opt) tag-options]]
   ; Default:
-  ; [[:comment #"\;" #"\n" {:disable-interpreter? true}]
-  ;  [:quote   #"\"" #"\"" {:disable-interpreter? true}]]
+  ; [[:comment       #"\;"   #"\n" {:disable-interpreter? true}]
+  ;  [:meta-string   #"\^\"" #"\"" {:disable-interpreter? true}]
+  ;  [:regex-pattern #"\#\"" #"\"" {:disable-interpreter? true}]
+  ;  [:string        #"\""   #"\"" {:disable-interpreter? true}]]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
@@ -160,10 +188,17 @@
   ; Returns the position of the first opening parenthesis character in the given 'n' string.
   ;
   ; @param (string) n
-  ; @param (vectors in vector)(opt) tags
+  ; @param (vectors in vector)(opt)(in decreasing priority order) tags
+  ; For more information, check out the documentation of the 'syntax-interpreter.api/interpreter' function.
+  ; [[(keyword) tag-name
+  ;   (regex pattern) pattern / opening-pattern
+  ;   (regex pattern)(opt) closing-pattern
+  ;   (map)(opt) tag-options]]
   ; Default:
-  ; [[:comment #"\;" #"\n" {:disable-interpreter? true}]
-  ;  [:quote   #"\"" #"\"" {:disable-interpreter? true}]]
+  ; [[:comment       #"\;"   #"\n" {:disable-interpreter? true}]
+  ;  [:meta-string   #"\^\"" #"\"" {:disable-interpreter? true}]
+  ;  [:regex-pattern #"\#\"" #"\"" {:disable-interpreter? true}]
+  ;  [:string        #"\""   #"\"" {:disable-interpreter? true}]]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
@@ -196,10 +231,17 @@
   ; Returns the position of the closing parenthesis character that corresponds to the first opening parenthesis character in the 'n' string.
   ;
   ; @param (string) n
-  ; @param (vectors in vector)(opt) tags
+  ; @param (vectors in vector)(opt)(in decreasing priority order) tags
+  ; For more information, check out the documentation of the 'syntax-interpreter.api/interpreter' function.
+  ; [[(keyword) tag-name
+  ;   (regex pattern) pattern / opening-pattern
+  ;   (regex pattern)(opt) closing-pattern
+  ;   (map)(opt) tag-options]]
   ; Default:
-  ; [[:comment #"\;" #"\n" {:disable-interpreter? true}]
-  ;  [:quote   #"\"" #"\"" {:disable-interpreter? true}]]
+  ; [[:comment       #"\;"   #"\n" {:disable-interpreter? true}]
+  ;  [:meta-string   #"\^\"" #"\"" {:disable-interpreter? true}]
+  ;  [:regex-pattern #"\#\"" #"\"" {:disable-interpreter? true}]
+  ;  [:string        #"\""   #"\"" {:disable-interpreter? true}]]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.

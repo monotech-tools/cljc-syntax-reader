@@ -65,10 +65,10 @@
   ;
   ; @param (map) state
   ; @param (map) metafunctions
-  ; {:set-metadata (function)
-  ;  :tag-depth (function)}
+  ; {:tag-depth (function)
+  ;  :use-metadata (function)}
   ;
   ; @return (boolean)
-  [_ {:keys [set-metadata tag-depth]}]
+  [_ {:keys [tag-depth use-metadata]}]
   (let [tag-initial-depth (tag-depth :$searched-tag)]
-       (set-metadata {:tag-initial-depth tag-initial-depth})))
+       (use-metadata {:tag-initial-depth tag-initial-depth})))

@@ -1,20 +1,19 @@
 
 (ns syntax-reader.api
-    (:require [syntax-reader.comments.engine   :as comments.engine]
-              [syntax-reader.grey-zones.engine :as grey-zones.engine]
-              [syntax-reader.search.engine     :as search.engine]
+    (:require [syntax-reader.search.engine     :as search.engine]
               [syntax-reader.tags.defaults     :as tags.defaults]
-              [syntax-reader.tags.engine       :as tags.engine]))
+              [syntax-reader.tags.engine       :as tags.engine]
+              [syntax-reader.remove.engine :as remove.engine]
+              [syntax-reader.read.engine :as read.engine]))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
 
-; @redirect (syntax-reader.comments.engine)
-(def remove-commented-parts comments.engine/remove-commented-parts)
-(def get-commented-parts    comments.engine/get-commented-parts)
+; @redirect (syntax-reader.remove.engine)
+(def remove-tags remove.engine/remove-tags)
 
-; @redirect (syntax-reader.grey-zones.engine)
-(def grey-zones grey-zones.engine/grey-zones)
+; @redirect (syntax-reader.read.engine)
+(def read-tags read.engine/read-tags)
 
 ; @redirect (syntax-reader.search.engine)
 (def first-position search.engine/first-position)

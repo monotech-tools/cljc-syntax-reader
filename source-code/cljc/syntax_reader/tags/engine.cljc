@@ -14,10 +14,17 @@
   ; @param (string) n
   ; @param (regex pattern) opening-pattern
   ; @param (regex pattern) closing-pattern
-  ; @param (vectors in vector)(opt) tags
+  ; @param (vectors in vector)(opt)(in decreasing priority order) tags
+  ; For more information, check out the documentation of the 'syntax-interpreter.api/interpreter' function.
+  ; [[(keyword) tag-name
+  ;   (regex pattern) pattern / opening-pattern
+  ;   (regex pattern)(opt) closing-pattern
+  ;   (map)(opt) tag-options]]
   ; Default:
-  ; [[:comment #"\;" #"\n" {:disable-interpreter? true}]
-  ;  [:quote   #"\"" #"\"" {:disable-interpreter? true}]]
+  ; [[:comment       #"\;"   #"\n" {:disable-interpreter? true}]
+  ;  [:meta-string   #"\^\"" #"\"" {:disable-interpreter? true}]
+  ;  [:regex-pattern #"\#\"" #"\"" {:disable-interpreter? true}]
+  ;  [:string        #"\""   #"\"" {:disable-interpreter? true}]]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
@@ -70,10 +77,17 @@
   ; @param (string) n
   ; @param (regex pattern) opening-pattern
   ; @param (regex pattern) closing-pattern
-  ; @param (vectors in vector)(opt) tags
+  ; @param (vectors in vector)(opt)(in decreasing priority order) tags
+  ; For more information, check out the documentation of the 'syntax-interpreter.api/interpreter' function.
+  ; [[(keyword) tag-name
+  ;   (regex pattern) pattern / opening-pattern
+  ;   (regex pattern)(opt) closing-pattern
+  ;   (map)(opt) tag-options]]
   ; Default:
-  ; [[:comment #"\;" #"\n" {:disable-interpreter? true}]
-  ;  [:quote   #"\"" #"\"" {:disable-interpreter? true}]]
+  ; [[:comment       #"\;"   #"\n" {:disable-interpreter? true}]
+  ;  [:meta-string   #"\^\"" #"\"" {:disable-interpreter? true}]
+  ;  [:regex-pattern #"\#\"" #"\"" {:disable-interpreter? true}]
+  ;  [:string        #"\""   #"\"" {:disable-interpreter? true}]]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.

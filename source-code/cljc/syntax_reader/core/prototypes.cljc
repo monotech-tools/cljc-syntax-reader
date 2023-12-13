@@ -12,5 +12,7 @@
   ;
   ; @return (vectors in vector)
   [tags]
-  (or tags [(:comment syntax-interpreter/CLJ-PATTERNS)
-            (:quote   syntax-interpreter/CLJ-PATTERNS)]))
+  (or tags [(:comment       syntax-interpreter/CLJ-PATTERNS)
+            (:meta-string   syntax-interpreter/CLJ-PATTERNS)
+            (:regex-pattern syntax-interpreter/CLJ-PATTERNS)
+            (:string        syntax-interpreter/CLJ-PATTERNS)]))
