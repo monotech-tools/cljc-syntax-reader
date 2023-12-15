@@ -1,6 +1,6 @@
 
 (ns syntax-reader.remove.engine
-    (:require [syntax-interpreter.api :as interpreter]
+    (:require [syntax-interpreter.api     :as interpreter]
               [syntax-reader.remove.utils :as remove.utils]))
 
 ;; ----------------------------------------------------------------------------
@@ -22,6 +22,13 @@
   ;      Default: false}]]
   ; @param (map)(opt) options
   ; For more information, check out the documentation of the 'syntax-interpreter.api/interpreter' function.
+  ; {:keep-indents? (boolean)(opt)
+  ;   Default: false
+  ;  :remove-leftover-blank-lines? (boolean)(opt)
+  ;   Default: false
+  ;  :trim-line-ends? (boolean)(opt)
+  ;   TODO
+  ;   Default: false}
   ;
   ; @example
   ; (remove-tags "abcdef/*ghijkl*/mnopqrs" [[:my-tag #"\/\*" #"\*\/"]])
@@ -33,10 +40,8 @@
    (remove-tags n tags {}))
 
   ([n tags options]
-   (letfn [(f0 [result state {:keys [ending-tag use-metadata] :as metafunctions}]
-               (or (if-let [ending-tag (ending-tag)]
-                           (if (remove.utils/remove-found-tag? result state metafunctions ending-tag)
-                               (use-metadata (remove.utils/update-metadata  result state metafunctions ending-tag)
-                                             (remove.utils/remove-found-tag result state metafunctions ending-tag))))
+   (letfn [(f0 [result state metafunctions]
+               (if (remove.utils/remove-ending-tag? result state metafunctions options)
+                   (remove.utils/remove-ending-tag  result state metafunctions options)
                    (-> result)))]
           (interpreter/interpreter n f0 n tags options))))
