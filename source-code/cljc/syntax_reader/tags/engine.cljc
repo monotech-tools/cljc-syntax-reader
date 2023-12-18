@@ -9,13 +9,14 @@
 
 (defn opening-match-position
   ; @description
-  ; Returns the position of the first match of the given 'opening-pattern' regex pattern in the given 'n' string.
+  ; - Returns the position of the first match of the given 'opening-pattern' regex pattern in the given 'n' string.
+  ; - By default, it ignores commented and quoted parts of the string.
   ;
   ; @param (string) n
   ; @param (regex pattern) opening-pattern
   ; @param (regex pattern) closing-pattern
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; For more information, check out the documentation of the 'syntax-interpreter.api/interpreter' function.
+  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -32,17 +33,17 @@
   ;   Starts searching at the given 'offset' position in the given 'n' string.
   ;   The returned position is an offset independent absolute value.}
   ;
-  ; @example
+  ; @usage
   ; (opening-match-position "<div>My content</div>" #"<div>" #"</div>")
   ; =>
   ; 0
   ;
-  ; @example
+  ; @usage
   ; (opening-match-position "<div><div></div></div>" #"<div>" #"</div>")
   ; =>
   ; 0
   ;
-  ; @example
+  ; @usage
   ; (opening-match-position "</div> <div></div>" #"<div>" #"</div>")
   ; =>
   ; 7
@@ -72,13 +73,14 @@
 
 (defn closing-match-position
   ; @description
-  ; Returns the position of the corresponding closing tag of the first match of the given 'opening-pattern' regex pattern in the given 'n' string.
+  ; - Returns the position of the corresponding closing tag of the first match of the given 'opening-pattern' regex pattern in the given 'n' string.
+  ; - By default, it ignores commented and quoted parts of the string.
   ;
   ; @param (string) n
   ; @param (regex pattern) opening-pattern
   ; @param (regex pattern) closing-pattern
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; For more information, check out the documentation of the 'syntax-interpreter.api/interpreter' function.
+  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -95,17 +97,17 @@
   ;   Starts searching at the given 'offset' position in the given 'n' string.
   ;   The returned position is an offset independent absolute value.}
   ;
-  ; @example
+  ; @usage
   ; (closing-match-position "<div>My content</div>" #"<div>" #"</div>")
   ; =>
   ; 15
   ;
-  ; @example
+  ; @usage
   ; (closing-match-position "<div><div></div></div>" #"<div>" #"</div>")
   ; =>
   ; 16
   ;
-  ; @example
+  ; @usage
   ; (closing-match-position "</div> <div></div>" #"<div>" #"</div>")
   ; =>
   ; 12

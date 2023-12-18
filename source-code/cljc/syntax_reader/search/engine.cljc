@@ -15,16 +15,16 @@
   ; @param (string) n
   ; @param (regex pattern) x
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; For more information, check out the documentation of the 'syntax-interpreter.api/interpreter' function.
+  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
   ;   (map)(opt) tag-options]]
   ; Default:
-  ; [[:comment       #"\;"   #"\n" {:disable-interpreter? true}]
-  ;  [:meta-string   #"\^\"" #"\"" {:disable-interpreter? true}]
-  ;  [:regex-pattern #"\#\"" #"\"" {:disable-interpreter? true}]
-  ;  [:string        #"\""   #"\"" {:disable-interpreter? true}]]
+  ; [[:comment       #"\;"   #"\n"           {:disable-interpreter? true}]
+  ;  [:meta-string   #"\^\"" #"(?<=[^\\])\"" {:disable-interpreter? true}]
+  ;  [:regex-pattern #"\#\"" #"(?<=[^\\])\"" {:disable-interpreter? true}]
+  ;  [:string        #"\""   #"(?<=[^\\])\"" {:disable-interpreter? true}]]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
@@ -32,12 +32,12 @@
   ;   Starts searching at the given 'offset' position in the given 'n' string.
   ;   The returned position is an offset independent absolute value.}
   ;
-  ; @example
+  ; @usage
   ; (first-position ".my-class { width: auto; }" #"width")
   ; =>
   ; 12
   ;
-  ; @example
+  ; @usage
   ; (first-position ".my-class {/* width: 0 */ width: auto; }" #"width" [[:comment #"/\*" #"\*/"]])
   ; =>
   ; 26

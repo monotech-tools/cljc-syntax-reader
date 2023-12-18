@@ -7,20 +7,21 @@
 
 (defn opening-brace-position
   ; @description
-  ; Returns the position of the first opening brace character in the given 'n' string.
+  ; - Returns the position of the first opening brace character in the given 'n' string.
+  ; - By default, it ignores commented and quoted parts of the string.
   ;
   ; @param (string) n
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; For more information, check out the documentation of the 'syntax-interpreter.api/interpreter' function.
+  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
   ;   (map)(opt) tag-options]]
   ; Default:
-  ; [[:comment       #"\;"   #"\n" {:disable-interpreter? true}]
-  ;  [:meta-string   #"\^\"" #"\"" {:disable-interpreter? true}]
-  ;  [:regex-pattern #"\#\"" #"\"" {:disable-interpreter? true}]
-  ;  [:string        #"\""   #"\"" {:disable-interpreter? true}]]
+  ; [[:comment       #"\;"   #"\n"           {:disable-interpreter? true}]
+  ;  [:meta-string   #"\^\"" #"(?<=[^\\])\"" {:disable-interpreter? true}]
+  ;  [:regex-pattern #"\#\"" #"(?<=[^\\])\"" {:disable-interpreter? true}]
+  ;  [:string        #"\""   #"(?<=[^\\])\"" {:disable-interpreter? true}]]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
@@ -28,12 +29,12 @@
   ;   Starts searching at the given 'offset' position in the given 'n' string.
   ;   The returned position is an offset independent absolute value.}
   ;
-  ; @example
+  ; @usage
   ; (opening-brace-position "abc {}")
   ; =>
   ; 4
   ;
-  ; @example
+  ; @usage
   ; (opening-brace-position "} {}")
   ; =>
   ; 2
@@ -50,20 +51,21 @@
 
 (defn closing-brace-position
   ; @description
-  ; Returns the position of the closing brace character that corresponds to the first opening brace character in the 'n' string.
+  ; - Returns the position of the closing brace character that corresponds to the first opening brace character in the 'n' string.
+  ; - By default, it ignores commented and quoted parts of the string.
   ;
   ; @param (string) n
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; For more information, check out the documentation of the 'syntax-interpreter.api/interpreter' function.
+  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
   ;   (map)(opt) tag-options]]
   ; Default:
-  ; [[:comment       #"\;"   #"\n" {:disable-interpreter? true}]
-  ;  [:meta-string   #"\^\"" #"\"" {:disable-interpreter? true}]
-  ;  [:regex-pattern #"\#\"" #"\"" {:disable-interpreter? true}]
-  ;  [:string        #"\""   #"\"" {:disable-interpreter? true}]]
+  ; [[:comment       #"\;"   #"\n"           {:disable-interpreter? true}]
+  ;  [:meta-string   #"\^\"" #"(?<=[^\\])\"" {:disable-interpreter? true}]
+  ;  [:regex-pattern #"\#\"" #"(?<=[^\\])\"" {:disable-interpreter? true}]
+  ;  [:string        #"\""   #"(?<=[^\\])\"" {:disable-interpreter? true}]]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
@@ -71,12 +73,12 @@
   ;   Starts searching at the given 'offset' position in the given 'n' string.
   ;   The returned position is an offset independent absolute value.}
   ;
-  ; @example
+  ; @usage
   ; (closing-brace-position "abc {}")
   ; =>
   ; 5
   ;
-  ; @example
+  ; @usage
   ; (closing-brace-position "} {}")
   ; =>
   ; 3
@@ -96,20 +98,21 @@
 
 (defn opening-bracket-position
   ; @description
-  ; Returns the position of the first opening bracket character in the given 'n' string.
+  ; - Returns the position of the first opening bracket character in the given 'n' string.
+  ; - By default, it ignores commented and quoted parts of the string.
   ;
   ; @param (string) n
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; For more information, check out the documentation of the 'syntax-interpreter.api/interpreter' function.
+  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
   ;   (map)(opt) tag-options]]
   ; Default:
-  ; [[:comment       #"\;"   #"\n" {:disable-interpreter? true}]
-  ;  [:meta-string   #"\^\"" #"\"" {:disable-interpreter? true}]
-  ;  [:regex-pattern #"\#\"" #"\"" {:disable-interpreter? true}]
-  ;  [:string        #"\""   #"\"" {:disable-interpreter? true}]]
+  ; [[:comment       #"\;"   #"\n"           {:disable-interpreter? true}]
+  ;  [:meta-string   #"\^\"" #"(?<=[^\\])\"" {:disable-interpreter? true}]
+  ;  [:regex-pattern #"\#\"" #"(?<=[^\\])\"" {:disable-interpreter? true}]
+  ;  [:string        #"\""   #"(?<=[^\\])\"" {:disable-interpreter? true}]]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
@@ -117,12 +120,12 @@
   ;   Starts searching at the given 'offset' position in the given 'n' string.
   ;   The returned position is an offset independent absolute value.}
   ;
-  ; @example
+  ; @usage
   ; (opening-bracket-position "abc []")
   ; =>
   ; 4
   ;
-  ; @example
+  ; @usage
   ; (opening-bracket-position "] []")
   ; =>
   ; 2
@@ -139,20 +142,21 @@
 
 (defn closing-bracket-position
   ; @description
-  ; Returns the position of the closing bracket character that corresponds to the first opening bracket character in the 'n' string.
+  ; - Returns the position of the closing bracket character that corresponds to the first opening bracket character in the 'n' string.
+  ; - By default, it ignores commented and quoted parts of the string.
   ;
   ; @param (string) n
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; For more information, check out the documentation of the 'syntax-interpreter.api/interpreter' function.
+  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
   ;   (map)(opt) tag-options]]
   ; Default:
-  ; [[:comment       #"\;"   #"\n" {:disable-interpreter? true}]
-  ;  [:meta-string   #"\^\"" #"\"" {:disable-interpreter? true}]
-  ;  [:regex-pattern #"\#\"" #"\"" {:disable-interpreter? true}]
-  ;  [:string        #"\""   #"\"" {:disable-interpreter? true}]]
+  ; [[:comment       #"\;"   #"\n"           {:disable-interpreter? true}]
+  ;  [:meta-string   #"\^\"" #"(?<=[^\\])\"" {:disable-interpreter? true}]
+  ;  [:regex-pattern #"\#\"" #"(?<=[^\\])\"" {:disable-interpreter? true}]
+  ;  [:string        #"\""   #"(?<=[^\\])\"" {:disable-interpreter? true}]]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
@@ -160,12 +164,12 @@
   ;   Starts searching at the given 'offset' position in the given 'n' string.
   ;   The returned position is an offset independent absolute value.}
   ;
-  ; @example
+  ; @usage
   ; (closing-bracket-position "abc []")
   ; =>
   ; 5
   ;
-  ; @example
+  ; @usage
   ; (closing-bracket-position "] []")
   ; =>
   ; 3
@@ -185,20 +189,21 @@
 
 (defn opening-paren-position
   ; @description
-  ; Returns the position of the first opening parenthesis character in the given 'n' string.
+  ; - Returns the position of the first opening parenthesis character in the given 'n' string.
+  ; - By default, it ignores commented and quoted parts of the string.
   ;
   ; @param (string) n
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; For more information, check out the documentation of the 'syntax-interpreter.api/interpreter' function.
+  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
   ;   (map)(opt) tag-options]]
   ; Default:
-  ; [[:comment       #"\;"   #"\n" {:disable-interpreter? true}]
-  ;  [:meta-string   #"\^\"" #"\"" {:disable-interpreter? true}]
-  ;  [:regex-pattern #"\#\"" #"\"" {:disable-interpreter? true}]
-  ;  [:string        #"\""   #"\"" {:disable-interpreter? true}]]
+  ; [[:comment       #"\;"   #"\n"           {:disable-interpreter? true}]
+  ;  [:meta-string   #"\^\"" #"(?<=[^\\])\"" {:disable-interpreter? true}]
+  ;  [:regex-pattern #"\#\"" #"(?<=[^\\])\"" {:disable-interpreter? true}]
+  ;  [:string        #"\""   #"(?<=[^\\])\"" {:disable-interpreter? true}]]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
@@ -206,12 +211,12 @@
   ;   Starts searching at the given 'offset' position in the given 'n' string.
   ;   The returned position is an offset independent absolute value.}
   ;
-  ; @example
+  ; @usage
   ; (opening-paren-position "abc ()")
   ; =>
   ; 4
   ;
-  ; @example
+  ; @usage
   ; (opening-paren-position ") ()")
   ; =>
   ; 2
@@ -228,20 +233,21 @@
 
 (defn closing-paren-position
   ; @description
-  ; Returns the position of the closing parenthesis character that corresponds to the first opening parenthesis character in the 'n' string.
+  ; - Returns the position of the closing parenthesis character that corresponds to the first opening parenthesis character in the 'n' string.
+  ; - By default, it ignores commented and quoted parts of the string.
   ;
   ; @param (string) n
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; For more information, check out the documentation of the 'syntax-interpreter.api/interpreter' function.
+  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
   ;   (map)(opt) tag-options]]
   ; Default:
-  ; [[:comment       #"\;"   #"\n" {:disable-interpreter? true}]
-  ;  [:meta-string   #"\^\"" #"\"" {:disable-interpreter? true}]
-  ;  [:regex-pattern #"\#\"" #"\"" {:disable-interpreter? true}]
-  ;  [:string        #"\""   #"\"" {:disable-interpreter? true}]]
+  ; [[:comment       #"\;"   #"\n"           {:disable-interpreter? true}]
+  ;  [:meta-string   #"\^\"" #"(?<=[^\\])\"" {:disable-interpreter? true}]
+  ;  [:regex-pattern #"\#\"" #"(?<=[^\\])\"" {:disable-interpreter? true}]
+  ;  [:string        #"\""   #"(?<=[^\\])\"" {:disable-interpreter? true}]]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
@@ -249,12 +255,12 @@
   ;   Starts searching at the given 'offset' position in the given 'n' string.
   ;   The returned position is an offset independent absolute value.}
   ;
-  ; @example
+  ; @usage
   ; (closing-paren-position "abc ()")
   ; =>
   ; 5
   ;
-  ; @example
+  ; @usage
   ; (closing-paren-position ") ()")
   ; =>
   ; 3

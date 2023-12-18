@@ -12,15 +12,15 @@
   ;
   ; @param (string) n
   ; @param (vectors in vector)(in decreasing priority order) tags
-  ; For more information, check out the documentation of the 'syntax-interpreter.api/interpreter' function.
+  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
   ;   (map)(opt) tag-options]]
   ; @param (map)(opt) options
-  ; For more information, check out the documentation of the 'syntax-interpreter.api/interpreter' function.
+  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ;
-  ; @example
+  ; @usage
   ; (read-tags "abcdef/*ghijkl*/mnopqrs" [[:my-tag #"\/\*" #"\*\/"]])
   ; =>
   ; {:my-tag ["/*ghijkl*/"]}
