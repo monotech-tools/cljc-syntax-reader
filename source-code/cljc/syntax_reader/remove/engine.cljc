@@ -8,7 +8,7 @@
 
 (defn remove-tags
   ; @description
-  ; Removes the given tags from the given 'n' value.
+  ; Removes the given tags from the given 'n' string.
   ;
   ; @param (string) n
   ; @param (vectors in vector)(in decreasing priority order) tags

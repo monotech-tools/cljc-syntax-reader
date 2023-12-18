@@ -8,7 +8,7 @@
 
 (defn read-tags
   ; @description
-  ; Reads the given tags from the given 'n' value.
+  ; Reads the given tags from the given 'n' string.
   ;
   ; @param (string) n
   ; @param (vectors in vector)(in decreasing priority order) tags

@@ -2,18 +2,22 @@
 (ns syntax-reader.search.engine
     (:require [syntax-interpreter.api        :as syntax-interpreter]
               [syntax-reader.core.prototypes :as core.prototypes]
-              [syntax-reader.search.utils    :as search.utils]))
+              [fruits.vector.api :as vector]))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
 
-(defn first-position
+(defn tag-starting-position
   ; @description
-  ; - Returns the position of the first occurence of the given 'x' regex pattern in the given 'n' string.
+  ; - Returns the starting position of the given searched tag in the given 'n' string.
   ; - By default, it ignores commented and quoted parts of the string.
   ;
   ; @param (string) n
-  ; @param (regex pattern) x
+  ; @param (vector) searched-tag
+  ; [(keyword) tag-name
+  ;  (regex pattern) pattern / opening-pattern
+  ;  (regex pattern)(opt) closing-pattern
+  ;  (map)(opt) options]
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
   ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
@@ -21,10 +25,10 @@
   ;   (regex pattern)(opt) closing-pattern
   ;   (map)(opt) tag-options]]
   ; Default:
-  ; [[:comment       #"\;"   #"\n"           {:disable-interpreter? true}]
-  ;  [:meta-string   #"\^\"" #"(?<=[^\\])\"" {:disable-interpreter? true}]
-  ;  [:regex-pattern #"\#\"" #"(?<=[^\\])\"" {:disable-interpreter? true}]
-  ;  [:string        #"\""   #"(?<=[^\\])\"" {:disable-interpreter? true}]]
+  ; [[:comment       #"\;"   #"\n" {:accepted-children []}]
+  ;  [:meta-string   #"\^\"" #"\"" {:accepted-children []}]
+  ;  [:regex-pattern #"\#\"" #"\"" {:accepted-children []}]
+  ;  [:string        #"\""   #"\"" {:accepted-children []}]]
   ; @param (map)(opt) options
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
@@ -33,33 +37,218 @@
   ;   The returned position is an offset independent absolute value.}
   ;
   ; @usage
-  ; (first-position ".my-class { width: auto; }" #"width")
+  ; (tag-starting-position "<div>My content</div>" [:div #"<div>" #"</div>"])
+  ; =>
+  ; 0
+  ;
+  ; @usage
+  ; (tag-starting-position "<div><div></div></div>" [:div #"<div>" #"</div>"])
+  ; =>
+  ; 0
+  ;
+  ; @usage
+  ; (tag-starting-position "</div> <div></div>" [:div #"<div>" #"</div>"])
+  ; =>
+  ; 7
+  ;
+  ; @return (integer)
+  ([n searched-tag]
+   (tag-starting-position n searched-tag {} {}))
+
+  ([n searched-tag tags]
+   (tag-starting-position n searched-tag tags {}))
+
+  ([n [tag-name & _ :as searched-tag] tags options]
+   (letfn [; ...
+           (f0 [_ {:keys [cursor] :as state} {:keys [stop tag-starts?] :as metafunctions}]
+               (if (tag-starts? tag-name)
+                   (stop cursor)))]
+          ; ...
+          (let [tags (core.prototypes/tags-prototype tags)
+                tags (vector/cons-item tags searched-tag)]
+               (syntax-interpreter/interpreter n f0 nil tags options)))))
+
+(defn tag-opening-position
+  ; @description
+  ; - Returns the opening position of the given searched tag in the given 'n' string.
+  ; - By default, it ignores commented and quoted parts of the string.
+  ;
+  ; @param (string) n
+  ; @param (vector) searched-tag
+  ; [(keyword) tag-name
+  ;  (regex pattern) pattern / opening-pattern
+  ;  (regex pattern)(opt) closing-pattern
+  ;  (map)(opt) options]
+  ; @param (vectors in vector)(opt)(in decreasing priority order) tags
+  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
+  ; [[(keyword) tag-name
+  ;   (regex pattern) pattern / opening-pattern
+  ;   (regex pattern)(opt) closing-pattern
+  ;   (map)(opt) tag-options]]
+  ; Default:
+  ; [[:comment       #"\;"   #"\n" {:accepted-children []}]
+  ;  [:meta-string   #"\^\"" #"\"" {:accepted-children []}]
+  ;  [:regex-pattern #"\#\"" #"\"" {:accepted-children []}]
+  ;  [:string        #"\""   #"\"" {:accepted-children []}]]
+  ; @param (map)(opt) options
+  ; {:endpoint (integer)(opt)
+  ;   Quits searching at the given 'endpoint' position in the given 'n' string.
+  ;  :offset (integer)(opt)
+  ;   Starts searching at the given 'offset' position in the given 'n' string.
+  ;   The returned position is an offset independent absolute value.}
+  ;
+  ; @usage
+  ; (tag-opening-position "<div>My content</div>" [:div #"<div>" #"</div>"])
+  ; =>
+  ; 5
+  ;
+  ; @usage
+  ; (tag-opening-position "<div><div></div></div>" [:div #"<div>" #"</div>"])
+  ; =>
+  ; 5
+  ;
+  ; @usage
+  ; (tag-opening-position "</div> <div></div>" [:div #"<div>" #"</div>"])
   ; =>
   ; 12
   ;
-  ; @usage
-  ; (first-position ".my-class {/* width: 0 */ width: auto; }" #"width" [[:comment #"/\*" #"\*/"]])
-  ; =>
-  ; 26
-  ;
   ; @return (integer)
-  ([n x]
-   (first-position n x {} {}))
+  ([n searched-tag]
+   (tag-opening-position n searched-tag {} {}))
 
-  ([n x tags]
-   (first-position n x tags {}))
+  ([n searched-tag tags]
+   (tag-opening-position n searched-tag tags {}))
 
-  ([n x tags options]
-   (letfn [; @param (nil) result
-           ; @param (map) state
-           ; {:cursor (integer)}
-           ; @param (map) metafunctions
-           ; {:stop (function)}
-           ;
-           ; @return (nil or vector)
-           (f0 [_ {:keys [cursor] :as state} {:keys [stop] :as metafunctions}]
-               (if (search.utils/pattern-found? n x state metafunctions)
+  ([n [tag-name & _ :as searched-tag] tags options]
+   (letfn [; ...
+           (f0 [_ {:keys [cursor] :as state} {:keys [stop tag-opens?] :as metafunctions}]
+               (if (tag-opens? tag-name)
                    (stop cursor)))]
           ; ...
-          (let [tags (core.prototypes/tags-prototype tags)]
+          (let [tags (core.prototypes/tags-prototype tags)
+                tags (vector/cons-item tags searched-tag)]
+               (syntax-interpreter/interpreter n f0 nil tags options)))))
+
+(defn tag-closing-position
+  ; @description
+  ; - Returns the closing position of the given searched tag in the given 'n' string.
+  ; - By default, it ignores commented and quoted parts of the string.
+  ;
+  ; @param (string) n
+  ; @param (vector) searched-tag
+  ; [(keyword) tag-name
+  ;  (regex pattern) pattern / opening-pattern
+  ;  (regex pattern)(opt) closing-pattern
+  ;  (map)(opt) options]
+  ; @param (vectors in vector)(opt)(in decreasing priority order) tags
+  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
+  ; [[(keyword) tag-name
+  ;   (regex pattern) pattern / opening-pattern
+  ;   (regex pattern)(opt) closing-pattern
+  ;   (map)(opt) tag-options]]
+  ; Default:
+  ; [[:comment       #"\;"   #"\n" {:accepted-children []}]
+  ;  [:meta-string   #"\^\"" #"\"" {:accepted-children []}]
+  ;  [:regex-pattern #"\#\"" #"\"" {:accepted-children []}]
+  ;  [:string        #"\""   #"\"" {:accepted-children []}]]
+  ; @param (map)(opt) options
+  ; {:endpoint (integer)(opt)
+  ;   Quits searching at the given 'endpoint' position in the given 'n' string.
+  ;  :offset (integer)(opt)
+  ;   Starts searching at the given 'offset' position in the given 'n' string.
+  ;   The returned position is an offset independent absolute value.}
+  ;
+  ; @usage
+  ; (tag-closing-position "<div>My content</div>" [:div #"<div>" #"</div>"])
+  ; =>
+  ; 15
+  ;
+  ; @usage
+  ; (tag-closing-position "<div><div></div></div>" [:div #"<div>" #"</div>"])
+  ; =>
+  ; 16
+  ;
+  ; @usage
+  ; (tag-closing-position "</div> <div></div>" [:div #"<div>" #"</div>"])
+  ; =>
+  ; 12
+  ;
+  ; @return (integer)
+  ([n searched-tag]
+   (tag-closing-position n searched-tag {} {}))
+
+  ([n searched-tag tags]
+   (tag-closing-position n searched-tag tags {}))
+
+  ([n [tag-name & _ :as searched-tag] tags options]
+   (letfn [; ...
+           (f0 [_ {:keys [cursor] :as state} {:keys [depth stop tag-closes?] :as metafunctions}]
+               (if (and (tag-closes? tag-name)
+                        (= 1 (depth)))
+                   (stop cursor)))]
+          ; ...
+          (let [tags (core.prototypes/tags-prototype tags)
+                tags (vector/cons-item tags searched-tag)]
+               (syntax-interpreter/interpreter n f0 nil tags options)))))
+
+(defn tag-ending-position
+  ; @description
+  ; - Returns the ending position of the given searched tag in the given 'n' string.
+  ; - By default, it ignores commented and quoted parts of the string.
+  ;
+  ; @param (string) n
+  ; @param (vector) searched-tag
+  ; [(keyword) tag-name
+  ;  (regex pattern) pattern / opening-pattern
+  ;  (regex pattern)(opt) closing-pattern
+  ;  (map)(opt) options]
+  ; @param (vectors in vector)(opt)(in decreasing priority order) tags
+  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
+  ; [[(keyword) tag-name
+  ;   (regex pattern) pattern / opening-pattern
+  ;   (regex pattern)(opt) closing-pattern
+  ;   (map)(opt) tag-options]]
+  ; Default:
+  ; [[:comment       #"\;"   #"\n" {:accepted-children []}]
+  ;  [:meta-string   #"\^\"" #"\"" {:accepted-children []}]
+  ;  [:regex-pattern #"\#\"" #"\"" {:accepted-children []}]
+  ;  [:string        #"\""   #"\"" {:accepted-children []}]]
+  ; @param (map)(opt) options
+  ; {:endpoint (integer)(opt)
+  ;   Quits searching at the given 'endpoint' position in the given 'n' string.
+  ;  :offset (integer)(opt)
+  ;   Starts searching at the given 'offset' position in the given 'n' string.
+  ;   The returned position is an offset independent absolute value.}
+  ;
+  ; @usage
+  ; (tag-ending-position "<div>My content</div>" [:div #"<div>" #"</div>"])
+  ; =>
+  ; 21
+  ;
+  ; @usage
+  ; (tag-ending-position "<div><div></div></div>" [:div #"<div>" #"</div>"])
+  ; =>
+  ; 22
+  ;
+  ; @usage
+  ; (tag-ending-position "</div> <div></div>" [:div #"<div>" #"</div>"])
+  ; =>
+  ; 18
+  ;
+  ; @return (integer)
+  ([n searched-tag]
+   (tag-ending-position n searched-tag {} {}))
+
+  ([n searched-tag tags]
+   (tag-ending-position n searched-tag tags {}))
+
+  ([n [tag-name & _ :as searched-tag] tags options]
+   (letfn [; ...
+           (f0 [_ {:keys [cursor] :as state} {:keys [depth stop tag-ends?] :as metafunctions}]
+               (if (and (tag-ends? tag-name)
+                        (= 0 (depth)))
+                   (stop cursor)))]
+          ; ...
+          (let [tags (core.prototypes/tags-prototype tags)
+                tags (vector/cons-item tags searched-tag)]
                (syntax-interpreter/interpreter n f0 nil tags options)))))

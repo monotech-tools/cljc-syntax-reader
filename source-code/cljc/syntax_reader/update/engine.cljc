@@ -8,7 +8,7 @@
 
 (defn update-tags
   ; @description
-  ; Updates the given tags in the given 'n' value with the provided ':update-f' function.
+  ; Updates the given tags within the given 'n' string with the provided ':update-f' function.
   ;
   ; @param (string) n
   ; @param (vectors in vector)(in decreasing priority order) tags
