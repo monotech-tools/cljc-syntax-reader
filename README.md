@@ -3,7 +3,7 @@
 
 ### Overview
 
-The <strong>cljc-syntax-reader</strong> is a simple Clojure/ClojureScript syntax reader library.
+The <strong>cljc-syntax-reader</strong> is a simple syntax reader library for Clojure projects.
 
 ### deps.edn
 
