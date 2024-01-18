@@ -1,8 +1,8 @@
 
 (ns syntax-reader.search.engine
-    (:require [syntax-interpreter.api        :as syntax-interpreter]
-              [syntax-reader.core.prototypes :as core.prototypes]
-              [fruits.vector.api :as vector]))
+    (:require [fruits.vector.api             :as vector]
+              [syntax-interpreter.api        :as syntax-interpreter]
+              [syntax-reader.core.prototypes :as core.prototypes]))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------

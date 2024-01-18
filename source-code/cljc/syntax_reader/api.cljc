@@ -1,10 +1,10 @@
 
 (ns syntax-reader.api
-    (:require [syntax-reader.read.engine   :as read.engine]
-              [syntax-reader.remove.engine :as remove.engine]
-              [syntax-reader.search.engine :as search.engine]
+    (:require [syntax-reader.read.engine     :as read.engine]
+              [syntax-reader.remove.engine   :as remove.engine]
               [syntax-reader.search.defaults :as search.defaults]
-              [syntax-reader.update.engine :as update.engine]))
+              [syntax-reader.search.engine   :as search.engine]
+              [syntax-reader.update.engine   :as update.engine]))
 
 ;; ----------------------------------------------------------------------------
 ;; ----------------------------------------------------------------------------
