@@ -12,7 +12,7 @@
   ;
   ; @param (string) n
   ; @param (vectors in vector)(in decreasing priority order) tags
-  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -21,7 +21,7 @@
   ;      If TRUE, it keeps track of the tag but doesn't remove it.
   ;      Default: false}]]
   ; @param (map)(opt) options
-  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:keep-indents? (boolean)(opt)
   ;   Default: false
   ;  :remove-leftover-blank-lines? (boolean)(opt)
@@ -31,7 +31,7 @@
   ;   Default: false}
   ;
   ; @usage
-  ; (remove-tags "abcdef/*ghijkl*/mnopqrs" [[:my-tag #"\/\*" #"\*\/"]])
+  ; (remove-tags "abcdef(ghijkl)mnopqrs" [[:my-tag #"\(" #"\)"]])
   ; =>
   ; "abcdefmnopqrs"
   ;

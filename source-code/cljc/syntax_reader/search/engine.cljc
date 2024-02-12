@@ -19,7 +19,7 @@
   ;  (regex pattern)(opt) closing-pattern
   ;  (map)(opt) options]
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -30,6 +30,7 @@
   ;  [:regex-pattern #"\#\"" #"\"" {:accepted-children []}]
   ;  [:string        #"\""   #"\"" {:accepted-children []}]]
   ; @param (map)(opt) options
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :offset (integer)(opt)
@@ -37,17 +38,17 @@
   ;   The returned position is an offset independent absolute value.}
   ;
   ; @usage
-  ; (tag-starting-position "<div>My content</div>" [:div #"<div>" #"</div>"])
+  ; (tag-starting-position "<div>My content</div>" [:div #"<div>" #"<\/div>"])
   ; =>
   ; 0
   ;
   ; @usage
-  ; (tag-starting-position "<div><div></div></div>" [:div #"<div>" #"</div>"])
+  ; (tag-starting-position "<div><div></div></div>" [:div #"<div>" #"<\/div>"])
   ; =>
   ; 0
   ;
   ; @usage
-  ; (tag-starting-position "</div> <div></div>" [:div #"<div>" #"</div>"])
+  ; (tag-starting-position "</div> <div></div>" [:div #"<div>" #"<\/div>"])
   ; =>
   ; 7
   ;
@@ -80,7 +81,7 @@
   ;  (regex pattern)(opt) closing-pattern
   ;  (map)(opt) options]
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -91,6 +92,7 @@
   ;  [:regex-pattern #"\#\"" #"\"" {:accepted-children []}]
   ;  [:string        #"\""   #"\"" {:accepted-children []}]]
   ; @param (map)(opt) options
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :offset (integer)(opt)
@@ -98,17 +100,17 @@
   ;   The returned position is an offset independent absolute value.}
   ;
   ; @usage
-  ; (tag-opening-position "<div>My content</div>" [:div #"<div>" #"</div>"])
+  ; (tag-opening-position "<div>My content</div>" [:div #"<div>" #"<\/div>"])
   ; =>
   ; 5
   ;
   ; @usage
-  ; (tag-opening-position "<div><div></div></div>" [:div #"<div>" #"</div>"])
+  ; (tag-opening-position "<div><div></div></div>" [:div #"<div>" #"<\/div>"])
   ; =>
   ; 5
   ;
   ; @usage
-  ; (tag-opening-position "</div> <div></div>" [:div #"<div>" #"</div>"])
+  ; (tag-opening-position "</div> <div></div>" [:div #"<div>" #"<\/div>"])
   ; =>
   ; 12
   ;
@@ -141,7 +143,7 @@
   ;  (regex pattern)(opt) closing-pattern
   ;  (map)(opt) options]
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -152,6 +154,7 @@
   ;  [:regex-pattern #"\#\"" #"\"" {:accepted-children []}]
   ;  [:string        #"\""   #"\"" {:accepted-children []}]]
   ; @param (map)(opt) options
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :offset (integer)(opt)
@@ -159,17 +162,17 @@
   ;   The returned position is an offset independent absolute value.}
   ;
   ; @usage
-  ; (tag-closing-position "<div>My content</div>" [:div #"<div>" #"</div>"])
+  ; (tag-closing-position "<div>My content</div>" [:div #"<div>" #"<\/div>"])
   ; =>
   ; 15
   ;
   ; @usage
-  ; (tag-closing-position "<div><div></div></div>" [:div #"<div>" #"</div>"])
+  ; (tag-closing-position "<div><div></div></div>" [:div #"<div>" #"<\/div>"])
   ; =>
   ; 16
   ;
   ; @usage
-  ; (tag-closing-position "</div> <div></div>" [:div #"<div>" #"</div>"])
+  ; (tag-closing-position "</div> <div></div>" [:div #"<div>" #"<\/div>"])
   ; =>
   ; 12
   ;
@@ -203,7 +206,7 @@
   ;  (regex pattern)(opt) closing-pattern
   ;  (map)(opt) options]
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -214,6 +217,7 @@
   ;  [:regex-pattern #"\#\"" #"\"" {:accepted-children []}]
   ;  [:string        #"\""   #"\"" {:accepted-children []}]]
   ; @param (map)(opt) options
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :offset (integer)(opt)
@@ -221,17 +225,17 @@
   ;   The returned position is an offset independent absolute value.}
   ;
   ; @usage
-  ; (tag-ending-position "<div>My content</div>" [:div #"<div>" #"</div>"])
+  ; (tag-ending-position "<div>My content</div>" [:div #"<div>" #"<\/div>"])
   ; =>
   ; 21
   ;
   ; @usage
-  ; (tag-ending-position "<div><div></div></div>" [:div #"<div>" #"</div>"])
+  ; (tag-ending-position "<div><div></div></div>" [:div #"<div>" #"<\/div>"])
   ; =>
   ; 22
   ;
   ; @usage
-  ; (tag-ending-position "</div> <div></div>" [:div #"<div>" #"</div>"])
+  ; (tag-ending-position "</div> <div></div>" [:div #"<div>" #"<\/div>"])
   ; =>
   ; 18
   ;

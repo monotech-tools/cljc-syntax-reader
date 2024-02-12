@@ -12,7 +12,7 @@
   ;
   ; @param (string) n
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -23,6 +23,7 @@
   ;  [:regex-pattern #"\#\"" #"(?<=[^\\])\"" {:accepted-children []}]
   ;  [:string        #"\""   #"(?<=[^\\])\"" {:accepted-children []}]]
   ; @param (map)(opt) options
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :offset (integer)(opt)
@@ -56,7 +57,7 @@
   ;
   ; @param (string) n
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -67,6 +68,7 @@
   ;  [:regex-pattern #"\#\"" #"(?<=[^\\])\"" {:accepted-children []}]
   ;  [:string        #"\""   #"(?<=[^\\])\"" {:accepted-children []}]]
   ; @param (map)(opt) options
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :offset (integer)(opt)
@@ -100,7 +102,7 @@
   ;
   ; @param (string) n
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -111,6 +113,7 @@
   ;  [:regex-pattern #"\#\"" #"(?<=[^\\])\"" {:accepted-children []}]
   ;  [:string        #"\""   #"(?<=[^\\])\"" {:accepted-children []}]]
   ; @param (map)(opt) options
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :offset (integer)(opt)
@@ -144,7 +147,7 @@
   ;
   ; @param (string) n
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -155,6 +158,7 @@
   ;  [:regex-pattern #"\#\"" #"(?<=[^\\])\"" {:accepted-children []}]
   ;  [:string        #"\""   #"(?<=[^\\])\"" {:accepted-children []}]]
   ; @param (map)(opt) options
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :offset (integer)(opt)
@@ -191,7 +195,7 @@
   ;
   ; @param (string) n
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -202,6 +206,7 @@
   ;  [:regex-pattern #"\#\"" #"(?<=[^\\])\"" {:accepted-children []}]
   ;  [:string        #"\""   #"(?<=[^\\])\"" {:accepted-children []}]]
   ; @param (map)(opt) options
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :offset (integer)(opt)
@@ -235,7 +240,7 @@
   ;
   ; @param (string) n
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -246,6 +251,7 @@
   ;  [:regex-pattern #"\#\"" #"(?<=[^\\])\"" {:accepted-children []}]
   ;  [:string        #"\""   #"(?<=[^\\])\"" {:accepted-children []}]]
   ; @param (map)(opt) options
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :offset (integer)(opt)
@@ -279,7 +285,7 @@
   ;
   ; @param (string) n
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -290,6 +296,7 @@
   ;  [:regex-pattern #"\#\"" #"(?<=[^\\])\"" {:accepted-children []}]
   ;  [:string        #"\""   #"(?<=[^\\])\"" {:accepted-children []}]]
   ; @param (map)(opt) options
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :offset (integer)(opt)
@@ -323,7 +330,7 @@
   ;
   ; @param (string) n
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -334,6 +341,7 @@
   ;  [:regex-pattern #"\#\"" #"(?<=[^\\])\"" {:accepted-children []}]
   ;  [:string        #"\""   #"(?<=[^\\])\"" {:accepted-children []}]]
   ; @param (map)(opt) options
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :offset (integer)(opt)
@@ -370,7 +378,7 @@
   ;
   ; @param (string) n
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -381,6 +389,7 @@
   ;  [:regex-pattern #"\#\"" #"(?<=[^\\])\"" {:accepted-children []}]
   ;  [:string        #"\""   #"(?<=[^\\])\"" {:accepted-children []}]]
   ; @param (map)(opt) options
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :offset (integer)(opt)
@@ -414,7 +423,7 @@
   ;
   ; @param (string) n
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -425,6 +434,7 @@
   ;  [:regex-pattern #"\#\"" #"(?<=[^\\])\"" {:accepted-children []}]
   ;  [:string        #"\""   #"(?<=[^\\])\"" {:accepted-children []}]]
   ; @param (map)(opt) options
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :offset (integer)(opt)
@@ -458,7 +468,7 @@
   ;
   ; @param (string) n
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -469,6 +479,7 @@
   ;  [:regex-pattern #"\#\"" #"(?<=[^\\])\"" {:accepted-children []}]
   ;  [:string        #"\""   #"(?<=[^\\])\"" {:accepted-children []}]]
   ; @param (map)(opt) options
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :offset (integer)(opt)
@@ -502,7 +513,7 @@
   ;
   ; @param (string) n
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -513,6 +524,7 @@
   ;  [:regex-pattern #"\#\"" #"(?<=[^\\])\"" {:accepted-children []}]
   ;  [:string        #"\""   #"(?<=[^\\])\"" {:accepted-children []}]]
   ; @param (map)(opt) options
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :offset (integer)(opt)

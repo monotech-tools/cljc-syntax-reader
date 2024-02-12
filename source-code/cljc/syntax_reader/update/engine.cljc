@@ -12,7 +12,7 @@
   ;
   ; @param (string) n
   ; @param (vectors in vector)(in decreasing priority order) tags
-  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -20,12 +20,12 @@
   ;    {:update-f (function)(opt)
   ;      Default: return}]]
   ; @param (map)(opt) options
-  ; For more information, check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
+  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ;
   ; @usage
-  ; (update-tags "abcdef/*ghijkl*/mnopqrs" [[:my-tag #"\/\*" #"\*\/" {:update-f clojure.string/upper-case}]])
+  ; (update-tags "abcdef(ghijkl)mnopqrs" [[:my-tag #"\(" #"\)" {:update-f clojure.string/upper-case}]])
   ; =>
-  ; "abcdef/*GHIJKL*/mnopqrs"
+  ; "abcdef(GHIJKL)mnopqrs"
   ;
   ; @return (string)
   ([n tags]
