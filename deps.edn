@@ -1,8 +1,8 @@
 
 {:paths ["source-code/cljc"]
  :deps  {bithandshake/cljc-fruits            {:git/url "https://github.com/bithandshake/cljc-fruits"
-                                              :sha     "dd0335ef3e68416663a2f377e88ca92a3d7718fb"}
+                                              :sha     "fc44fa3b77f081a52689335c633f31a3c169fa7b"}
          mt-devtools/cljc-syntax-interpreter {:git/url "https://github.com/mt-devtools/cljc-syntax-interpreter"
-                                              :sha     "d0d0efe5942111e2c5fe6ab1719d85f220e3b242"}
+                                              :sha     "d43cdf060d9415091372eeed7924278e59ef84b6"}
          org.clojure/clojure                 {:mvn/version "1.10.1"}
          org.clojure/clojurescript           {:mvn/version "1.10.891"}}}
