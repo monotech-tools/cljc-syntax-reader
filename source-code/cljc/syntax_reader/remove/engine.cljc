@@ -18,7 +18,7 @@
   ;   (regex pattern)(opt) closing-pattern
   ;   (map)(opt) tag-options
   ;    {:keep? (boolean)(opt)
-  ;      If TRUE, it keeps track of the tag but doesn't remove it.
+  ;      If TRUE, it keeps track of the tag but does not remove it.
   ;      Default: false}]]
   ; @param (map)(opt) options
   ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
