@@ -7,18 +7,19 @@
 ;; ----------------------------------------------------------------------------
 
 (defn read-tags
+  ; @links
+  ; [cljc-syntax-interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter)
+  ;
   ; @description
   ; Reads the given tags from the given 'n' string.
   ;
   ; @param (string) n
   ; @param (vectors in vector)(in decreasing priority order) tags
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
   ;   (map)(opt) tag-options]]
   ; @param (map)(opt) options
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ;
   ; @usage
   ; (read-tags "abcdef(ghijkl)mnopqrs" [[:my-tag #"\(" #"\)"]])

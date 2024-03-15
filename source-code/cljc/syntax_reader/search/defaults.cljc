@@ -6,13 +6,15 @@
 ;; ----------------------------------------------------------------------------
 
 (defn brace-starting-position
+  ; @links
+  ; [cljc-syntax-interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter)
+  ;
   ; @description
   ; - Returns the starting position of the first brace pair in the given 'n' string.
   ; - By default, it ignores commented and quoted parts of the string.
   ;
   ; @param (string) n
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -23,7 +25,6 @@
   ;  [:regex-pattern #"\#\"" #"(?<=[^\\])\"" {:accepted-children []}]
   ;  [:string        #"\""   #"(?<=[^\\])\"" {:accepted-children []}]]
   ; @param (map)(opt) options
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :offset (integer)(opt)
@@ -51,13 +52,15 @@
    (search.engine/tag-starting-position n [:brace #"\{" #"\}"] tags options)))
 
 (defn brace-opening-position
+  ; @links
+  ; [cljc-syntax-interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter)
+  ;
   ; @description
   ; - Returns the opening position of the first brace pair in the given 'n' string.
   ; - By default, it ignores commented and quoted parts of the string.
   ;
   ; @param (string) n
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -68,7 +71,6 @@
   ;  [:regex-pattern #"\#\"" #"(?<=[^\\])\"" {:accepted-children []}]
   ;  [:string        #"\""   #"(?<=[^\\])\"" {:accepted-children []}]]
   ; @param (map)(opt) options
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :offset (integer)(opt)
@@ -96,13 +98,15 @@
    (search.engine/tag-opening-position n [:brace #"\{" #"\}"] tags options)))
 
 (defn brace-closing-position
+  ; @links
+  ; [cljc-syntax-interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter)
+  ;
   ; @description
   ; - Returns the closing position of the first brace pair in the given 'n' string.
   ; - By default, it ignores commented and quoted parts of the string.
   ;
   ; @param (string) n
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -113,7 +117,6 @@
   ;  [:regex-pattern #"\#\"" #"(?<=[^\\])\"" {:accepted-children []}]
   ;  [:string        #"\""   #"(?<=[^\\])\"" {:accepted-children []}]]
   ; @param (map)(opt) options
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :offset (integer)(opt)
@@ -141,13 +144,15 @@
    (search.engine/tag-closing-position n [:brace #"\{" #"\}"] tags options)))
 
 (defn brace-ending-position
+  ; @links
+  ; [cljc-syntax-interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter)
+  ;
   ; @description
   ; - Returns the ending position of the first brace pair in the given 'n' string.
   ; - By default, it ignores commented and quoted parts of the string.
   ;
   ; @param (string) n
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -158,7 +163,6 @@
   ;  [:regex-pattern #"\#\"" #"(?<=[^\\])\"" {:accepted-children []}]
   ;  [:string        #"\""   #"(?<=[^\\])\"" {:accepted-children []}]]
   ; @param (map)(opt) options
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :offset (integer)(opt)
@@ -189,13 +193,15 @@
 ;; ----------------------------------------------------------------------------
 
 (defn bracket-starting-position
+  ; @links
+  ; [cljc-syntax-interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter)
+  ;
   ; @description
   ; - Returns the starting position of the first bracket pair in the given 'n' string.
   ; - By default, it ignores commented and quoted parts of the string.
   ;
   ; @param (string) n
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -206,7 +212,6 @@
   ;  [:regex-pattern #"\#\"" #"(?<=[^\\])\"" {:accepted-children []}]
   ;  [:string        #"\""   #"(?<=[^\\])\"" {:accepted-children []}]]
   ; @param (map)(opt) options
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :offset (integer)(opt)
@@ -234,13 +239,15 @@
    (search.engine/tag-starting-position n [:bracket #"\[" #"\]"] tags options)))
 
 (defn bracket-opening-position
+  ; @links
+  ; [cljc-syntax-interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter)
+  ;
   ; @description
   ; - Returns the opening position of the first bracket pair in the given 'n' string.
   ; - By default, it ignores commented and quoted parts of the string.
   ;
   ; @param (string) n
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -251,7 +258,6 @@
   ;  [:regex-pattern #"\#\"" #"(?<=[^\\])\"" {:accepted-children []}]
   ;  [:string        #"\""   #"(?<=[^\\])\"" {:accepted-children []}]]
   ; @param (map)(opt) options
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :offset (integer)(opt)
@@ -279,13 +285,15 @@
    (search.engine/tag-opening-position n [:bracket #"\[" #"\]"] tags options)))
 
 (defn bracket-closing-position
+  ; @links
+  ; [cljc-syntax-interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter)
+  ;
   ; @description
   ; - Returns the closing position of the first bracket pair in the given 'n' string.
   ; - By default, it ignores commented and quoted parts of the string.
   ;
   ; @param (string) n
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -296,7 +304,6 @@
   ;  [:regex-pattern #"\#\"" #"(?<=[^\\])\"" {:accepted-children []}]
   ;  [:string        #"\""   #"(?<=[^\\])\"" {:accepted-children []}]]
   ; @param (map)(opt) options
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :offset (integer)(opt)
@@ -324,13 +331,15 @@
    (search.engine/tag-closing-position n [:bracket #"\[" #"\]"] tags options)))
 
 (defn bracket-ending-position
+  ; @links
+  ; [cljc-syntax-interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter)
+  ;
   ; @description
   ; - Returns the ending position of the first bracket pair in the given 'n' string.
   ; - By default, it ignores commented and quoted parts of the string.
   ;
   ; @param (string) n
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -341,7 +350,6 @@
   ;  [:regex-pattern #"\#\"" #"(?<=[^\\])\"" {:accepted-children []}]
   ;  [:string        #"\""   #"(?<=[^\\])\"" {:accepted-children []}]]
   ; @param (map)(opt) options
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :offset (integer)(opt)
@@ -372,13 +380,15 @@
 ;; ----------------------------------------------------------------------------
 
 (defn paren-starting-position
+  ; @links
+  ; [cljc-syntax-interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter)
+  ;
   ; @description
   ; - Returns the starting position of the first parenthesis pair in the given 'n' string.
   ; - By default, it ignores commented and quoted parts of the string.
   ;
   ; @param (string) n
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -389,7 +399,6 @@
   ;  [:regex-pattern #"\#\"" #"(?<=[^\\])\"" {:accepted-children []}]
   ;  [:string        #"\""   #"(?<=[^\\])\"" {:accepted-children []}]]
   ; @param (map)(opt) options
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :offset (integer)(opt)
@@ -417,13 +426,15 @@
    (search.engine/tag-starting-position n [:paren #"\(" #"\)"] tags options)))
 
 (defn paren-opening-position
+  ; @links
+  ; [cljc-syntax-interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter)
+  ;
   ; @description
   ; - Returns the opening position of the first parenthesis pair in the given 'n' string.
   ; - By default, it ignores commented and quoted parts of the string.
   ;
   ; @param (string) n
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -434,7 +445,6 @@
   ;  [:regex-pattern #"\#\"" #"(?<=[^\\])\"" {:accepted-children []}]
   ;  [:string        #"\""   #"(?<=[^\\])\"" {:accepted-children []}]]
   ; @param (map)(opt) options
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :offset (integer)(opt)
@@ -462,13 +472,15 @@
    (search.engine/tag-opening-position n [:paren #"\(" #"\)"] tags options)))
 
 (defn paren-closing-position
+  ; @links
+  ; [cljc-syntax-interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter)
+  ;
   ; @description
   ; - Returns the closing position of the first parenthesis pair in the given 'n' string.
   ; - By default, it ignores commented and quoted parts of the string.
   ;
   ; @param (string) n
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -479,7 +491,6 @@
   ;  [:regex-pattern #"\#\"" #"(?<=[^\\])\"" {:accepted-children []}]
   ;  [:string        #"\""   #"(?<=[^\\])\"" {:accepted-children []}]]
   ; @param (map)(opt) options
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :offset (integer)(opt)
@@ -507,13 +518,15 @@
    (search.engine/tag-closing-position n [:paren #"\(" #"\)"] tags options)))
 
 (defn paren-ending-position
+  ; @links
+  ; [cljc-syntax-interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter)
+  ;
   ; @description
   ; - Returns the ending position of the first parenthesis pair in the given 'n' string.
   ; - By default, it ignores commented and quoted parts of the string.
   ;
   ; @param (string) n
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -524,7 +537,6 @@
   ;  [:regex-pattern #"\#\"" #"(?<=[^\\])\"" {:accepted-children []}]
   ;  [:string        #"\""   #"(?<=[^\\])\"" {:accepted-children []}]]
   ; @param (map)(opt) options
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :offset (integer)(opt)

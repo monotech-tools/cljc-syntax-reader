@@ -7,12 +7,14 @@
 ;; ----------------------------------------------------------------------------
 
 (defn remove-tags
+  ; @links
+  ; [cljc-syntax-interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter)
+  ;
   ; @description
   ; Removes the given tags from the given 'n' string.
   ;
   ; @param (string) n
   ; @param (vectors in vector)(in decreasing priority order) tags
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -21,7 +23,6 @@
   ;      If TRUE, it keeps track of the tag but does not remove it.
   ;      Default: false}]]
   ; @param (map)(opt) options
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:keep-indents? (boolean)(opt)
   ;   Default: false
   ;  :remove-leftover-blank-lines? (boolean)(opt)

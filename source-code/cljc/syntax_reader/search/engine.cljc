@@ -8,6 +8,9 @@
 ;; ----------------------------------------------------------------------------
 
 (defn tag-starting-position
+  ; @links
+  ; [cljc-syntax-interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter)
+  ;
   ; @description
   ; - Returns the starting position of the given searched tag in the given 'n' string.
   ; - By default, it ignores commented and quoted parts of the string.
@@ -19,7 +22,6 @@
   ;  (regex pattern)(opt) closing-pattern
   ;  (map)(opt) options]
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -30,7 +32,6 @@
   ;  [:regex-pattern #"\#\"" #"\"" {:accepted-children []}]
   ;  [:string        #"\""   #"\"" {:accepted-children []}]]
   ; @param (map)(opt) options
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :offset (integer)(opt)
@@ -70,6 +71,9 @@
                (syntax-interpreter/interpreter n f0 nil tags options)))))
 
 (defn tag-opening-position
+  ; @links
+  ; [cljc-syntax-interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter)
+  ;
   ; @description
   ; - Returns the opening position of the given searched tag in the given 'n' string.
   ; - By default, it ignores commented and quoted parts of the string.
@@ -81,7 +85,6 @@
   ;  (regex pattern)(opt) closing-pattern
   ;  (map)(opt) options]
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -92,7 +95,6 @@
   ;  [:regex-pattern #"\#\"" #"\"" {:accepted-children []}]
   ;  [:string        #"\""   #"\"" {:accepted-children []}]]
   ; @param (map)(opt) options
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :offset (integer)(opt)
@@ -132,6 +134,9 @@
                (syntax-interpreter/interpreter n f0 nil tags options)))))
 
 (defn tag-closing-position
+  ; @links
+  ; [cljc-syntax-interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter)
+  ;
   ; @description
   ; - Returns the closing position of the given searched tag in the given 'n' string.
   ; - By default, it ignores commented and quoted parts of the string.
@@ -143,7 +148,6 @@
   ;  (regex pattern)(opt) closing-pattern
   ;  (map)(opt) options]
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -154,7 +158,6 @@
   ;  [:regex-pattern #"\#\"" #"\"" {:accepted-children []}]
   ;  [:string        #"\""   #"\"" {:accepted-children []}]]
   ; @param (map)(opt) options
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :offset (integer)(opt)
@@ -195,6 +198,9 @@
                (syntax-interpreter/interpreter n f0 nil tags options)))))
 
 (defn tag-ending-position
+  ; @links
+  ; [cljc-syntax-interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter)
+  ;
   ; @description
   ; - Returns the ending position of the given searched tag in the given 'n' string.
   ; - By default, it ignores commented and quoted parts of the string.
@@ -206,7 +212,6 @@
   ;  (regex pattern)(opt) closing-pattern
   ;  (map)(opt) options]
   ; @param (vectors in vector)(opt)(in decreasing priority order) tags
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; [[(keyword) tag-name
   ;   (regex pattern) pattern / opening-pattern
   ;   (regex pattern)(opt) closing-pattern
@@ -217,7 +222,6 @@
   ;  [:regex-pattern #"\#\"" #"\"" {:accepted-children []}]
   ;  [:string        #"\""   #"\"" {:accepted-children []}]]
   ; @param (map)(opt) options
-  ; Check out the documentation of the [syntax-interpreter.api/interpreter](https://mt-devtools.github.io/cljc-syntax-interpreter) function.
   ; {:endpoint (integer)(opt)
   ;   Quits searching at the given 'endpoint' position in the given 'n' string.
   ;  :offset (integer)(opt)
